@@ -4,7 +4,7 @@
   <name>blackpearls_nav2_puzzlebot</name>
   <version>0.0.0</version>
   <description>TODO: Package description</description>
-  <maintainer email="faroya@todo.todo">faroya</maintainer>
+  <maintainer email="A01706636@tec.mx">Fabian Erubiel Rojas Yanez</maintainer>
   <license>TODO: License declaration</license>
 
   <depend>rclpy</depend>
