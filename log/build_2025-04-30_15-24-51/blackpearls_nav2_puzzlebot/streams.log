@@ -1,0 +1,25 @@
+[0.667s] Invoking command in '/home/tony/PerlasNegras': PYTHONPATH=/home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/blackpearls_nav2_puzzlebot build --build-base /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build install --record /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/install.log --single-version-externally-managed install_data
+[0.902s] running egg_info
+[0.903s] writing build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/PKG-INFO
+[0.903s] writing dependency_links to build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/dependency_links.txt
+[0.903s] writing entry points to build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/entry_points.txt
+[0.903s] writing requirements to build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/requires.txt
+[0.903s] writing top-level names to build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/top_level.txt
+[0.904s] reading manifest file 'build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/SOURCES.txt'
+[0.905s] adding license file 'LICENSE'
+[0.905s] writing manifest file 'build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/SOURCES.txt'
+[0.906s] running build
+[0.906s] running build_py
+[0.906s] running install
+[0.906s] running install_lib
+[0.907s] running install_data
+[0.907s] creating /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/launch
+[0.907s] copying launch/blackpearls_launch.py -> /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/launch
+[0.907s] creating /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/config
+[0.907s] creating /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/rviz
+[0.907s] running install_egg_info
+[0.909s] removing '/home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot-0.0.0-py3.10.egg-info' (and everything under it)
+[0.909s] Copying build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info to /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot-0.0.0-py3.10.egg-info
+[0.910s] running install_scripts
+[0.929s] writing list of installed files to '/home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/install.log'
+[0.952s] Invoked command in '/home/tony/PerlasNegras' returned '0': PYTHONPATH=/home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base build/blackpearls_nav2_puzzlebot build --build-base /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build install --record /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/install.log --single-version-externally-managed install_data

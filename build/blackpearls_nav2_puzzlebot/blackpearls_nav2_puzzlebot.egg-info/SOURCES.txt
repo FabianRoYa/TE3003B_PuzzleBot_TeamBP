@@ -1,3 +1,5 @@
+LICENSE
+README.md
 package.xml
 setup.cfg
 setup.py
@@ -9,6 +11,7 @@ build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/entry_point
 build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/requires.txt
 build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/top_level.txt
 build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/zip-safe
+launch/blackpearls_launch.py
 resource/blackpearls_nav2_puzzlebot
 test/test_copyright.py
 test/test_flake8.py
