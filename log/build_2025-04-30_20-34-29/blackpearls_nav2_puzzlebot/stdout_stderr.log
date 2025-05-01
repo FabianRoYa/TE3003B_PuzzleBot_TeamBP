@@ -1,0 +1,55 @@
+running egg_info
+creating ../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info
+writing ../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/PKG-INFO
+writing dependency_links to ../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/dependency_links.txt
+writing entry points to ../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/entry_points.txt
+writing requirements to ../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/requires.txt
+writing top-level names to ../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/top_level.txt
+writing manifest file '../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/SOURCES.txt'
+reading manifest file '../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file '../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build
+creating /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build/lib
+creating /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build/lib/blackpearls_nav2_puzzlebot
+copying blackpearls_nav2_puzzlebot/shapeDrawer.py -> /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build/lib/blackpearls_nav2_puzzlebot
+copying blackpearls_nav2_puzzlebot/localisation.py -> /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build/lib/blackpearls_nav2_puzzlebot
+copying blackpearls_nav2_puzzlebot/joint_state_publisher.py -> /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build/lib/blackpearls_nav2_puzzlebot
+copying blackpearls_nav2_puzzlebot/__init__.py -> /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build/lib/blackpearls_nav2_puzzlebot
+copying blackpearls_nav2_puzzlebot/puzzlebot_sim.py -> /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build/lib/blackpearls_nav2_puzzlebot
+copying blackpearls_nav2_puzzlebot/point_stabilisation_controller.py -> /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build/lib/blackpearls_nav2_puzzlebot
+running install
+running install_lib
+creating /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot
+copying /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build/lib/blackpearls_nav2_puzzlebot/shapeDrawer.py -> /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot
+copying /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build/lib/blackpearls_nav2_puzzlebot/localisation.py -> /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot
+copying /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build/lib/blackpearls_nav2_puzzlebot/joint_state_publisher.py -> /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot
+copying /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build/lib/blackpearls_nav2_puzzlebot/__init__.py -> /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot
+copying /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build/lib/blackpearls_nav2_puzzlebot/puzzlebot_sim.py -> /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot
+copying /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build/lib/blackpearls_nav2_puzzlebot/point_stabilisation_controller.py -> /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot
+byte-compiling /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot/shapeDrawer.py to shapeDrawer.cpython-310.pyc
+byte-compiling /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot/localisation.py to localisation.cpython-310.pyc
+byte-compiling /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot/joint_state_publisher.py to joint_state_publisher.cpython-310.pyc
+byte-compiling /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot/puzzlebot_sim.py to puzzlebot_sim.cpython-310.pyc
+byte-compiling /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot/point_stabilisation_controller.py to point_stabilisation_controller.cpython-310.pyc
+running install_data
+creating /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/ament_index
+creating /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/ament_index/resource_index
+creating /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/ament_index/resource_index/packages
+copying resource/blackpearls_nav2_puzzlebot -> /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/ament_index/resource_index/packages
+copying package.xml -> /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot
+creating /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/launch
+copying launch/blackpearls_launch.py -> /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/launch
+creating /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/config
+creating /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/rviz
+running install_egg_info
+Copying ../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info to /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot-0.0.0-py3.10.egg-info
+running install_scripts
+Installing JointStatePublisher script to /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/blackpearls_nav2_puzzlebot
+Installing Localisation script to /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/blackpearls_nav2_puzzlebot
+Installing PointStabilisationController script to /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/blackpearls_nav2_puzzlebot
+Installing puzzlebot_sim script to /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/blackpearls_nav2_puzzlebot
+writing list of installed files to '/home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/install.log'

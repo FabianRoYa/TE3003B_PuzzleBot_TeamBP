@@ -25,6 +25,11 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'JointStatePublisher = blackpearls_nav2_puzzlebot.joint_state_publisher:main',
+            'puzzlebot_sim = blackpearls_nav2_puzzlebot.puzzlebot_sim:main',
+            'PointStabilisationController = blackpearls_nav2_puzzlebot.point_stabilisation_controller:main',
+            'Localisation = blackpearls_nav2_puzzlebot.localisation:main',
+            ''
         ],
     },
 )
