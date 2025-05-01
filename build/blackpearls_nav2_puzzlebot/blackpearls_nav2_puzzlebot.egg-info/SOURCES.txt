@@ -18,7 +18,11 @@ blackpearls_nav2_puzzlebot/puzzlebot_sim.py
 blackpearls_nav2_puzzlebot/shapeDrawer.py
 launch/blackpearls_launch.py
 launch/blackpearls_sim_launch.py
+meshes/Puzzlebot_Caster_Wheel.stl
+meshes/Puzzlebot_Jetson_Lidar_Edition_Base.stl
+meshes/Puzzlebot_Wheel.stl
 resource/blackpearls_nav2_puzzlebot
 test/test_copyright.py
 test/test_flake8.py
 test/test_pep257.py
+urdf/puzzlebot.urdf

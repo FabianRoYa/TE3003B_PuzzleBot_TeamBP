@@ -14,22 +14,24 @@ setup(
         ('share/' + package_name, ['package.xml']),
         (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*'))),
         (os.path.join('share', package_name, 'config'), glob(os.path.join('config', '*.[yma]*'))),
-        (os.path.join('share', package_name, 'rviz'), glob(os.path.join('rviz', '*.rviz')))
+        (os.path.join('share', package_name, 'rviz'), glob(os.path.join('rviz', '*.rviz'))),
+        (os.path.join('share', package_name, 'meshes'), glob(os.path.join('meshes', '*.stl'))), # Odio Ros
+        (os.path.join('share', package_name, 'urdf'), glob(os.path.join('urdf', '*.urdf'))),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='Fabian Erubiel Rojas Yañez A01706636',
-    maintainer_email='A01706636@tec.mx',
+    maintainer='Fabian Erubiel Rojas Yañez A01706636\nJose Antonio Miranda Banos ,A01706636\nLuis Fernando Gonzalez Garcia, A01706636\nLuis Fernando Gonzalez Garcia, A01611795',
+    maintainer_email='A01706636@tec.mx\nA01611795@tec.mx',
     description='TODO: Package description',
     license='TODO: License declaration',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'JointStatePublisher = blackpearls_nav2_puzzlebot.joint_state_publisher:main',
+            'joint_state_publisher = blackpearls_nav2_puzzlebot.joint_state_publisher:main',
             'puzzlebot_sim = blackpearls_nav2_puzzlebot.puzzlebot_sim:main',
-            'PointStabilisationController = blackpearls_nav2_puzzlebot.point_stabilisation_controller:main',
-            'Localisation = blackpearls_nav2_puzzlebot.localisation:main',
-            ''
+            'point_stabilisation_controller = blackpearls_nav2_puzzlebot.point_stabilisation_controller:main',
+            'localisation = blackpearls_nav2_puzzlebot.localisation:main',
+            'shapeDrawer = blackpearls_nav2_puzzlebot.shapeDrawer:main',
         ],
     },
 )

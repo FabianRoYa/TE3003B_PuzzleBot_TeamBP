@@ -8,7 +8,7 @@ from rclpy import qos
 import numpy as np 
 import transforms3d 
 
-class Localisation(Node): 
+class localisation(Node): 
 
     def __init__(self): 
         super().__init__('localisation') 
@@ -105,7 +105,7 @@ class Localisation(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = Localisation()
+    node = localisation()
     
     try:
         rclpy.spin(node)
