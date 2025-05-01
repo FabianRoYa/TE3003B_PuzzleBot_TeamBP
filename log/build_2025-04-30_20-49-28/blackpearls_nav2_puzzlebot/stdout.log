@@ -1,14 +1,14 @@
 running egg_info
-creating ../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info
-writing ../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/PKG-INFO
-writing dependency_links to ../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/dependency_links.txt
-writing entry points to ../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/entry_points.txt
-writing requirements to ../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/requires.txt
-writing top-level names to ../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/top_level.txt
-writing manifest file '../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/SOURCES.txt'
-reading manifest file '../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/SOURCES.txt'
+creating ../../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info
+writing ../../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/PKG-INFO
+writing dependency_links to ../../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/dependency_links.txt
+writing entry points to ../../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/entry_points.txt
+writing requirements to ../../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/requires.txt
+writing top-level names to ../../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/top_level.txt
+writing manifest file '../../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/SOURCES.txt'
+reading manifest file '../../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/SOURCES.txt'
 adding license file 'LICENSE'
-writing manifest file '../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/SOURCES.txt'
+writing manifest file '../../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info/SOURCES.txt'
 running build
 running build_py
 creating /home/tony/PerlasNegras/build/blackpearls_nav2_puzzlebot/build
@@ -43,10 +43,11 @@ copying resource/blackpearls_nav2_puzzlebot -> /home/tony/PerlasNegras/install/b
 copying package.xml -> /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot
 creating /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/launch
 copying launch/blackpearls_launch.py -> /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/launch
+copying launch/blackpearls_sim_launch.py -> /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/launch
 creating /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/config
 creating /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/rviz
 running install_egg_info
-Copying ../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info to /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot-0.0.0-py3.10.egg-info
+Copying ../../build/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot.egg-info to /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot-0.0.0-py3.10.egg-info
 running install_scripts
 Installing JointStatePublisher script to /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/blackpearls_nav2_puzzlebot
 Installing Localisation script to /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/blackpearls_nav2_puzzlebot
