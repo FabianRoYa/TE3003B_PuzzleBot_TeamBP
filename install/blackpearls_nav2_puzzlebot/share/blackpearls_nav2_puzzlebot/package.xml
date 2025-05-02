@@ -5,19 +5,35 @@
   <version>0.0.0</version>
   <description>TODO: Package description</description>
   <maintainer email="A01706636@tec.mx">Fabian Erubiel Rojas Yanez</maintainer>
-  <license>TODO: License declaration</license>
+  <license>Apache-2.0</license>
 
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
   <depend>geometry_msgs</depend>
-  <depend>ros2launch</depend>
+
   <depend>tf2_ros_py</depend>
   <depend>python3-numpy</depend>
   <depend>python3-transforms3d</depend>
   <depend>rclpy</depend>
   <depend>robot_state_publisher</depend>
   <depend>joint_state_publisher_gui</depend>
-  <depend>urdf</depend>
+
+
+  <!-- Agrega esto -->
+  <depend>launch_ros</depend>
+  <depend>urdfdom</depend>
+  <depend>rosidl_default_generators</depend>
+
+  <depend>turtlebot3_gazebo</depend>
+
+  <!-- Dependencias de Gazebo -->
+  <depend>gazebo_ros_pkgs</depend>
+  <depend>gazebo_ros</depend>
+  <depend>gazebo_dev</depend>
+  <!-- Dependencias de Nav2 -->
+  <depend>nav2_bringup</depend>
+  <depend>slam_toolbox</depend>
+  <depend>navigation2</depend>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>

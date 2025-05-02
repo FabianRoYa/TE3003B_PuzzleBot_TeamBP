@@ -39,12 +39,7 @@ def generate_launch_description():
     )
 
 
-# Get the path to the package directory
-    urdf_file_name = 'puzzlebot.urdf'
-    urdf = os.path.join(
-        get_package_share_directory('puzzlebot_sim'),
-        'urdf',
-        urdf_file_name)
+
     
    
 #############################################
