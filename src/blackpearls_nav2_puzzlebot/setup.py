@@ -18,6 +18,8 @@ setup(
         (os.path.join('share', package_name, 'meshes'), glob(os.path.join('meshes', '*.stl'))), # Odio Ros
         (os.path.join('share', package_name, 'urdf'), glob(os.path.join('urdf', '*.urdf'))),
         (os.path.join('share', package_name, 'worlds'), glob(os.path.join('worlds', '*.world'))),
+        (os.path.join('share', package_name, 'rviz/mapping'), glob('rviz/mapping/*.rviz')),
+        (os.path.join('share', package_name, 'rviz/navigation'), glob('rviz/navigation/*.rviz')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

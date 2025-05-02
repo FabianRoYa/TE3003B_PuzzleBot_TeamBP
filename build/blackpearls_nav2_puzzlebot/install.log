@@ -15,6 +15,7 @@
 /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/launch/blackpearls_map_launch.py
 /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/launch/blackpearls_launch.py
 /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/launch/blackpearls_sim_launch.py
+/home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/launch/blackpearls_rviz_launch.py
 /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/config
 /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/rviz
 /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/meshes/Puzzlebot_Wheel.stl
@@ -22,6 +23,8 @@
 /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/meshes/Puzzlebot_Caster_Wheel.stl
 /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/urdf/puzzlebot.urdf
 /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/worlds/world.world
+/home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/rviz/mapping
+/home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/share/blackpearls_nav2_puzzlebot/rviz/navigation
 /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot-0.0.0-py3.10.egg-info/dependency_links.txt
 /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot-0.0.0-py3.10.egg-info/entry_points.txt
 /home/tony/PerlasNegras/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages/blackpearls_nav2_puzzlebot-0.0.0-py3.10.egg-info/zip-safe
