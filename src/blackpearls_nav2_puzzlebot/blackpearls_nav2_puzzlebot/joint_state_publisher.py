@@ -15,42 +15,28 @@ class JointStatePublisher(Node):
         super().__init__('joint_state_publisher')
         
         # Configuration parameters
-        self.wheel_radius = 0.05  # Same as localization node
         self.base_height = 0.05   # Height from base_link to ground
+        self.wheel_radius = 0.05  # Same as localization node
         
         # Setup publishers and timers
-        self.joint_pub = self.create_publisher(JointState, '/joint_states', 10)
         self.tf_static_broadcaster = StaticTransformBroadcaster(self)
         self.tf_broadcaster = TransformBroadcaster(self)
+        self.joint_pub = self.create_publisher(JointState, '/joint_states', 10)
         self.create_timer(0.02, self.timer_callback)
         self.publish_static_transforms()
         
         # Subscribers
         # Corrected subscription to Odometry
-        self.odom_sub = self.create_subscription(
-            Odometry,  # Changed from JointState to Odometry
-            '/odom',
-            self.odom_callback,
-            qos.qos_profile_sensor_data
-            
-        )
-        self.wr_sub = self.create_subscription(
-            Float32, 
-            'wr', 
-            self.wr_callback, 
-            qos.qos_profile_sensor_data
-        )
-        self.wl_sub = self.create_subscription(
-            Float32, 
-            'wl', 
-            self.wl_callback, 
-            qos.qos_profile_sensor_data
-        )
+        self.odom_sub = self.create_subscription(Odometry,'/odom', self.odom_callback, qos.qos_profile_sensor_data)
+        # Changed from JointState to Odometry
+        self.wr_sub = self.create_subscription(Float32, 'wr', self.wr_callback, qos.qos_profile_sensor_data)
+        self.wl_sub = self.create_subscription(Float32, 'wl', self.wl_callback, qos.qos_profile_sensor_data)
         
-        self.x = 0.0
-        self.y = 0.0
+        #Inicializamos los valores de las ruedas r y l en 0 además de los de las X y Y
         self.wr = 0.0
         self.wl = 0.0
+        self.x = 0.0
+        self.y = 0.0
         # self.theta = 0.0
         self.q = None
         # Joint state initialization
@@ -59,14 +45,16 @@ class JointStatePublisher(Node):
         self.joint_state.position = [0.0, 0.0]
         self.joint_state.velocity = [0.0, 0.0]
         self.joint_state.effort = [0.0, 0.0]
-        
+
+        #Actualizamos el tiempo
         self.start_time = self.get_clock().now().nanoseconds /1e9
     def quaternion_to_yaw(self, q):
         # Convert geometry_msgs/Quaternion to yaw angle
         quat = [q.x, q.y, q.z, q.w]
         euler = transforms3d.euler.quat2euler(quat, 'sxyz')
         return euler[2]  # Yaw is the third component
-
+        
+        #Actualizamos los valores X y Y con con la actualizacion de los mensajes en su variable
     def odom_callback(self, msg):
         self.x = msg.pose.pose.position.x
         self.y = msg.pose.pose.position.y  # Corrected from .x to .y
@@ -120,7 +108,7 @@ class JointStatePublisher(Node):
         dt = current_time - self.start_time
         self.start_time=current_time    
         
-        # Update joint positions and velocities with real data
+        # Actualizamos nuestras variables vacias con los datos recibidos
         self.joint_state.header.stamp = self.get_clock().now().to_msg()
         self.joint_state.position[0] = (self.joint_state.position[0] + self.wl * dt) % (2 * np.pi)
         self.joint_state.position[1] = (self.joint_state.position[1] + self.wr * dt) % (2 * np.pi)
