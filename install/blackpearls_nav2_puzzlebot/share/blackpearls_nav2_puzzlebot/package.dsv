@@ -1,6 +1,0 @@
-source;share/blackpearls_nav2_puzzlebot/hook/pythonpath.ps1
-source;share/blackpearls_nav2_puzzlebot/hook/pythonpath.dsv
-source;share/blackpearls_nav2_puzzlebot/hook/pythonpath.sh
-source;share/blackpearls_nav2_puzzlebot/hook/ament_prefix_path.ps1
-source;share/blackpearls_nav2_puzzlebot/hook/ament_prefix_path.dsv
-source;share/blackpearls_nav2_puzzlebot/hook/ament_prefix_path.sh
