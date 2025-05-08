@@ -4,31 +4,30 @@ from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
 from launch.actions import LogInfo, IncludeLaunchDescription, DeclareLaunchArgument
-from launch_ros.actions import Node
-from launch.launch_description_sources import PythonLaunchDescriptionSource
-from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
-from launch_ros.substitutions import FindPackageShare
 from launch.conditions import IfCondition
-from launch.substitutions import PythonExpression
+from launch.substitutions import LaunchConfiguration, PythonExpression, PathJoinSubstitution
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.actions import Node
+from launch_ros.substitutions import FindPackageShare
+
 
 def generate_launch_description():
     pkg_share = get_package_share_directory('blackpearls_nav2_puzzlebot')
-    
-    # Argumento 'mode' (opcional, sólo si quieres condicionar)
-    mode = LaunchConfiguration('mode', default='all')
-    # Puedes usar valores: 'all', 'sim', 'map', 'rviz'
+
+    # Argumento 'mode' para seleccionar perfil: 'sim', 'map' o 'nav'
+    mode = LaunchConfiguration('mode')
 
     # Rutas a archivos y configs
-    world_file = os.path.join(pkg_share, 'worlds', 'modulo3_world.world')
+    world_file = os.path.join(pkg_share, 'worlds', 'world.world')
     mapping_rviz_config    = os.path.join(pkg_share, 'rviz', 'map.rviz')
     navigation_rviz_config = os.path.join(pkg_share, 'rviz', 'nav.rviz')
 
-    # Launch files auxiliares
+    # Rutas a lanzadores auxiliares
     sim_launch  = os.path.join(pkg_share, 'launch', 'blackpearls_sim_launch.py')
     map_launch  = os.path.join(pkg_share, 'launch', 'blackpearls_map_launch.py')
     rviz_launch = os.path.join(pkg_share, 'launch', 'blackpearls_rviz_launch.py')
 
-    # 1) Incluimos el launch oficial de gazebo_ros con tu world
+    # Include para Gazebo usando el launch oficial de gazebo_ros
     gazebo_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
             PathJoinSubstitution([
@@ -43,49 +42,49 @@ def generate_launch_description():
         }.items(),
     )
 
-    # 2) Definimos nodos de RViz “manuales” (si aún los quieres usar)
+    # Nodos RViz condicionales según 'mode'
     rviz_mapping = Node(
         package='rviz2', executable='rviz2', name='rviz_mapping',
-        arguments=['-d', mapping_rviz_config], output='screen'
+        arguments=['-d', mapping_rviz_config], output='screen',
+        condition=IfCondition(PythonExpression(["'", mode, "' == 'map' or '", mode, "' == 'all' "]))
     )
     rviz_navigation = Node(
         package='rviz2', executable='rviz2', name='rviz_navigation',
-        arguments=['-d', navigation_rviz_config], output='screen'
+        arguments=['-d', navigation_rviz_config], output='screen',
+        condition=IfCondition(PythonExpression(["'", mode, "' == 'nav' or '", mode, "' == 'all' "]))
     )
 
-    # 3) Construimos la descripción de lanzamiento
     ld = LaunchDescription([
-        # (Opcional) argumento para condicionar
+        # Definición del parámetro 'mode'
         DeclareLaunchArgument(
             'mode', default_value='all',
-            description="Choose 'all', 'sim', 'map' or 'rviz'"
+            description="Mode for launch: 'sim', 'map', 'nav' or 'all'"
         ),
 
-        # --- Gazebo ---
+        # Lanzar Gazebo (modo 'sim' o 'all')
         LogInfo(msg=['[MAIN] Launching Gazebo with world: ', world_file]),
-        gazebo_launch,
-
-        # --- Incluye cada sub-launch ---
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(sim_launch),
-            condition=IfCondition(PythonExpression(["'", mode, "' in ['all','sim']"]))
+            condition=IfCondition(PythonExpression(["'", mode, "' in ['sim','all']"]))
         ),
 
+        # Lanzar perfil de mapeo (modo 'map' o 'all')
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(map_launch),
-            condition=IfCondition(PythonExpression(["'", mode, "' in ['all','map']"]))
+            condition=IfCondition(PythonExpression(["'", mode, "' in ['map','all']"]))
         ),
 
+        # Lanzar perfil de RViz completo (modo 'nav' o 'all')
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(rviz_launch),
-            condition=IfCondition(PythonExpression(["'", mode, "' in ['all','rviz']"]))
+            condition=IfCondition(PythonExpression(["'", mode, "' in ['nav','all']"]))
         ),
 
-        # --- (Opcional) tus nodos RViz “manuales” si prefieres sobre el rviz_launch.py ---
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(rviz_launch),
-            condition=IfCondition(PythonExpression(["'", mode, "' == 'all'"]))
-        ),
+        # Alternativamente, lanzar Nodes RViz manueales según mode
+        rviz_mapping,
+        rviz_navigation,
+
+        LogInfo(msg=["[MAIN] RViz mode: ", mode]),
     ])
 
     return ld
