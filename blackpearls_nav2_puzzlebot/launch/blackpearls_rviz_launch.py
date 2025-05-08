@@ -1,56 +1,63 @@
+#!/usr/bin/env python3
+
+import os
+
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-from launch.conditions import IfCondition  # Importación crítica faltante
+from launch.conditions import IfCondition
 
 def generate_launch_description():
     pkg_name = 'blackpearls_nav2_puzzlebot'
-    
-    # Declarar argumentos de lanzamiento
+
+    # Argumentos de lanzamiento
     mapping_arg = DeclareLaunchArgument(
         'mapping',
         default_value='true',
         description='Habilita RVIZ para mapeo'
     )
-    
     navigation_arg = DeclareLaunchArgument(
         'navigation',
         default_value='true',
         description='Habilita RVIZ para navegación'
     )
 
-    # Configurar paths
-    rviz_mapping_config = PathJoinSubstitution([FindPackageShare(pkg_name), 'rviz', 'mapping', 'mapping_config.rviz'])
-    rviz_nav_config = PathJoinSubstitution([FindPackageShare(pkg_name), 'rviz', 'navigation', 'navigation_config.rviz'])
+    # Paths a configuraciones RViz y al mundo
+    rviz_mapping_config = PathJoinSubstitution([
+        FindPackageShare(pkg_name),
+        'rviz', 'mapping', 'mapping_config.rviz'
+    ])
+    rviz_nav_config = PathJoinSubstitution([
+        FindPackageShare(pkg_name),
+        'rviz', 'navigation', 'navigation_config.rviz'
+    ])
+    world_path = PathJoinSubstitution([
+        FindPackageShare(pkg_name),
+        'worlds', 'world.world'
+    ])
 
     return LaunchDescription([
         mapping_arg,
         navigation_arg,
 
-        # Gazebo
+        # Lanzar Gazebo Garden (Ignition) usando ros_gz_sim
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 PathJoinSubstitution([
-                    FindPackageShare('gazebo_ros'),
+                    FindPackageShare('ros_gz_sim'),
                     'launch',
-                    'gazebo.launch.py'
+                    'gz_sim.launch.py'
                 ])
             ]),
             launch_arguments={
-                'world': PathJoinSubstitution([
-                    FindPackageShare('blackpearls_nav2_puzzlebot'),  # Reemplaza con tu paquete
-                    'worlds',
-                    'world.world'     # Nombre de tu archivo de mundo
-                ]),
-                'verbose': 'true'
-                }.items()
-            )
-        ,
+                'gz_args': world_path
+            }.items()
+        ),
 
-        # RVIZ Mapping
+        # Nodo RViz para mapeo (si mapping=='true')
         Node(
             package='rviz2',
             executable='rviz2',
@@ -58,10 +65,10 @@ def generate_launch_description():
             output='screen',
             arguments=['-d', rviz_mapping_config],
             parameters=[{'use_sim_time': True}],
-            condition=IfCondition(LaunchConfiguration('mapping'))  # Condición corregida
+            condition=IfCondition(LaunchConfiguration('mapping'))
         ),
 
-        # RVIZ Navigation
+        # Nodo RViz para navegación (si navigation=='true')
         Node(
             package='rviz2',
             executable='rviz2',
@@ -69,6 +76,6 @@ def generate_launch_description():
             output='screen',
             arguments=['-d', rviz_nav_config],
             parameters=[{'use_sim_time': True}],
-            condition=IfCondition(LaunchConfiguration('navigation'))  # Condición corregida
-        )
+            condition=IfCondition(LaunchConfiguration('navigation'))
+        ),
     ])

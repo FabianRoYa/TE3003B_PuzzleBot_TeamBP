@@ -126,6 +126,9 @@
               <name>Gazebo/Grey</name>
             </script>
             <ambient>0.760784 0.662745 0.627451 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
@@ -171,6 +174,9 @@
               <name>Gazebo/Grey</name>
             </script>
             <ambient>1 1 1 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
@@ -216,6 +222,9 @@
               <name>Gazebo/Grey</name>
             </script>
             <ambient>1 1 1 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
@@ -261,6 +270,9 @@
               <name>Gazebo/Grey</name>
             </script>
             <ambient>1 1 1 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
@@ -306,6 +318,9 @@
               <name>Gazebo/Grey</name>
             </script>
             <ambient>1 1 1 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
@@ -351,6 +366,9 @@
               <name>Gazebo/Grey</name>
             </script>
             <ambient>1 1 1 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
@@ -396,6 +414,9 @@
               <name>Gazebo/Grey</name>
             </script>
             <ambient>1 1 1 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
@@ -441,6 +462,9 @@
               <name>Gazebo/Grey</name>
             </script>
             <ambient>1 1 1 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
@@ -486,6 +510,9 @@
               <name>Gazebo/Grey</name>
             </script>
             <ambient>1 1 1 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
@@ -531,6 +558,9 @@
               <name>Gazebo/Grey</name>
             </script>
             <ambient>1 1 1 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
@@ -576,6 +606,9 @@
               <name>Gazebo/Grey</name>
             </script>
             <ambient>1 1 1 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
@@ -621,6 +654,9 @@
               <name>Gazebo/Grey</name>
             </script>
             <ambient>1 1 1 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
@@ -666,6 +702,9 @@
               <name>Gazebo/Grey</name>
             </script>
             <ambient>1 1 1 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
@@ -710,7 +749,10 @@
               <uri>file://media/materials/scripts/gazebo.material</uri>
               <name>Gazebo/Grey</name>
             </script>
-            <ambient>0.760784 0.662745 0.627451 1</ambient>
+            <ambient>1 1 1 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
@@ -756,6 +798,9 @@
               <name>Gazebo/Grey</name>
             </script>
             <ambient>1 1 1 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
@@ -801,6 +846,9 @@
               <name>Gazebo/Grey</name>
             </script>
             <ambient>1 1 1 1</ambient>
+            <diffuse>0.0 0.5 0.5 1</diffuse>
+            <specular>0.1 0.1 0.1 1</specular>
+            <emissive>0.0 0.5 0.5 1</emissive>
           </material>
           <meta>
             <layer>0</layer>
