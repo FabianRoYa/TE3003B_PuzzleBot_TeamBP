@@ -14,7 +14,7 @@ def generate_launch_description():
     with open(urdf_path, 'r') as infp:
         robot_description = infp.read()
 
-    # 2) Publicador de TF a partir de tu URDF
+    # 2) Publicador de TF a partir de URDF
     robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -22,14 +22,14 @@ def generate_launch_description():
         parameters=[{'robot_description': robot_description}]
     )
 
-    # 3) Publicador de joint_states (si lo necesitas)
+    # 3) Publicador de joint_states 
     joint_state_publisher = Node(
         package=pkg,
         executable='joint_state_publisher',
         output='screen'
     )
 
-    # 4) Spawn del robot en el mundo ya levantado
+    # 4) Spawn del robot en el mundo
     spawn_robot = Node(
         package='ros_gz_sim',
         executable='create',
@@ -46,7 +46,7 @@ def generate_launch_description():
         ]
     )
 
-    # 5) Tus nodos de simulación y control
+    # 5) Nodos de simulación y control
     puzzlebot_sim = Node(
         package=pkg,
         executable='puzzlebot_sim',
