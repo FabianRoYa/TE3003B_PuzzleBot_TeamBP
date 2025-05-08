@@ -1,118 +1,107 @@
+#!/usr/bin/env python3
+
 import os
+
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription, SetEnvironmentVariable
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
-from launch.actions import SetEnvironmentVariable
 
-# /home/tony/PerlasNegras/src/blackpearls_nav2_puzzlebot/urdf
 
 def generate_launch_description():
-    urdf_file_name = 'puzzlebot.urdf'
-    urdf = os.path.join(
-        get_package_share_directory('blackpearls_nav2_puzzlebot'),
-        'urdf',
-        urdf_file_name)
-    
-    with open(urdf, 'r') as infp:
-        robot_description = infp.read()
-        print(robot_description)
+    pkg = 'blackpearls_nav2_puzzlebot'
+    pkg_share = get_package_share_directory(pkg)
 
-    # Create the robot_state_publisher node
-    robot_state_pub_node= Node(
+    # 0) Ajustar recurso para mallas: apunta al directorio 'share' padre
+    share_dir = os.path.dirname(pkg_share)
+    set_ign_path = SetEnvironmentVariable(
+        name='IGN_GAZEBO_RESOURCE_PATH',
+        value=share_dir
+    )
+
+    # Rutas
+    world_path = os.path.join(pkg_share, 'worlds', 'world.world')
+    urdf_path = os.path.join(pkg_share, 'urdf', 'puzzlebot.urdf')
+    with open(urdf_path, 'r') as infp:
+        robot_description = infp.read()
+
+    # 1) Gazebo Garden
+    gazebo_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory('ros_gz_sim'),
+                'launch', 'gz_sim.launch.py'
+            )
+        ),
+        launch_arguments={'gz_args': world_path}.items()
+    )
+
+    # 2) URDF → TF
+    robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
-        name='robot_state_publisher',
-        parameters=[{
-            'robot_description': robot_description
-        }],
-        arguments=[urdf],
+        output='screen',
+        parameters=[{'robot_description': robot_description}]
+    )
+
+    # 3) Joint States
+    joint_state_publisher = Node(
+        package=pkg,
+        executable='joint_state_publisher',
         output='screen'
     )
 
-    # Create the joint_state_publisher node
-    joint_state_publisher_node = Node(
-        package='blackpearls_nav2_puzzlebot',
-        executable='joint_state_publisher',
-        name='JointStatePublisher',
+    # 4) Spawn robot
+    spawn_robot = Node(
+        package='ros_gz_sim',
+        executable='create',
         output='screen',
-    )   
-    puzzlebot_sim = Node(
-        package='blackpearls_nav2_puzzlebot',
-        executable='puzzlebot_sim',
-        name='puzzlebot_sim',
-        output='screen',
-    )
-    
-    point_stabilisation_node = Node(
-        package='blackpearls_nav2_puzzlebot',
-        executable='point_stabilisation_controller',
-        name='PointStabilisationController',
-        output='screen',
-    )
-    
-    # /home/tony/PerlasNegras/src/blackpearls_nav2_puzzlebot/blackpearls_nav2_puzzlebot/localisation.py
-    # Create the localization node
-    localisation_node = Node(
-        package='blackpearls_nav2_puzzlebot',
-        executable='localisation',
-        name='Localisation',
-        output='screen',
-    )
-    
-    rviz2_pub_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        # arguments=['-d', os.path.join(get_package_share_directory('puzzlebot_sim'), 'rviz', 'puzzlebot.rviz')],
-        output='screen',
-    )
-    rqt_tf_tree_node = Node(
-        package='rqt_tf_tree',
-        executable='rqt_tf_tree',
-        name='rqt_tf_tree',
-        output='screen',
-    )
-    
-    shape_drawer = Node(
-        package='blackpearls_nav2_puzzlebot',
-        executable='shapeDrawer',
-        name='ShapeDrawer',
-        parameters=[
-            {'shape': 'square'},
-            {'size': 1.0}
+        arguments=[
+            '-topic', 'robot_description',
+            '-name',  'puzzlebot',
+            '-x',     '0.3',
+            '-y',     '0.3',
+            '-z',     '0.0',
+            '-roll',  '0.0',
+            '-pitch', '0.0',
+            '-yaw',   '1.0'
         ]
     )
 
-    rqt_graph_node = Node(  
-        package='rqt_graph',
-        executable='rqt_graph',
-        name='rqt_graph',
-        output='screen',
-        parameters=[{
-            'use_sim_time': True
-        }],
-        remappings=[
-            ('cmd_vel', '/puzzlebot/cmd_vel')
-        ]
+    # 5) Otros nodos
+    puzzlebot_sim = Node(
+        package=pkg,
+        executable='puzzlebot_sim',
+        output='screen'
     )
-    
+    localisation_node = Node(
+        package=pkg,
+        executable='localisation',
+        output='screen'
+    )
+    point_stabilisation_node = Node(
+        package=pkg,
+        executable='point_stabilisation_controller',
+        output='screen'
+    )
+    shape_drawer = Node(
+        package=pkg,
+        executable='shapeDrawer',
+        parameters=[{'shape': 'square'}, {'size': 1.0}],
+        output='screen'
+    )
+
     ld = LaunchDescription([
-         # Modelo Matematico y Odometria
+        set_ign_path,
+        gazebo_launch,
+        robot_state_publisher,
+        joint_state_publisher,
+        spawn_robot,
         puzzlebot_sim,
         localisation_node,
-        
-        # Simulacion
-        robot_state_pub_node,
-        joint_state_publisher_node,
-        rviz2_pub_node,
-        
-        # Debug
-        rqt_tf_tree_node,
-        rqt_graph_node,
-    
-        # Control y Rutinas de movimiento
         point_stabilisation_node,
         shape_drawer,
-    
     ])
+
     return ld
