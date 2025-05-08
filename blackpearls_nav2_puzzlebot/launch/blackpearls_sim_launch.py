@@ -1,43 +1,20 @@
 #!/usr/bin/env python3
-
 import os
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, SetEnvironmentVariable
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch_ros.actions import Node
 
-
 def generate_launch_description():
-    pkg = 'blackpearls_nav2_puzzlebot'
+    pkg       = 'blackpearls_nav2_puzzlebot'
     pkg_share = get_package_share_directory(pkg)
 
-    # 0) Ajustar recurso para mallas: apunta al directorio 'share' padre
-    share_dir = os.path.dirname(pkg_share)
-    set_ign_path = SetEnvironmentVariable(
-        name='IGN_GAZEBO_RESOURCE_PATH',
-        value=share_dir
-    )
-
-    # Rutas
-    world_path = os.path.join(pkg_share, 'worlds', 'world.world')
+    # 1) Leer URDF y preparar robot_description
     urdf_path = os.path.join(pkg_share, 'urdf', 'puzzlebot.urdf')
     with open(urdf_path, 'r') as infp:
         robot_description = infp.read()
 
-    # 1) Gazebo Garden
-    gazebo_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(
-                get_package_share_directory('ros_gz_sim'),
-                'launch', 'gz_sim.launch.py'
-            )
-        ),
-        launch_arguments={'gz_args': world_path}.items()
-    )
-
-    # 2) URDF → TF
+    # 2) Publicador de TF a partir de tu URDF
     robot_state_publisher = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
@@ -45,14 +22,14 @@ def generate_launch_description():
         parameters=[{'robot_description': robot_description}]
     )
 
-    # 3) Joint States
+    # 3) Publicador de joint_states (si lo necesitas)
     joint_state_publisher = Node(
         package=pkg,
         executable='joint_state_publisher',
         output='screen'
     )
 
-    # 4) Spawn robot
+    # 4) Spawn del robot en el mundo ya levantado
     spawn_robot = Node(
         package='ros_gz_sim',
         executable='create',
@@ -69,7 +46,7 @@ def generate_launch_description():
         ]
     )
 
-    # 5) Otros nodos
+    # 5) Tus nodos de simulación y control
     puzzlebot_sim = Node(
         package=pkg,
         executable='puzzlebot_sim',
@@ -80,7 +57,7 @@ def generate_launch_description():
         executable='localisation',
         output='screen'
     )
-    point_stabilisation_node = Node(
+    point_stab_node = Node(
         package=pkg,
         executable='point_stabilisation_controller',
         output='screen'
@@ -92,16 +69,12 @@ def generate_launch_description():
         output='screen'
     )
 
-    ld = LaunchDescription([
-        set_ign_path,
-        gazebo_launch,
+    return LaunchDescription([
         robot_state_publisher,
         joint_state_publisher,
         spawn_robot,
         puzzlebot_sim,
         localisation_node,
-        point_stabilisation_node,
+        point_stab_node,
         shape_drawer,
     ])
-
-    return ld
