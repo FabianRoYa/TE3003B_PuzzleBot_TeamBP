@@ -1,0 +1,24 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/faroya/Desktop/ros2_ws/install/tf_examples/lib/python3.10/site-packages",
+        "/home/faroya/Desktop/ros2_ws/install/puzzlebot_sim_prueba/lib/python3.10/site-packages",
+        "/home/faroya/Desktop/ros2_ws/install/puzzlebot_sim/lib/python3.10/site-packages",
+        "/home/faroya/Desktop/ros2_ws/install/puzzlebot6/lib/python3.10/site-packages",
+        "/home/faroya/Desktop/ros2_ws/install/motor_control/lib/python3.10/site-packages",
+        "/home/faroya/Desktop/ros2_ws/install/link_act/lib/python3.10/site-packages",
+        "/home/faroya/Desktop/ros2_ws/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/faroya/Desktop/ros2_ws/install/tf_examples/lib/python3.10/site-packages",
+        "/home/faroya/Desktop/ros2_ws/install/puzzlebot_sim_prueba/lib/python3.10/site-packages",
+        "/home/faroya/Desktop/ros2_ws/install/puzzlebot_sim/lib/python3.10/site-packages",
+        "/home/faroya/Desktop/ros2_ws/install/puzzlebot6/lib/python3.10/site-packages",
+        "/home/faroya/Desktop/ros2_ws/install/motor_control/lib/python3.10/site-packages",
+        "/home/faroya/Desktop/ros2_ws/install/link_act/lib/python3.10/site-packages",
+        "/home/faroya/Desktop/ros2_ws/install/blackpearls_nav2_puzzlebot/lib/python3.10/site-packages",
+        "/opt/ros/humble/lib/python3.10/site-packages",
+        "/opt/ros/humble/local/lib/python3.10/dist-packages"
+    ]
+}

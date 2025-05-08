@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<robot name="Puzzlebot_Jetson_Lidar_Ed.">
+
+  <!--LINKS-->
+  <link name="base_footprint"/>
+  
+  <link name="base_link">
+    <visual>
+      <geometry>
+      
+        <mesh filename="package://blackpearls_nav2_puzzlebot/meshes/Puzzlebot_Jetson_Lidar_Edition_Base.stl"/> 
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="wheel_left">
+    <visual>
+     <origin xyz="0 0 0" rpy="1.5708 0 0"/>
+      <geometry>
+        <mesh filename="package://blackpearls_nav2_puzzlebot/meshes/Puzzlebot_Wheel.stl"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <link name="wheel_right">
+    <visual>
+     <origin xyz="0 0 0" rpy="-1.5708 0 0"/>
+      <geometry>
+        <mesh filename="package://blackpearls_nav2_puzzlebot/meshes/Puzzlebot_Wheel.stl"/>
+      </geometry>
+    </visual>
+  </link>
+
+
+  <!-- New caster wheel link -->
+  <link name="caster_wheel_link">
+    <visual>
+      <geometry>
+        <mesh filename="package://blackpearls_nav2_puzzlebot/meshes/Puzzlebot_Caster_Wheel.stl"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <!--JOINTS-->
+  <joint name="base_link_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0.05" rpy="0 0 0"/>
+  </joint>
+
+  <joint name="wheel_left_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_left"/>
+    <origin xyz="0.052 0.095 -0.0025" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+  <joint name="wheel_right_joint" type="continuous">
+    <parent link="base_link"/>
+    <child link="wheel_right"/>
+    <origin xyz="0.052 -0.095 -0.0025" rpy="0 0 0"/>
+    <axis xyz="0 1 0"/>
+  </joint>
+
+
+  <!-- Caster wheel joint -->
+  <joint name="caster_wheel_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="caster_wheel_link"/>
+    <origin xyz="-0.1 0 -0.0025" rpy="0 0 0"/> <!-- Adjust position as needed -->
+  </joint>
+
+</robot>
