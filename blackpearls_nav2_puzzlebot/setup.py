@@ -35,6 +35,8 @@ setup(
             'point_stabilisation_controller = blackpearls_nav2_puzzlebot.point_stabilisation_controller:main',
             'localisation = blackpearls_nav2_puzzlebot.localisation:main',
             'shapeDrawer = blackpearls_nav2_puzzlebot.shapeDrawer:main',
+            'publish_wr_wl = blackpearls_nav2_puzzlebot.publish_wr_wl:main',
+            'frame = blackpearls_nav2_puzzlebot.frame:main',
         ],
     },
 )
