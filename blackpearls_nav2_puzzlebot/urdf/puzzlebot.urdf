@@ -1,126 +1,111 @@
 <?xml version="1.0"?>
 <robot name="Puzzlebot_Jetson_Lidar_Ed.">
-
-  <!--LINKS-->
-  <link name="base_footprint">
-    <inertial>
-      <mass value="2.0"/>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <inertia
-        ixx="0.2" ixy="0.0" ixz="0.0"
-        iyy="0.2" iyz="0.0"
-        izz="0.2"/>
-    </inertial>
-  </link>
-  
-  <link name="base_link">
-    <inertial>
-      <mass value="2.0"/>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <inertia
-        ixx="0.2" ixy="0.0" ixz="0.0"
-        iyy="0.2" iyz="0.0"
-        izz="0.2"/>
-    </inertial>
-    <visual>
-      <geometry>
-      
-        <mesh filename="package://blackpearls_nav2_puzzlebot/meshes/Puzzlebot_Jetson_Lidar_Edition_Base.stl"/> 
-      </geometry>
-    </visual>
-  </link>
-
-  <link name="wheel_left">
-    <inertial>
-      <mass value="2.0"/>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <inertia
-        ixx="0.2" ixy="0.0" ixz="0.0"
-        iyy="0.2" iyz="0.0"
-        izz="0.2"/>
-    </inertial>
-    <visual>
-     <origin xyz="0 0 0" rpy="1.5708 0 0"/>
-      <geometry>
-        <mesh filename="package://blackpearls_nav2_puzzlebot/meshes/Puzzlebot_Wheel.stl"/>
-      </geometry>
-    </visual>
-  </link>
-
-  <link name="wheel_right">
-    <inertial>
-      <mass value="2.0"/>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <inertia
-        ixx="0.2" ixy="0.0" ixz="0.0"
-        iyy="0.2" iyz="0.0"
-        izz="0.2"/>
-    </inertial>
-    <visual>
-     <origin xyz="0 0 0" rpy="-1.5708 0 0"/>
-      <geometry>
-        <mesh filename="package://blackpearls_nav2_puzzlebot/meshes/Puzzlebot_Wheel.stl"/>
-      </geometry>
-    </visual>
-  </link>
-
-
-  <!-- New caster wheel link -->
-  <link name="caster_wheel_link">
-    <inertial>
-      <mass value="2.0"/>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-      <inertia
-        ixx="0.2" ixy="0.0" ixz="0.0"
-        iyy="0.2" iyz="0.0"
-        izz="0.2"/>
-    </inertial>
-    <visual>
-      <geometry>
-        <mesh filename="package://blackpearls_nav2_puzzlebot/meshes/Puzzlebot_Caster_Wheel.stl"/>
-      </geometry>
-    </visual>
-  </link>
-
-  <!--JOINTS-->
-  <joint name="base_link_joint" type="fixed">
-    <parent link="base_footprint"/>
-    <child link="base_link"/>
-    <origin xyz="0 0 0.05" rpy="0 0 0"/>
-    <gazebo>
-      <preserveFixedJoint>true</preserveFixedJoint>
-    </gazebo>
-  </joint>
-
-  <joint name="wheel_left_joint" type="continuous">
-    <parent link="base_link"/>
-    <child link="wheel_left"/>
-    <origin xyz="0.052 0.095 -0.0025" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/>
-    <gazebo>
-      <preserveFixedJoint>true</preserveFixedJoint>
-    </gazebo>
-  </joint>
-
-  <joint name="wheel_right_joint" type="continuous">
-    <parent link="base_link"/>
-    <child link="wheel_right"/>
-    <origin xyz="0.052 -0.095 -0.0025" rpy="0 0 0"/>
-    <axis xyz="0 1 0"/>
-    <gazebo>
-      <preserveFixedJoint>true</preserveFixedJoint>
-    </gazebo>
-  </joint>
-
-
-  <!-- Caster wheel joint -->
-  <joint name="caster_wheel_joint" type="fixed">
-    <parent link="base_link"/>
-    <child link="caster_wheel_link"/>
-    <origin xyz="-0.1 0 -0.0025" rpy="0 0 0"/> <!-- Adjust position as needed -->
-    <gazebo>
-      <preserveFixedJoint>true</preserveFixedJoint>
-    </gazebo>
-  </joint>
-
+    <link name="base_footprint">
+        <inertial>
+            <mass value="2.0"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia
+                ixx="0.2" ixy="0.0" ixz="0.0"
+                iyy="0.2" iyz="0.0"
+                izz="0.2"/>
+        </inertial>
+    </link>
+    <link name="base_link">
+        <inertial>
+            <mass value="2.0"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia
+                ixx="0.2" ixy="0.0" ixz="0.0"
+                iyy="0.2" iyz="0.0"
+                izz="0.2"/>
+        </inertial>
+        <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry>
+            <mesh filename="package://blackpearls_nav2_puzzlebot/meshes/Puzzlebot_Jetson_Lidar_Edition_Base.stl" />
+        </geometry>
+        <material name="Red">
+            <color rgba="${255/255} ${0/255} ${0/255} 1.0"/>
+        </material>
+        </visual>
+    </link>
+    <link name="wheel_r_link">
+        <inertial>
+            <mass value="2.0"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia
+                ixx="0.2" ixy="0.0" ixz="0.0"
+                iyy="0.2" iyz="0.0"
+                izz="0.2"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="1.570796327 0 0"/>
+            <geometry>
+                <mesh filename="package://blackpearls_nav2_puzzlebot/meshes/Puzzlebot_Wheel.stl" />
+            </geometry>
+            <material name="Red">
+                <color rgba="${255/255} ${0/255} ${0/255} 1.0"/>
+            </material>
+        </visual>
+    </link>
+    <link name="wheel_l_link">
+        <inertial>
+            <mass value="2.0"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia
+                ixx="0.2" ixy="0.0" ixz="0.0"
+                iyy="0.2" iyz="0.0"
+                izz="0.2"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="1.570796327 0 0"/>
+            <geometry>
+                <mesh filename="package://blackpearls_nav2_puzzlebot/meshes/Puzzlebot_Wheel.stl" />
+            </geometry>
+            <material name="Red">
+                <color rgba="${255/255} ${0/255} ${0/255} 1.0"/>
+            </material>
+        </visual>
+    </link>
+    <link name="caster_link">
+        <inertial>
+            <mass value="2.0"/>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <inertia
+                ixx="0.2" ixy="0.0" ixz="0.0"
+                iyy="0.2" iyz="0.0"
+                izz="0.2"/>
+        </inertial>
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <mesh filename="package://blackpearls_nav2_puzzlebot/meshes/Puzzlebot_Caster_Wheel.stl" />
+            </geometry>
+            <material name="Red">
+                <color rgba="${255/255} ${0/255} ${0/255} 1.0"/>
+            </material>
+        </visual>
+    </link>
+    <joint name="base_link_joint" type="fixed">
+        <parent link="base_footprint"/>
+        <child link="base_link"/>
+        <origin xyz="0 0 0.05" rpy="0 0 0" />
+    </joint>
+    <joint name="wheel_r_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="wheel_r_link"/>
+        <origin xyz="0.052 -0.095 -0.0025" rpy="0 0 0" />
+        <axis xyz="0 1 0 " />
+    </joint>
+    <joint name="wheel_l_joint" type="continuous">
+        <parent link="base_link"/>
+        <child link="wheel_l_link"/>
+        <origin xyz="0.052 0.095 -0.0025" rpy="0 0 0" />
+        <axis xyz="0 1 0 " />
+    </joint>
+        <joint name="caster_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="caster_link"/>
+        <origin xyz="-0.095 0 -0.03" rpy="0 0 0" />
+    </joint>
 </robot>
