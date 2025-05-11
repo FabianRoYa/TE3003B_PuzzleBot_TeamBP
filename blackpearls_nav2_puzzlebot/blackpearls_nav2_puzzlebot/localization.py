@@ -13,8 +13,8 @@ class LocalizationClass(Node):
         self.L = 0.19
         self.robot_v = 0.0
         self.robot_w = 0.0
-        self.robot_x = 0.0
-        self.robot_y = 0.0
+        self.robot_x = 0.3
+        self.robot_y = 2.7
         self.robot_theta = 0.0
         self.w_r = 0.0
         self.w_l = 0.0
