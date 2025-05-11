@@ -15,16 +15,3 @@ Apache 2.0 – see [LICENSE](https://github.com/FabianRoYa/TE3003B_PuzzleBot_Tea
 
 ---
 
-**Requirements**
-- Ubuntu 22.04
-- ROS2 Humble
-- Python3
-- Gazebo Classic (6)
-
-**Commands To Run**
-```
-# The command to run the mapping mode 
-ros2 launch blackpearls_nav2_puzzlebot blackpearls_launch.py mode:=map
-# The command to run the navigation modes
-ros2 launch blackpearls_nav2_puzzlebot blackpearls_launch.py mode:=nav
-```

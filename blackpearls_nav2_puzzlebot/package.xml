@@ -19,8 +19,8 @@
   <depend>joint_state_publisher_gui</depend>
 
 
-  <!-- Agrega esto -->
-  <depend>launch_ros</depend>
+  <!--<depend>launch_ros</depend>-->
+  <depend>ros2launch</depend>
   <depend>urdfdom</depend>
   <depend>rosidl_default_generators</depend>
 

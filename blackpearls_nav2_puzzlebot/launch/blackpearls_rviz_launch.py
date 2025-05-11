@@ -1,44 +1,56 @@
-#!/usr/bin/env python3
-# En este launchfile solo arrancamos RViz
-import os
-
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import PathJoinSubstitution, LaunchConfiguration
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
-from launch.conditions import IfCondition
+from launch.conditions import IfCondition  # Importación crítica faltante
 
 def generate_launch_description():
     pkg_name = 'blackpearls_nav2_puzzlebot'
-
-    # Argumentos para habilitar mapeo / navegación en RViz
+    
+    # Declarar argumentos de lanzamiento
     mapping_arg = DeclareLaunchArgument(
         'mapping',
         default_value='true',
-        description='Habilita RViz para mapeo'
+        description='Habilita RVIZ para mapeo'
     )
+    
     navigation_arg = DeclareLaunchArgument(
         'navigation',
         default_value='true',
-        description='Habilita RViz para navegación'
+        description='Habilita RVIZ para navegación'
     )
 
-    # Configs de RViz
-    rviz_mapping_config = PathJoinSubstitution([
-        FindPackageShare(pkg_name),
-        'rviz', 'mapping', 'mapping_config.rviz'
-    ])
-    rviz_nav_config = PathJoinSubstitution([
-        FindPackageShare(pkg_name),
-        'rviz', 'navigation', 'navigation_config.rviz'
-    ])
+    # Configurar paths
+    rviz_mapping_config = PathJoinSubstitution([FindPackageShare(pkg_name), 'rviz', 'mapping', 'mapping_config.rviz'])
+    rviz_nav_config = PathJoinSubstitution([FindPackageShare(pkg_name), 'rviz', 'navigation', 'navigation_config.rviz'])
 
     return LaunchDescription([
         mapping_arg,
         navigation_arg,
 
-        # Nodo RViz para mapeo (solo si mapping=='true')
+        # Gazebo
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                PathJoinSubstitution([
+                    FindPackageShare('gazebo_ros'),
+                    'launch',
+                    'gazebo.launch.py'
+                ])
+            ]),
+            launch_arguments={
+                'world': PathJoinSubstitution([
+                    FindPackageShare('blackpearls_nav2_puzzlebot'),  # Reemplaza con tu paquete
+                    'worlds',
+                    'world.world'     # Nombre de tu archivo de mundo
+                ]),
+                'verbose': 'true'
+                }.items()
+            )
+        ,
+
+        # RVIZ Mapping
         Node(
             package='rviz2',
             executable='rviz2',
@@ -46,10 +58,10 @@ def generate_launch_description():
             output='screen',
             arguments=['-d', rviz_mapping_config],
             parameters=[{'use_sim_time': True}],
-            condition=IfCondition(LaunchConfiguration('mapping'))
+            condition=IfCondition(LaunchConfiguration('mapping'))  # Condición corregida
         ),
 
-        # Nodo RViz para navegación (solo si navigation=='true')
+        # RVIZ Navigation
         Node(
             package='rviz2',
             executable='rviz2',
@@ -57,6 +69,6 @@ def generate_launch_description():
             output='screen',
             arguments=['-d', rviz_nav_config],
             parameters=[{'use_sim_time': True}],
-            condition=IfCondition(LaunchConfiguration('navigation'))
-        ),
+            condition=IfCondition(LaunchConfiguration('navigation'))  # Condición corregida
+        )
     ])

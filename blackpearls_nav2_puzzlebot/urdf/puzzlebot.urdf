@@ -22,7 +22,10 @@
         <visual>
         <origin xyz="0 0 0" rpy="0 0 0"/>
         <geometry>
+            <!--
             <mesh filename="package://blackpearls_nav2_puzzlebot/meshes/Puzzlebot_Jetson_Lidar_Edition_Base.stl" />
+            -->
+            <mesh filename="package://blackpearls_nav2_puzzlebot/meshes/meshes_old/MCR2_puzzlebot_jetson_lidar_base.stl" />
         </geometry>
         <material name="Red">
             <color rgba="${255/255} ${0/255} ${0/255} 1.0"/>

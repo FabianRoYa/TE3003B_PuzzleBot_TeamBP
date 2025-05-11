@@ -15,12 +15,23 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*'))),
         (os.path.join('share', package_name, 'config'), glob(os.path.join('config', '*.[yma]*'))),
         (os.path.join('share', package_name, 'rviz'), glob(os.path.join('rviz', '*.rviz'))),
-        (os.path.join('share', package_name, 'meshes'), glob(os.path.join('meshes', '*.stl'))), # Odio Ros
-        (os.path.join('share', package_name, 'urdf'), glob(os.path.join('urdf', '*.urdf'))),
         (os.path.join('share', package_name, 'worlds'), glob(os.path.join('worlds', '*.world'))),
         (os.path.join('share', package_name, 'rviz/mapping'), glob('rviz/mapping/*.rviz')),
         (os.path.join('share', package_name, 'rviz/navigation'), glob('rviz/navigation/*.rviz')),
-    ],
+    ] + [
+        (os.path.join('share', package_name, root), [os.path.join(root, file)]) 
+        for root, _, files in os.walk('urdf') for file in files
+    ] + [
+        (os.path.join('share', package_name, root), [os.path.join(root, file)]) 
+        for root, _, files in os.walk('meshes') for file in files
+    ] + [
+        (os.path.join('share', package_name, root), [os.path.join(root, file)]) 
+        for root, _, files in os.walk('models') for file in files
+    ] + [
+        (os.path.join('share', package_name, root), [os.path.join(root, file)]) 
+        for root, _, files in os.walk('plugins') for file in files
+    ]
+    ,
     install_requires=['setuptools'],
     zip_safe=True,
     maintainer='Fabian Erubiel Rojas Yañez A01706636\nJose Antonio Miranda Banos ,A01706636\nLuis Fernando Gonzalez Garcia, A01706636\nLuis Fernando Gonzalez Garcia, A01611795',
@@ -30,13 +41,11 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'joint_state_publisher = blackpearls_nav2_puzzlebot.joint_state_publisher:main',
-            'puzzlebot_sim = blackpearls_nav2_puzzlebot.puzzlebot_sim:main',
-            'point_stabilisation_controller = blackpearls_nav2_puzzlebot.point_stabilisation_controller:main',
-            'localisation = blackpearls_nav2_puzzlebot.localisation:main',
-            'shapeDrawer = blackpearls_nav2_puzzlebot.shapeDrawer:main',
-            'publish_wr_wl = blackpearls_nav2_puzzlebot.publish_wr_wl:main',
             'frame = blackpearls_nav2_puzzlebot.frame:main',
+            'localization = blackpearls_nav2_puzzlebot.localization:main',
+            'controller = blackpearls_nav2_puzzlebot.controller:main',
+            'point_generator = blackpearls_nav2_puzzlebot.point_generator:main',
+            'publish_wr_wl = blackpearls_nav2_puzzlebot.publish_wr_wl:main'
         ],
     },
 )

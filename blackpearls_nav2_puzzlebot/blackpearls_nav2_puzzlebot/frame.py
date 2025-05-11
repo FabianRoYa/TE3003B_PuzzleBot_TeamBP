@@ -15,8 +15,8 @@ class FramePublisherClass(Node):
         self.L = 0.19
         self.robot_v = 0.0
         self.robot_w = 0.0
-        self.robot_x = 0.0
-        self.robot_y = 0.0
+        self.robot_x = 0.3
+        self.robot_y = 2.7
         self.robot_theta = 0.0
         self.r_theta = 0.0
         self.l_theta = 0.0
@@ -29,7 +29,7 @@ class FramePublisherClass(Node):
         self.w_r = Float32()
         self.w_l = Float32()
         self.ctrlJoints.header.stamp = self.get_clock().now().to_msg()
-        self.ctrlJoints.name = ["wheel_r_joint", "wheel_l_joint"]
+        self.ctrlJoints.name = ["wheel_right_joint", "wheel_left_joint"]
         self.ctrlJoints.position = [0.0] * 2
         self.ctrlJoints.velocity = [0.0] * 2
         self.ctrlJoints.effort = [0.0] * 2
@@ -49,7 +49,7 @@ class FramePublisherClass(Node):
             dt = float(self.current_time - self.previous_time)/(10.0 ** 9)
             self.previous_time = self.current_time
             self.t.header.stamp = self.get_clock().now().to_msg()
-            self.t.header.frame_id = 'odom'
+            self.t.header.frame_id = 'world'
             self.t.child_frame_id = 'base_footprint'
             wr = (2 * self.robot_v + self.L * self.robot_w) / (2 * self.r)
             wl = (2 * self.robot_v - self.L * self.robot_w) / (2 * self.r)
