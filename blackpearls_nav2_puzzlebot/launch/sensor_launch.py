@@ -45,6 +45,7 @@ def generate_launch_description():
     declare_camera_frame_arg = DeclareLaunchArgument('camera_frame', default_value=camera_frame, description='Camera frame')
     declare_tof_frame_arg = DeclareLaunchArgument('tof_frame', default_value=tof_frame, description='TOF sensor frame')
     declare_lidar_frame_arg = DeclareLaunchArgument('lidar_frame', default_value=lidar_frame, description='Lidar sensor frame')
+    declare_mode = DeclareLaunchArgument('mode', default_value='')
 
     # Configuraciones de lanzamiento
     x = LaunchConfiguration('x')
@@ -55,7 +56,8 @@ def generate_launch_description():
     camera_frame_name = LaunchConfiguration('camera_frame')
     tof_frame_name = LaunchConfiguration('tof_frame')
     lidar_frame_name = LaunchConfiguration('lidar_frame')
-
+    mode = LaunchConfiguration('mode')
+    
     # Variables de entorno para Gazebo
     set_gazebo_resources = SetEnvironmentVariable(
         name='GZ_SIM_RESOURCE_PATH',
@@ -138,7 +140,8 @@ def generate_launch_description():
             FindPackageShare('slam_toolbox'),
             '/launch/online_async_launch.py'
         ]),
-        launch_arguments={'use_sim_time': use_sim_time}.items()
+        launch_arguments={'use_sim_time': use_sim_time}.items(),
+        condition = IfCondition(PythonExpression(["'", mode, "' == 'nav'"]))
     )
 
     nav2_launch = IncludeLaunchDescription(
@@ -186,6 +189,7 @@ def generate_launch_description():
         name="controller",
         package=package_name,
         executable='controller',
+        condition = IfCondition(PythonExpression(["'", mode, "' == 'nav'"]))
     )
 
     l_d = [
@@ -214,4 +218,8 @@ def generate_launch_description():
         localization_node,
         #controller_node,
     ]
+    l_d.extend([
+        slam_launch,
+        controller_node,
+    ])
     return LaunchDescription(l_d)
