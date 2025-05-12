@@ -146,14 +146,14 @@ class ControllerClass(Node):
             self.inf1.data = str(
                 str(goal_view == "obstacle") + " " +
                 str(self.follow) + " " +
-                "o: d = " + str(np.round(obj_distance, 2)) + " th = " + str(a1) + " " +
-                "f: th = " + str(a2) + " " +
-                "p: x = " + str(np.round(self.x, 2)) + " y = " + str(np.round(self.y, 2)) + " th = " + str(np.round(np.rad2deg(self.theta), 2)) + " " +
-                "g: x = " + str(np.round(self.goal_x, 2)) + " y = " + str(np.round(self.goal_y, 2)) + " " +
-                "e: d = " + str(np.round(error_distance, 2)) + " th = " + str(np.round(np.rad2deg(error_angle), 2)) + " " +
+                "o_d:" + str(np.round(obj_distance, 2)) + " o_th:" + str(a1) + " " +
+                "f_th:" + str(a2) + " " +
+                "x:" + str(np.round(self.x, 2)) + " y:" + str(np.round(self.y, 2)) + " th:" + str(np.round(np.rad2deg(self.theta), 2)) + " " +
+                "g_x:" + str(np.round(self.goal_x, 2)) + " g_y:" + str(np.round(self.goal_y, 2)) + " " +
+                "e_d:" + str(np.round(error_distance, 2)) + " e_th:" + str(np.round(np.rad2deg(error_angle), 2)) + " " +
                 str(goal_reached) + " " +
                 str(stopped)
-                )
+            )
             self.pub.publish(self.inf1)
 
 def main(args=None):
