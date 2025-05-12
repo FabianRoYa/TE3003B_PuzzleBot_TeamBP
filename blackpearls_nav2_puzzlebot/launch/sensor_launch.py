@@ -142,12 +142,18 @@ def generate_launch_description():
     static_tf = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
+        arguments=['0', '0', '0', '0', '0', '0', 'map', 'world']
+    )
+    static_tf2 = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
         arguments=['0', '0', '0', '0', '0', '0', 'world', 'odom']
     )
     frame_node = Node(
         name="frame",
         package=package_name,
         executable='frame',
+        parameters=[{'use_sim_time': True},]
     )
     localization_node = Node(
         name="localization",
@@ -180,8 +186,9 @@ def generate_launch_description():
         #nav2_launch,
         rviz,
         static_tf,
+        static_tf2,
         frame_node,
         localization_node,
-        controller_node,
+        #controller_node,
         ]
     return LaunchDescription(l_d)
