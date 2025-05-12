@@ -49,7 +49,7 @@
     lidar_pos_p:='0.0'
     lidar_pos_w:='0.0'
     
-    update_rate:='5'
+    update_rate:='10'
     ray_count:='360'
     min_angle:='-3.14159'
     max_angle:='3.14159'
