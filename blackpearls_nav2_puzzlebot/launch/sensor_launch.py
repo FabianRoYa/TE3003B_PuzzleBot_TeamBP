@@ -139,6 +139,11 @@ def generate_launch_description():
         parameters=[{'use_sim_time': True}],
         output='screen'
     )
+    static_tf = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        arguments=['0', '0', '0', '0', '0', '0', 'world', 'odom']
+    )
     frame_node = Node(
         name="frame",
         package=package_name,
@@ -174,6 +179,7 @@ def generate_launch_description():
         #slam_launch,
         #nav2_launch,
         rviz,
+        static_tf,
         frame_node,
         localization_node,
         controller_node,
