@@ -103,7 +103,7 @@ class ControllerClass(Node):
             if obj_distance < 999999:
                 a1 = self.lidar.ranges.index(obj_distance) -180
                 a2 = a1 + 90
-                if obj_distance < 0.5:
+                if obj_distance < 0.2:
                     a2 += 10
             follow_angle = np.deg2rad(a2)
 
@@ -113,9 +113,10 @@ class ControllerClass(Node):
                 self.follow = True
 
             if self.follow:
+                #if np.abs(follow_angle) < self.turning_d and obj_distance > 0.15:
                 if np.abs(follow_angle) < self.turning_d:
                     angular_speed = self.Kp_angular * follow_angle
-                    self.robot_vel.linear.x = 0.3
+                    self.robot_vel.linear.x = 0.1
                     self.robot_vel.angular.z = 0.0
                 else:
                     angular_speed = self.Kp_angular * follow_angle
