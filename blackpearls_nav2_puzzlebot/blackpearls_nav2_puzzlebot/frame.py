@@ -49,7 +49,7 @@ class FramePublisherClass(Node):
             dt = float(self.current_time - self.previous_time)/(10.0 ** 9)
             self.previous_time = self.current_time
             self.t.header.stamp = self.get_clock().now().to_msg()
-            self.t.header.frame_id = 'world'
+            self.t.header.frame_id = 'odom'
             self.t.child_frame_id = 'base_footprint'
             wr = (2 * self.robot_v + self.L * self.robot_w) / (2 * self.r)
             wl = (2 * self.robot_v - self.L * self.robot_w) / (2 * self.r)
