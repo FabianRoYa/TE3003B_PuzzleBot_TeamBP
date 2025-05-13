@@ -53,7 +53,7 @@ class Localisation(Node):
         self.prev_time = self.get_clock().now().nanoseconds
         self.get_logger().info("Localisation node started")
 
-        self.create_timer(0.01, self.timer_callback)
+        self.create_timer(0.1, self.timer_callback)
 
     def timer_callback(self):
         current_time = self.get_clock().now().nanoseconds
@@ -107,8 +107,10 @@ class Localisation(Node):
     def publish_odometry(self):
         odom_msg = Odometry()
         odom_msg.header.stamp = self.get_clock().now().to_msg()
+        odom_msg.header.frame_id = 'world'
+        odom_msg.child_frame_id = 'base_footprint'
         
-        # Position
+        # # Position
         # odom_msg.pose.pose.position.x = self.x
         # odom_msg.pose.pose.position.y = self.y
         # odom_msg.pose.pose.position.z = 0.05

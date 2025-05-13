@@ -1,7 +1,9 @@
 import os
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription
-from launch.substitutions import TextSubstitution
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
+from launch.substitutions import PathJoinSubstitution, LaunchConfiguration, PythonExpression
+from launch.conditions import IfCondition
+from launch_ros.substitutions import FindPackageShare
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
 from launch_ros.actions import Node
@@ -14,13 +16,19 @@ def generate_launch_description():
     # -----------------------------------------------------------------------------
     
     # Name of the Gazebo world to load
-    world = 'maze.world'
+    world = 'empty.world'
 
     # General Gazebo settings
     pause = 'false'           # Start Gazebo in paused state, world tf is not generated until Gazebo starts
     verbosity = '4'           # Gazebo log verbosity level
     use_sim_time = 'true'     # Enable use of simulated clock (for ROS time sync)
 
+    # mode_rviz = DeclareLaunchArgument(
+    #     'mode',
+    #     default_value='nav',
+    #     description='Mode to load RVIZ configuration'
+    # )
+    
     # Robot configurations (can be extended or loaded from a JSON file in future)
     robot_config_list = [
         {
@@ -106,34 +114,55 @@ def generate_launch_description():
     # -----------------------------------------------------------------------------
     #                         ROBOT LOCALIZATION NODES
     # -----------------------------------------------------------------------------
-        localisation_node=Node(
-            package='blackpearls_nav2_puzzlebot',
-            executable='localisation',
-            name='localisation',
-            output='screen',
-            parameters=[{
-                'wr': 'VelocityEncR',
-                'wl': 'VelocityEncL',
-                'initialPose':[x, y, yaw], 
-            }]
-        )
-        robot_launches.append(localisation_node)
+    
+    ### This node should gave the robot's covariance matrix 
+    ### but it doesn't work, when ever I try to run it covariance matrix 
+    ### is not published or is only zeros
+    
+        # localisation_node=Node(
+        #     package='blackpearls_nav2_puzzlebot',
+        #     executable='localisation',
+        #     name='localisation',
+        #     output='screen',
+        #     parameters=[{
+        #         'wr': 'VelocityEncR',
+        #         'wl': 'VelocityEncL',
+        #         'initialPose':[x, y, yaw], 
+        #     }]
+        # )
+        # robot_launches.append(localisation_node)
     # -----------------------------------------------------------------------------
     #                         RVIZ2 NODE
     # -----------------------------------------------------------------------------
+    
+    ### Rviz needs to have to modes, mapping and navigation
+    ### The mapping mode is used to create the map and the navigation mode
+    ### is used to navigate the robot using the map created in the mapping mode
+    ### BUT I can't make it work, neither of them.
+    
+    rviz_config = PathJoinSubstitution([
+    FindPackageShare('blackpearls_nav2_puzzlebot'),
+    'rviz',
+    PythonExpression(["'", LaunchConfiguration('mode'), "' + '.rviz'"])
+    ])
+
     rviz2_pub_node = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
+    package='rviz2',
+    executable='rviz2',
+    name='rviz2',
+    output='screen',
+    # arguments=['-d', rviz_config],
+    # parameters=[{'use_sim_time': use_sim_time}],
     )
+    
     # -----------------------------------------------------------------------------
     #                         COMPOSE FINAL LAUNCH DESCRIPTION
     # -----------------------------------------------------------------------------
     ld = LaunchDescription([
+        # mode_rviz,
+        rviz2_pub_node,
         gazebo_launch,
         *robot_launches,
-        rviz2_pub_node,
     ])
     
     return ld
