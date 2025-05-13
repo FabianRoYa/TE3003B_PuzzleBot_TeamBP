@@ -3,6 +3,9 @@
 **Description**  
 A Python-based ROS 2 package that integrates the Nav2 navigation stack with the PuzzleBot simulation.
 
+## Como lanzar el nodo?
+
+
 
 **Authors** 
 - Fabian Erubiel Rojas Yañez - A01706636
