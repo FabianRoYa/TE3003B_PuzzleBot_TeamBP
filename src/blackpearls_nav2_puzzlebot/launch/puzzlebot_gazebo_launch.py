@@ -132,35 +132,28 @@ def generate_launch_description():
         # )
         # robot_launches.append(localisation_node)
     # -----------------------------------------------------------------------------
-    #                         RVIZ2 NODE
+    #                         MAP or NAV
     # -----------------------------------------------------------------------------
-    
-    ### Rviz needs to have to modes, mapping and navigation
-    ### The mapping mode is used to create the map and the navigation mode
-    ### is used to navigate the robot using the map created in the mapping mode
-    ### BUT I can't make it work, neither of them.
-    
-    rviz_config = PathJoinSubstitution([
-    FindPackageShare('blackpearls_nav2_puzzlebot'),
-    'rviz',
-    PythonExpression(["'", LaunchConfiguration('mode'), "' + '.rviz'"])
-    ])
-
-    rviz2_pub_node = Node(
-    package='rviz2',
-    executable='rviz2',
-    name='rviz2',
-    output='screen',
-    # arguments=['-d', rviz_config],
-    # parameters=[{'use_sim_time': use_sim_time}],
-    )
+    if LaunchConfiguration('mode') == 'map':
+        mapOrNav =IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('blackpearls_nav2_puzzlebot'), 'mapping.launch.py')))
+    elif LaunchConfiguration('mode') == 'nav':
+        mapOrNav = IncludeLaunchDescription(
+            IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('blackpearls_nav2_puzzlebot'), 'navigation.launch.py')),
+                launch_arguments={'map_name': LaunchConfiguration('map_name')}.items()))
+    else:
+        raise RuntimeError(f"[gazebo_world.launch.py] Unknown mode '{LaunchConfiguration('mode')}', expected 'map' or 'nav'.")
+ 
     
     # -----------------------------------------------------------------------------
     #                         COMPOSE FINAL LAUNCH DESCRIPTION
     # -----------------------------------------------------------------------------
     ld = LaunchDescription([
-        # mode_rviz,
-        rviz2_pub_node,
+        DeclareLaunchArgument('mode',
+                              default_value='nav', 
+                              description='Mode to load RVIZ configuration (nav or map)'),
+        mapOrNav,
         gazebo_launch,
         *robot_launches,
     ])
