@@ -35,10 +35,10 @@
             <odom_publisher_frequency>50</odom_publisher_frequency>
             <left_joint>${prefix}wheel_left_joint</left_joint>
             <right_joint>${prefix}wheel_right_joint</right_joint>
-            <wheel_separation>0.18</wheel_separation>
+            <wheel_separation>0.19</wheel_separation>
             <wheel_radius>0.05</wheel_radius>
             <topic>${prefix}cmd_vel</topic>
-            <tf_topic>diff_drive/tf</tf_topic>
+            <tf_topic>tf</tf_topic>
             <odom_topic>${prefix}odom</odom_topic>
             <frame_id>${prefix}odom</frame_id>
             <child_frame_id>${prefix}base_footprint</child_frame_id>
@@ -65,7 +65,7 @@
         <!-- Dont know why but it's needed -->
         <!-- <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
         <odom_frame>world</odom_frame>
-        <robot_base_frame>${prefix}odom</robot_base_frame>
+        <robot_base_frame>${prefix}base_footprint</robot_base_frame>
         <odom_publish_frequency>50</odom_publish_frequency>
         <odom_topic>${prefix}ground_truth</odom_topic>
         <tf_topic>tf</tf_topic>

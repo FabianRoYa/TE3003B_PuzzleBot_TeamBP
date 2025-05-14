@@ -23,8 +23,8 @@ def generate_launch_description():
         arguments=[
             '0', '0', '0',  # x, y, z
             '0', '0', '0',  # roll, pitch, yaw
-            'odom',    # parent frame
-            'base_footprint' # child frame
+            'world',    # parent frame
+            'map' # child frame
         ],)
     
     
@@ -201,4 +201,3 @@ def generate_launch_description():
         nav_mode_launch
     ])
     
-    return ld

@@ -26,7 +26,7 @@ def launch_setup(context, *args, **kwargs):
         ),
         DeclareLaunchArgument(
             'slam_params_file',
-            default_value=os.path.join(base_path, 'param', 'slam_toolbox_config.yaml'),
+            default_value=os.path.join(base_path, 'param', 'nav2_mapping.yaml'),
             description='Full path to the Slam Toolbox configuration file'
         ),
         # Nav2 Stack
