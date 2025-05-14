@@ -52,20 +52,20 @@ def launch_setup(context, *args, **kwargs):
             launch_arguments=args.items()
         ),
         
-        # Map Saver (se ejecuta 10 segundos después del inicio)
-        TimerAction(
-            period=25.0,
-            actions=[
-                Node(
-                    package='nav2_map_server',
-                    executable='map_saver_cli',
-                    name='map_saver',
-                    output='screen',
-                    arguments=['-t', 'map', '-f', os.path.join(maps_dir, map_name)],
-                    parameters=[{'save_map_timeout': 10000}]
-                )
-            ]
-        ),
+        # # Map Saver (se ejecuta 10 segundos después del inicio)
+        # TimerAction(
+        #     period=25.0,
+        #     actions=[
+        #         Node(
+        #             package='nav2_map_server',
+        #             executable='map_saver_cli',
+        #             name='map_saver',
+        #             output='screen',
+        #             arguments=['-t', 'map', '-f', os.path.join(maps_dir, map_name)],
+        #             parameters=[{'save_map_timeout': 10000}]
+        #         )
+        #     ]
+        # ),
         
         # RViz
         Node(

@@ -98,6 +98,7 @@ def generate_launch_description():
                    '/clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock',
                    '/tf@tf2_msgs/msg/TFMessage[gz.msgs.Pose_V',
                    ],
+                    # parameters=[{ 'use_sim_time': True }],
                     output='screen'
                     )
 

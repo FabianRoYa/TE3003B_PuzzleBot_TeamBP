@@ -24,8 +24,13 @@ def launch_setup(context, *args, **kwargs):
         default=os.path.join(
             base_path,
             'map',
+<<<<<<< HEAD
             #f"{map_value}_puzzlebot.yaml"))
             "prueba4_puzzlebot.yaml"))
+=======
+            # f"{map_value}_map.yaml"))
+            "maze_map.yaml"))
+>>>>>>> 15b1a6a (Add map and rviz configuration,maybe we can do it better.)
 
     param_file_name = 'puzzlebot.yaml'
     param_dir = LaunchConfiguration(

@@ -10,6 +10,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
+<<<<<<< HEAD
     
     declare_use_sim_time = DeclareLaunchArgument(
         'use_sim_time',
@@ -23,6 +24,8 @@ def generate_launch_description():
    
     
     
+=======
+>>>>>>> 15b1a6a (Add map and rviz configuration,maybe we can do it better.)
     # -----------------------------------------------------------------------------
     #                          SIMULATION CONFIGURATION
     # -----------------------------------------------------------------------------
@@ -33,6 +36,7 @@ def generate_launch_description():
     # General Gazebo settings
     pause = 'false'           # Start Gazebo in paused state, world tf is not generated until Gazebo starts
     verbosity = '4'           # Gazebo log verbosity level
+<<<<<<< HEAD
     use_sim_time = LaunchConfiguration('use_sim_time')     # Enable use of simulated clock (for ROS time sync)
 
     # mode_rviz = DeclareLaunchArgument(
@@ -40,6 +44,9 @@ def generate_launch_description():
     #     default_value='nav',
     #     description='Mode to load RVIZ configuration'
     # )
+=======
+    use_sim_time = 'true'     # Enable use of simulated clock (for ROS time sync)
+>>>>>>> 15b1a6a (Add map and rviz configuration,maybe we can do it better.)
     
     # Robot configurations (can be extended or loaded from a JSON file in future)
     robot_config_list = [
@@ -179,6 +186,11 @@ def generate_launch_description():
     #                         COMPOSE FINAL LAUNCH DESCRIPTION
     # =============================================================================
     return LaunchDescription([
+
+        # Core launches
+        gazebo_launch,
+        *robot_launches,
+        
         DeclareLaunchArgument(
             'mode',
             default_value='nav',
@@ -189,15 +201,22 @@ def generate_launch_description():
             default_value='map',
             description='Name of the map to load'
         ),
+<<<<<<< HEAD
         
         declare_use_sim_time,
+=======
+>>>>>>> 15b1a6a (Add map and rviz configuration,maybe we can do it better.)
         
         # Mode-specific launches
         map_mode_launch,
         nav_mode_launch,
         
+<<<<<<< HEAD
         # Core launches
         gazebo_launch,
         *robot_launches,
+=======
+
+>>>>>>> 15b1a6a (Add map and rviz configuration,maybe we can do it better.)
     ])
     
