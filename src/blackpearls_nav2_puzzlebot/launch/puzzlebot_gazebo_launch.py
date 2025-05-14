@@ -131,31 +131,56 @@ def generate_launch_description():
         #     }]
         # )
         # robot_launches.append(localisation_node)
-    # -----------------------------------------------------------------------------
-    #                         MAP or NAV
-    # -----------------------------------------------------------------------------
-    if LaunchConfiguration('mode') == 'map':
-        mapOrNav =IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('blackpearls_nav2_puzzlebot'), 'mapping.launch.py')))
-    elif LaunchConfiguration('mode') == 'nav':
-        mapOrNav = IncludeLaunchDescription(
-            IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(os.path.join(get_package_share_directory('blackpearls_nav2_puzzlebot'), 'navigation.launch.py')),
-                launch_arguments={'map_name': LaunchConfiguration('map_name')}.items()))
-    else:
-        raise RuntimeError(f"[gazebo_world.launch.py] Unknown mode '{LaunchConfiguration('mode')}', expected 'map' or 'nav'.")
- 
-    
-    # -----------------------------------------------------------------------------
+    # =============================================================================
+    #                         MAP or NAV LAUNCH CONFIGURATION
+    # =============================================================================
+    map_mode_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory('blackpearls_nav2_puzzlebot'),
+                'launch/mapping_launch.py'
+            )
+        ),
+        condition=IfCondition(
+            PythonExpression(["'", LaunchConfiguration('mode'), "' == 'map'"])
+        )
+    )
+
+    nav_mode_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory('blackpearls_nav2_puzzlebot'),
+                'launch/navigation_launch.py'
+            )
+        ),
+        launch_arguments={'map_name': LaunchConfiguration('map_name')}.items(),
+        condition=IfCondition(
+            PythonExpression(["'", LaunchConfiguration('mode'), "' == 'nav'"])
+        )
+    )
+
+    # =============================================================================
     #                         COMPOSE FINAL LAUNCH DESCRIPTION
-    # -----------------------------------------------------------------------------
-    ld = LaunchDescription([
-        DeclareLaunchArgument('mode',
-                              default_value='nav', 
-                              description='Mode to load RVIZ configuration (nav or map)'),
-        mapOrNav,
+    # =============================================================================
+    return LaunchDescription([
+        DeclareLaunchArgument(
+            'mode',
+            default_value='nav',
+            description='Operation mode (nav/map)'
+        ),
+        DeclareLaunchArgument(
+            'map_name',
+            default_value='map',
+            description='Name of the map to load'
+        ),
+        
+        # Core launches
         gazebo_launch,
         *robot_launches,
+        
+        # Mode-specific launches
+        map_mode_launch,
+        nav_mode_launch
     ])
     
     return ld

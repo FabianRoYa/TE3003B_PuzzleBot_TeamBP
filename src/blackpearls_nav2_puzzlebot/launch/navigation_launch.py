@@ -1,10 +1,12 @@
+# navigation_launch.py (corrected imports)
 import os
 from launch import LaunchDescription
-from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
-from launch.substitutions import PathJoinSubstitution, LaunchConfiguration, PythonExpression,OpaqueFunction
+from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument, OpaqueFunction  # CORRECTED IMPORT
+from launch.substitutions import PathJoinSubstitution, LaunchConfiguration, PythonExpression
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
 from launch_ros.actions import Node
+
 
 # -----------------------------------------------------------------------------
 #                          NAVIGATION LAUNCH
@@ -54,7 +56,7 @@ def launch_setup(context, *args, **kwargs):
             launch_arguments={
                 'map': map_dir,
                 'use_sim_time': use_sim_time,
-                'params_file': param_dir}.items(),
+                'params_file': param_dir},
         ),
 
         Node(
@@ -65,7 +67,6 @@ def launch_setup(context, *args, **kwargs):
             output='screen',
             parameters=[{
                 'use_sim_time': use_sim_time,
-                'map_name': map_value
             }]
         ),
     ]
