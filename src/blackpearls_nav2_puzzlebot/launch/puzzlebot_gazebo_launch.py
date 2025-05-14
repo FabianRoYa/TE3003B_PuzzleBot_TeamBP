@@ -12,6 +12,23 @@ from launch_ros.actions import Node
 def generate_launch_description():
     
     # -----------------------------------------------------------------------------
+    #                         I NEED THIS TF
+    # -----------------------------------------------------------------------------
+    
+    # tf from 
+    static_tf2 = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='static_tf2',
+        arguments=[
+            '0', '0', '0',  # x, y, z
+            '0', '0', '0',  # roll, pitch, yaw
+            'odom',    # parent frame
+            'base_footprint' # child frame
+        ],)
+    
+    
+    # -----------------------------------------------------------------------------
     #                          SIMULATION CONFIGURATION
     # -----------------------------------------------------------------------------
     
@@ -173,6 +190,7 @@ def generate_launch_description():
             default_value='map',
             description='Name of the map to load'
         ),
+        static_tf2,
         
         # Core launches
         gazebo_launch,

@@ -9,7 +9,7 @@ import os
 def launch_setup(context, *args, **kwargs):
     map_name = LaunchConfiguration('map_name').perform(context)
     base_path = get_package_share_directory('blackpearls_nav2_puzzlebot')
-    rviz_file = os.path.join(base_path, 'rviz', "nav2_mapping.rviz")
+    rviz_file = os.path.join(base_path, 'rviz', "mapping.rviz")
     nav2_bringup_dir = get_package_share_directory('nav2_bringup')
     slam_toolbox_dir = get_package_share_directory('slam_toolbox')
 

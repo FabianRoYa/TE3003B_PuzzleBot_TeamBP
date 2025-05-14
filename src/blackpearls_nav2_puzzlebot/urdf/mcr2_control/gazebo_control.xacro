@@ -5,7 +5,7 @@
 <xacro:macro name="puzzlebot_control" params="prefix">
     <gazebo>
 
-        <plugin name="DiffDynamicPlugin" filename="libDiffDynamicPlugin.so">
+        <!-- <plugin name="DiffDynamicPlugin" filename="libDiffDynamicPlugin.so">
                 <leftJoint>${prefix}wheel_left_joint</leftJoint>
                 <rightJoint>${prefix}wheel_right_joint</rightJoint>
                 <cmd_R_topic>${prefix}VelocitySetR</cmd_R_topic>
@@ -28,10 +28,10 @@
                 <pid_Td>0</pid_Td>
                 <input_type>1</input_type>
                 <rate>100</rate>
-        </plugin>
+        </plugin> -->
 
 
-        <!--<plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
+        <plugin filename="gz-sim-diff-drive-system" name="gz::sim::systems::DiffDrive">
             <odom_publisher_frequency>50</odom_publisher_frequency>
             <left_joint>${prefix}wheel_left_joint</left_joint>
             <right_joint>${prefix}wheel_right_joint</right_joint>
@@ -44,7 +44,7 @@
             <child_frame_id>${prefix}base_footprint</child_frame_id>
             <max_angular_acceleration>1.8</max_angular_acceleration>
             <max_angular_velocity>13.0</max_angular_velocity>
-        </plugin>-->
+        </plugin>
     
         
         <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
@@ -54,21 +54,23 @@
             <joint_name>${prefix}wheel_left_joint</joint_name>
         </plugin>
 
-        <!-- THIS PLUGIN MUST BE USED INSIDE WORLDS TAG
+        <!-- THIS PLUGIN MUST BE USED INSIDE WORLDS TAG -->
         <plugin
                 filename="gz-sim-sensors-system"
                 name="gz::sim::systems::Sensors">
                 <render_engine>ogre2</render_engine>
-        </plugin> -->
+        </plugin> 
 
-        <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
+
+        <!-- Dont know why but it's needed -->
+        <!-- <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
         <odom_frame>world</odom_frame>
-        <robot_base_frame>${prefix}base_footprint</robot_base_frame>
+        <robot_base_frame>${prefix}odom</robot_base_frame>
         <odom_publish_frequency>50</odom_publish_frequency>
         <odom_topic>${prefix}ground_truth</odom_topic>
         <tf_topic>tf</tf_topic>
         <dimensions>2</dimensions>
-        </plugin>
+        </plugin> -->
 
     </gazebo>
 
