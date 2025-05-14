@@ -11,6 +11,11 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     
+    declare_use_sim_time = DeclareLaunchArgument(
+        'use_sim_time',
+        default_value='true',
+        description='Enable use of simulated clock (for ROS time sync)'
+    )
     # -----------------------------------------------------------------------------
     #                         I NEED THIS TF
     # -----------------------------------------------------------------------------
@@ -28,7 +33,7 @@ def generate_launch_description():
     # General Gazebo settings
     pause = 'false'           # Start Gazebo in paused state, world tf is not generated until Gazebo starts
     verbosity = '4'           # Gazebo log verbosity level
-    use_sim_time = 'true'     # Enable use of simulated clock (for ROS time sync)
+    use_sim_time = LaunchConfiguration('use_sim_time')     # Enable use of simulated clock (for ROS time sync)
 
     # mode_rviz = DeclareLaunchArgument(
     #     'mode',
@@ -63,7 +68,8 @@ def generate_launch_description():
         launch_arguments={
             'world': world,
             'pause': pause,
-            'verbosity': verbosity
+            'verbosity': verbosity,
+            'use_sim_time': use_sim_time
         }.items()
     )
     # -----------------------------------------------------------------------------
@@ -115,6 +121,9 @@ def generate_launch_description():
             executable='point_stabilisation_controller',
             name='point_stabilisation_controller',
             output='screen',
+            parameters=[{
+                'use_sim_time': use_sim_time,
+            }]
         )
         # robot_launches.append(controller_node)
         
@@ -180,7 +189,8 @@ def generate_launch_description():
             default_value='map',
             description='Name of the map to load'
         ),
-        # static_tf2,
+        
+        declare_use_sim_time,
         
         # Mode-specific launches
         map_mode_launch,
@@ -189,7 +199,5 @@ def generate_launch_description():
         # Core launches
         gazebo_launch,
         *robot_launches,
-        
-
     ])
     

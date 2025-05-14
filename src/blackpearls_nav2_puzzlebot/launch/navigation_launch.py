@@ -18,6 +18,7 @@ def launch_setup(context, *args, **kwargs):
     rviz_file = os.path.join(base_path, 'rviz', "nav2_navigating.rviz")
     map_value = LaunchConfiguration('map_name').perform(context)
 
+    # Cmabiar el valor de map para que aparezca el luga correcto con el robot
     map_dir = LaunchConfiguration(
         'map',
         default=os.path.join(
@@ -49,7 +50,7 @@ def launch_setup(context, *args, **kwargs):
 
         DeclareLaunchArgument(
             'use_sim_time',
-            default_value='false',
+            default_value='true',
             description='Use simulation (Gazebo) clock if true'),
 
         IncludeLaunchDescription(
@@ -71,7 +72,7 @@ def launch_setup(context, *args, **kwargs):
             }]
         ),
     ]
-    
+
 def generate_launch_description():
     return LaunchDescription([
         # Don't move this -_-
