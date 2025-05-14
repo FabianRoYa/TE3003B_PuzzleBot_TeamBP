@@ -16,7 +16,7 @@ def generate_launch_description():
     # -----------------------------------------------------------------------------
     
     # Name of the Gazebo world to load
-    world = 'empty.world'
+    world = 'maze.world'
 
     # General Gazebo settings
     pause = 'false'           # Start Gazebo in paused state, world tf is not generated until Gazebo starts
@@ -109,7 +109,7 @@ def generate_launch_description():
             name='point_stabilisation_controller',
             output='screen',
         )
-        robot_launches.append(controller_node)
+        # robot_launches.append(controller_node)
         
     # -----------------------------------------------------------------------------
     #                         ROBOT LOCALIZATION NODES
