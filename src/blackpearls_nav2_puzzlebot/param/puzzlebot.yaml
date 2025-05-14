@@ -4,8 +4,8 @@ amcl:
     initial_pose:
       x: 0.3
       y: 2.75
-      z: 0.0
-    set_initial_pose: false
+      z: 1.57
+    set_initial_pose: true
     alpha1: 0.2
     alpha2: 0.2
     alpha3: 0.2

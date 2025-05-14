@@ -23,7 +23,8 @@ def launch_setup(context, *args, **kwargs):
         default=os.path.join(
             base_path,
             'map',
-            f"{map_value}_map.yaml"))
+            #f"{map_value}_puzzlebot.yaml"))
+            "prueba4_puzzlebot.yaml"))
 
     param_file_name = 'puzzlebot.yaml'
     param_dir = LaunchConfiguration(
