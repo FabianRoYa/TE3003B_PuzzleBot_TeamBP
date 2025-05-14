@@ -13,7 +13,7 @@ from launch_ros.actions import Node
 # -----------------------------------------------------------------------------
 
 def launch_setup(context, *args, **kwargs):
-    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
+    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     base_path = get_package_share_directory('blackpearls_nav2_puzzlebot')
     rviz_file = os.path.join(base_path, 'rviz', "nav2_navigating.rviz")
     map_value = LaunchConfiguration('map_name').perform(context)
@@ -56,7 +56,7 @@ def launch_setup(context, *args, **kwargs):
             launch_arguments={
                 'map': map_dir,
                 'use_sim_time': use_sim_time,
-                'params_file': param_dir},
+                'params_file': param_dir}.items(),
         ),
 
         Node(
@@ -73,6 +73,17 @@ def launch_setup(context, *args, **kwargs):
     
 def generate_launch_description():
     return LaunchDescription([
+        # Don't move this -_-
+        Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='static_tf2',
+        arguments=[
+            '0', '0', '0',  # x, y, z
+            '0', '0', '0',  # roll, pitch, yaw
+            'map',    # parent frame
+            'odom' # child frame
+        ],),
         OpaqueFunction(
             function=launch_setup
         ),

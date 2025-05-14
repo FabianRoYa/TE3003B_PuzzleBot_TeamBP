@@ -30,6 +30,12 @@ setup(
     ] + [
         (os.path.join('share', package_name, root), [os.path.join(root, file)]) 
         for root, _, files in os.walk('plugins') for file in files
+    ]+ [
+        (os.path.join('share', package_name, root), [os.path.join(root, file)])
+        for root, _, files in os.walk('param') for file in files
+    ]+[
+        (os.path.join('share', package_name, root), [os.path.join(root, file)])
+        for root, _, files in os.walk('map') for file in files
     ]
     ,
     install_requires=['setuptools'],
