@@ -1,13 +1,15 @@
 # blackpearls_nav2_puzzlebot
 
 **Description**  
-A Python-based ROS 2 package that integrates the Nav2 navigation stack with the PuzzleBot simulation.
+A Python-based ROS 2 package that integrates the Nav2 navigation stack with the PuzzleBot simulation to solve a maze.
 
 ## Como lanzar el nodo?
+**Navigation mode**
+ros2 launch blackpearls_nav2_puzzlebot puzzlebot_gazebo_launch.py mode:=nav 
+**Mapping mode**
+ros2 launch blackpearls_nav2_puzzlebot puzzlebot_gazebo_launch.py mode:=map
 
-
-
-**Authors** 
+## Authors
 - Fabian Erubiel Rojas Yañez - A01706636
 - José Antonio Miranda Baños - A01611795
 - Gaddiel Lara Roldán - A01704231
