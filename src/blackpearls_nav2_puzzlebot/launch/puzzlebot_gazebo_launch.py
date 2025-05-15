@@ -182,14 +182,13 @@ def generate_launch_description():
         ),
         # static_tf2,
         
-        # Mode-specific launches
-        map_mode_launch,
-        nav_mode_launch,
-        
         # Core launches
         gazebo_launch,
         *robot_launches,
         
-
+        # Mode-specific launches
+        map_mode_launch,
+        nav_mode_launch,
+        
     ])
     
