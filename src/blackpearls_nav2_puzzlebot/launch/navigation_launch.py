@@ -75,16 +75,16 @@ def launch_setup(context, *args, **kwargs):
 def generate_launch_description():
     return LaunchDescription([
         # Don't move this -_-
-        Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        name='static_tf2',
-        arguments=[
-            '0', '0', '0',  # x, y, z
-            '0', '0', '0',  # roll, pitch, yaw
-            'map',    # parent frame
-            'odom' # child frame
-        ],),
+        # Node(
+        # package='tf2_ros',
+        # executable='static_transform_publisher',
+        # name='static_tf2',
+        # arguments=[
+        #     '0', '0', '0',  # x, y, z
+        #     '0', '0', '0',  # roll, pitch, yaw
+        #     'map',    # parent frame
+        #     'odom' # child frame
+        # ],),
         OpaqueFunction(
             function=launch_setup
         ),
