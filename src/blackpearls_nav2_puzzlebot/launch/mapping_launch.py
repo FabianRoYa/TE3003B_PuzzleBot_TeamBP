@@ -14,6 +14,7 @@ def launch_setup(context, *args, **kwargs):
     slam_toolbox_dir = get_package_share_directory('slam_toolbox')
     maps_dir = os.path.join(base_path, 'maps')
     
+    
     # Crear directorio de mapas si no existe
     os.makedirs(maps_dir, exist_ok=True)
 

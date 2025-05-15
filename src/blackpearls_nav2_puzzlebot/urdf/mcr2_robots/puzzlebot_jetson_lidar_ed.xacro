@@ -2,7 +2,7 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="Puzzlebot_Jetson_Ed.">
 
 <xacro:arg name="prefix" default=""/>
-<xacro:arg name="lidar_frame" default=""/>
+<xacro:arg name="lidar_frame" default="laser_frame"/>
 <xacro:arg name="camera_frame" default=""/>
 <xacro:arg name="tof_frame" default=""/>
 
