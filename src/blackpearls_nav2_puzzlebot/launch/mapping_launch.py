@@ -92,15 +92,15 @@ def generate_launch_description():
             description='Usar tiempo de simulación'
         ),
         # Don't move this -_-
-        Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        name='static_tf2',
-        arguments=[
-            '0', '0', '0',  # x, y, z
-            '0', '0', '0',  # roll, pitch, yaw
-            'world',    # parent frame
-            'map' # child frame
-        ],),
+        # Node(
+        # package='tf2_ros',
+        # executable='static_transform_publisher',
+        # name='static_tf2',
+        # arguments=[
+        #     '0', '0', '0',  # x, y, z
+        #     '0', '0', '0',  # roll, pitch, yaw
+        #     'world',    # parent frame
+        #     'base_footprint' # child frame
+        # ],),
         OpaqueFunction(function=launch_setup)
     ])

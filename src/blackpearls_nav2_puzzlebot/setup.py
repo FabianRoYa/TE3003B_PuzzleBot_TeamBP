@@ -49,6 +49,7 @@ setup(
         'console_scripts': [
             'localisation = blackpearls_nav2_puzzlebot.localisation:main',
             'point_stabilisation_controller = blackpearls_nav2_puzzlebot.point_stabilisation_controller:main',
+            'joint_state_publisher = blackpearls_nav2_puzzlebot.joint_state_publisher:main',
         ],
     },
 )

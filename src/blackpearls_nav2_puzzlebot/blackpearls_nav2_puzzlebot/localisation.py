@@ -25,10 +25,10 @@ class Localisation(Node):
             Float32,self.get_parameter('wl').value, self.wl_callback, qos.qos_profile_sensor_data)
 
         # Create publishers
-        self.odom_pub = self.create_publisher(Odometry, 'ground_truth', 10)
-        # self.tf_broadcaster = TransformBroadcaster(self)
-        # self.wr_pub = self.create_publisher(Float32, 'wr_loc', qos.qos_profile_sensor_data)
-        # self.wl_pub = self.create_publisher(Float32, 'wl_loc', qos.qos_profile_sensor_data)
+        self.odom_pub = self.create_publisher(Odometry, 'odom', 10)
+        self.tf_broadcaster = TransformBroadcaster(self)
+        self.wr_pub = self.create_publisher(Float32, 'wr_loc', qos.qos_profile_sensor_data)
+        self.wl_pub = self.create_publisher(Float32, 'wl_loc', qos.qos_profile_sensor_data)
 
         # Robot constants
         self.r = 0.05    # Wheel radius [m]
@@ -107,20 +107,20 @@ class Localisation(Node):
     def publish_odometry(self):
         odom_msg = Odometry()
         odom_msg.header.stamp = self.get_clock().now().to_msg()
-        odom_msg.header.frame_id = 'world'
-        odom_msg.child_frame_id = 'base_footprint'
+        odom_msg.header.frame_id = 'base_footprint'
+        odom_msg.child_frame_id = 'base_link'
         
-        # # Position
-        # odom_msg.pose.pose.position.x = self.x
-        # odom_msg.pose.pose.position.y = self.y
-        # odom_msg.pose.pose.position.z = 0.05
+        # Position
+        odom_msg.pose.pose.position.x = self.x
+        odom_msg.pose.pose.position.y = self.y
+        odom_msg.pose.pose.position.z = 0.05
         
-        # # Orientation
-        # q = transforms3d.euler.euler2quat(0, 0, self.theta)
-        # odom_msg.pose.pose.orientation.x = q[1]
-        # odom_msg.pose.pose.orientation.y = q[2]
-        # odom_msg.pose.pose.orientation.z = q[3]
-        # odom_msg.pose.pose.orientation.w = q[0]
+        # Orientation
+        q = transforms3d.euler.euler2quat(0, 0, self.theta)
+        odom_msg.pose.pose.orientation.x = q[1]
+        odom_msg.pose.pose.orientation.y = q[2]
+        odom_msg.pose.pose.orientation.z = q[3]
+        odom_msg.pose.pose.orientation.w = q[0]
 
         # Covariance matrix (NEW SECTION)
         odom_msg.pose.covariance = [0.0]*36

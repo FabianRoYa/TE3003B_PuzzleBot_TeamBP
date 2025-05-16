@@ -98,7 +98,23 @@ def generate_launch_description():
 
         robot_launches.append(robot_launch)
     
-        
+    # -----------------------------------------------------------------------------
+    #                         ROBOT JOINT STATE PUBLISHER   
+    # -----------------------------------------------------------------------------
+    
+        joint_state_publisher_node = Node(
+            package='blackpearls_nav2_puzzlebot',
+            executable='joint_state_publisher',
+            name='joint_state_publisher',
+            output='screen',
+            parameters=[{
+                'initial_pose': [float(x), float(y), float(yaw)],
+                'odometry_frame': 'base_footprint'
+            }]
+        )
+        robot_launches.append(joint_state_publisher_node)
+    
+    
     # -----------------------------------------------------------------------------
     #                         ROBOT CONTROL NODES
     # -----------------------------------------------------------------------------
@@ -108,7 +124,7 @@ def generate_launch_description():
             name='point_stabilisation_controller',
             output='screen',
         )
-        # robot_launches.append(controller_node)
+        robot_launches.append(controller_node)
         
     # -----------------------------------------------------------------------------
     #                         ROBOT LOCALIZATION NODES
@@ -118,18 +134,19 @@ def generate_launch_description():
     ### but it doesn't work, when ever I try to run it covariance matrix 
     ### is not published or is only zeros
     
-        # localisation_node=Node(
-        #     package='blackpearls_nav2_puzzlebot',
-        #     executable='localisation',
-        #     name='localisation',
-        #     output='screen',
-        #     parameters=[{
-        #         'wr': 'VelocityEncR',
-        #         'wl': 'VelocityEncL',
-        #         'initialPose':[x, y, yaw], 
-        #     }]
-        # )
-        # robot_launches.append(localisation_node)
+        localisation_node=Node(
+            package='blackpearls_nav2_puzzlebot',
+            executable='localisation',
+            name='localisation',
+            output='screen',
+            parameters=[{
+                'wr': 'VelocityEncR',
+                'wl': 'VelocityEncL',
+                'initialPose':[float(x), float(y),float(yaw)], 
+            }]
+        )
+        robot_launches.append(localisation_node)
+        
     # =============================================================================
     #                         MAP or NAV LAUNCH CONFIGURATION
     # =============================================================================
@@ -172,13 +189,12 @@ def generate_launch_description():
             default_value='map',
             description='Name of the map to load'
         ),
-        # static_tf2,
-        
+  
         # Core launches
-        gazebo_launch,
+        # gazebo_launch,
         *robot_launches,
         
-        # Mode-specific launches
+        # Mode-specific lbase_linkaunches
         map_mode_launch,
         nav_mode_launch,
         
