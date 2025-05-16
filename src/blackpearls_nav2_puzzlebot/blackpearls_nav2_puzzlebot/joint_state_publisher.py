@@ -87,17 +87,17 @@ class JointStatePublisher(Node):
     def publish_static_transforms(self):
         static_transforms = [
             self.create_transform(
-                parent_frame='world',
+                parent_frame='map',
                 child_frame=self.odomFrame,
                 x=0.0, y=0.0, z=0.0,
                 roll=0.0, pitch=0.0, yaw=0.0
             ),
-            # self.create_transform(  
-            #     parent_frame=f'{self.namespace}/base_link',
-            #     child_frame=f'{self.namespace}/base_footprint',
-            #     x=0.0, y=0.0, z=self.base_height,
-            #     roll=0.0, pitch=0.0, yaw=0.0
-            # )
+            self.create_transform(  
+                parent_frame=self.odomFrame,
+                child_frame=f'{self.namespace}/base_footprint',
+                x=0.0, y=0.0, z=self.base_height,
+                roll=0.0, pitch=0.0, yaw=0.0
+            )
         ]
         self.tf_static_broadcaster.sendTransform(static_transforms)
 
@@ -126,7 +126,7 @@ class JointStatePublisher(Node):
         # Publish base_link transform
         dynamic_transform = TransformStamped()
         dynamic_transform.header.stamp = self.get_clock().now().to_msg()
-        dynamic_transform.header.frame_id = self.odomFrame
+        dynamic_transform.header.frame_id = f'{self.namespace}/base_footprint'
         dynamic_transform.child_frame_id = f'{self.namespace}/base_link'
         
         dynamic_transform.transform.translation.x = self.x

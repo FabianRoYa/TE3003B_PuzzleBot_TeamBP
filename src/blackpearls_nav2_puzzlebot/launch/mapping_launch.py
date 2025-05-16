@@ -28,12 +28,12 @@ def launch_setup(context, *args, **kwargs):
     return [
         DeclareLaunchArgument(
             'use_sim_time',
-            default_value='true',
+            default_value='False',
             description='Use simulation time'
         ),
         DeclareLaunchArgument(
             'slam_params_file',
-            default_value=os.path.join(base_path, 'param', 'nav2_mapping.yaml'),
+            default_value=os.path.join(base_path, 'param', 'puzzlebot.yaml'),
             description='Full path to Slam Toolbox params file'
         ),
         
@@ -51,21 +51,6 @@ def launch_setup(context, *args, **kwargs):
                 os.path.join(slam_toolbox_dir, 'launch', 'online_async_launch.py')
             ),
             launch_arguments=args.items()
-        ),
-        
-        # Map Saver (se ejecuta 10 segundos después del inicio)
-        TimerAction(
-            period=25.0,
-            actions=[
-                Node(
-                    package='nav2_map_server',
-                    executable='map_saver_cli',
-                    name='map_saver',
-                    output='screen',
-                    arguments=['-t', 'map', '-f', os.path.join(maps_dir, map_name)],
-                    parameters=[{'save_map_timeout': 10000}]
-                )
-            ]
         ),
         
         # RViz

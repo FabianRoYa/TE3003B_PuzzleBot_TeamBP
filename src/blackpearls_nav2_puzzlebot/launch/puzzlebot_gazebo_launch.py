@@ -109,7 +109,7 @@ def generate_launch_description():
             output='screen',
             parameters=[{
                 'initial_pose': [float(x), float(y), float(yaw)],
-                'odometry_frame': 'base_footprint'
+                'odometry_frame': 'odom'
             }]
         )
         robot_launches.append(joint_state_publisher_node)
