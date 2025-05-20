@@ -13,7 +13,7 @@ from launch_ros.actions import Node
 # -----------------------------------------------------------------------------
 
 def launch_setup(context, *args, **kwargs):
-    use_sim_time = LaunchConfiguration('use_sim_time', default='True')
+    use_sim_time = LaunchConfiguration('use_sim_time', default='False')
     base_path = get_package_share_directory('blackpearls_nav2_puzzlebot')
     rviz_file = os.path.join(base_path, 'rviz', "nav2_navigating.rviz")
     map_value = LaunchConfiguration('map_name').perform(context)
@@ -51,7 +51,7 @@ def launch_setup(context, *args, **kwargs):
 
         DeclareLaunchArgument(
             'use_sim_time',
-            default_value='True',
+            default_value='False',
             description='Use simulation (Gazebo) clock if true'),
 
         IncludeLaunchDescription(
