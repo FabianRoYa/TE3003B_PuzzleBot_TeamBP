@@ -20,7 +20,7 @@ def generate_launch_description():
     # General Gazebo settings
     pause = 'false'           # Start Gazebo in paused state, world tf is not generated until Gazebo starts
     verbosity = '4'           # Gazebo log verbosity level
-    use_sim_time = 'true'     # Enable use of simulated clock (for ROS time sync)
+    use_sim_time = 'false'     # Enable use of simulated clock (for ROS time sync)
 
     # mode_rviz = DeclareLaunchArgument(
     #     'mode',
