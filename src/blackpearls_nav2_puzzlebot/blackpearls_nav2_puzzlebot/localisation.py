@@ -35,8 +35,8 @@ class Localisation(Node):
         self.L = 0.19    # Wheel separation [m]
 
         # State variables
-        self.x = 0.0     # Position x [m]
-        self.y = 0.0     # Position y [m]
+        self.x = 0.3     # Position x [m]
+        self.y = 2.66     # Position y [m]
         self.theta = 0.0 # Orientation [rad]
         self.wr = 0.0    # Right wheel speed [rad/s]
         self.wl = 0.0    # Left wheel speed [rad/s]
@@ -107,13 +107,13 @@ class Localisation(Node):
     def publish_odometry(self):
         odom_msg = Odometry()
         odom_msg.header.stamp = self.get_clock().now().to_msg()
-        odom_msg.header.frame_id = 'base_footprint'
-        odom_msg.child_frame_id = 'base_link'
+        odom_msg.header.frame_id = 'odom'
+        odom_msg.child_frame_id = 'base_footprint'
         
         # Position
         odom_msg.pose.pose.position.x = self.x
         odom_msg.pose.pose.position.y = self.y
-        odom_msg.pose.pose.position.z = 0.05
+        odom_msg.pose.pose.position.z = 0.0
         
         # Orientation
         q = transforms3d.euler.euler2quat(0, 0, self.theta)
