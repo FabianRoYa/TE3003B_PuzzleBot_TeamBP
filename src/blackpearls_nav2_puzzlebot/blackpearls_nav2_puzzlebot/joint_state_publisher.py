@@ -81,8 +81,8 @@ class JointStatePublisher(Node):
 
     def odom_callback(self, msg):
         initial_pose = self.get_parameter('initial_pose').get_parameter_value().double_array_value
-        self.x = initial_pose[0] + msg.pose.pose.position.x
-        self.y = initial_pose[1] + msg.pose.pose.position.y
+        self.x = msg.pose.pose.position.x
+        self.y = msg.pose.pose.position.y
         self.q = msg.pose.pose.orientation
 
     def publish_static_transforms(self):

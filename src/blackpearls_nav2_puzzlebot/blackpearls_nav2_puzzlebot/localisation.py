@@ -16,7 +16,7 @@ class Localisation(Node):
         self.declare_parameter('wr', 'wr')
         self.declare_parameter('wl', 'wl')
 
-        self.declare_parameter('initialPose',[0.0,0.0,0.0])
+        # self.declare_parameter('initialPose',[0.0,0.0,0.0])
 
         # Create subscribers
         self.wr_sub = self.create_subscription(
@@ -25,7 +25,7 @@ class Localisation(Node):
             Float32,self.get_parameter('wl').value, self.wl_callback, qos.qos_profile_sensor_data)
 
         # Create publishers
-        self.odom_pub = self.create_publisher(Odometry, 'ground_truth', 10)
+        self.odom_pub = self.create_publisher(Odometry, 'odom', 10)
         # self.tf_broadcaster = TransformBroadcaster(self)
         self.wr_pub = self.create_publisher(Float32, 'wr_loc', qos.qos_profile_sensor_data)
         self.wl_pub = self.create_publisher(Float32, 'wl_loc', qos.qos_profile_sensor_data)
@@ -35,9 +35,9 @@ class Localisation(Node):
         self.L = 0.19    # Wheel separation [m]
 
         # State variables
-        self.x = self.get_parameter('initialPose').value[0]  # Position x [m]
-        self.y = self.get_parameter('initialPose').value[1]  # Position y [m]
-        self.theta = self.get_parameter('initialPose').value[2]  # Orientation [rad]
+        self.x = 0.0  # Position x [m]
+        self.y = 0.0  # Position y [m]
+        self.theta = 0.0  # Orientation [rad]
         self.wr = 0.0    # Right wheel speed [rad/s]
         self.wl = 0.0    # Left wheel speed [rad/s]
 

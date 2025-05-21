@@ -33,7 +33,7 @@ def launch_setup(context, *args, **kwargs):
         ),
         DeclareLaunchArgument(
             'slam_params_file',
-            default_value=os.path.join(base_path, 'param', 'puzzlebot.yaml'),
+            default_value=os.path.join(base_path, 'param', 'slam_toolbox_config.yaml'),
             description='Full path to Slam Toolbox params file'
         ),
         
