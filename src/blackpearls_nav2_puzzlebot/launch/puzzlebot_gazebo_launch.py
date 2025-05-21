@@ -194,7 +194,7 @@ def generate_launch_description():
         # gazebo_launch,
         *robot_launches,
         
-        # Mode-specific lbase_linkaunches
+        # Mode-specific launches
         map_mode_launch,
         nav_mode_launch,
         
