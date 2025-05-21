@@ -53,21 +53,6 @@ def launch_setup(context, *args, **kwargs):
             launch_arguments=args.items()
         ),
         
-        # Map Saver (se ejecuta 10 segundos después del inicio)
-        TimerAction(
-            period=25.0,
-            actions=[
-                Node(
-                    package='nav2_map_server',
-                    executable='map_saver_cli',
-                    name='map_saver',
-                    output='screen',
-                    arguments=['-t', 'map', '-f', os.path.join(maps_dir, map_name)],
-                    parameters=[{'save_map_timeout': 10000}]
-                )
-            ]
-        ),
-        
         # RViz
         Node(
             package='rviz2',
@@ -92,15 +77,15 @@ def generate_launch_description():
             description='Usar tiempo de simulación'
         ),
         # Don't move this -_-
-        Node(
-        package='tf2_ros',
-        executable='static_transform_publisher',
-        name='static_tf2',
-        arguments=[
-            '0', '0', '0',  # x, y, z
-            '0', '0', '0',  # roll, pitch, yaw
-            'world',    # parent frame
-            'map' # child frame
-        ],),
+        # Node(
+        # package='tf2_ros',
+        # executable='static_transform_publisher',
+        # name='static_tf2',
+        # arguments=[
+        #     '0', '0', '0',  # x, y, z
+        #     '0', '0', '0',  # roll, pitch, yaw
+        #     'world',    # parent frame
+        #     'map' # child frame
+        # ],),
         OpaqueFunction(function=launch_setup)
     ])

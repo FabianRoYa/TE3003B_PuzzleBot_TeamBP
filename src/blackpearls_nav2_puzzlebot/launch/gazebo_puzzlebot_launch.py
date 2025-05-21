@@ -20,7 +20,7 @@ def generate_launch_description():
     declare_prefix_arg = DeclareLaunchArgument('prefix', default_value='', description='Prefix for robot links and namespaces')
     declare_camera_frame_arg = DeclareLaunchArgument('camera_frame', default_value='', description='Camera frame')
     declare_tof_frame_arg = DeclareLaunchArgument('tof_frame', default_value='', description='TOF sensor frame')
-    declare_lidar_frame_arg = DeclareLaunchArgument('lidar_frame', default_value='', description='Lidar sensor frame')
+    declare_lidar_frame_arg = DeclareLaunchArgument('lidar_frame', default_value='laser_frame', description='Lidar sensor frame')
 
     # Get launch configurations (parameters used later in launch file)
     robot_name = LaunchConfiguration('robot_name')
@@ -165,9 +165,10 @@ def generate_launch_description():
     # Final launch description list of all declared arguments and nodes
     l_d = [
         declare_robot_name_arg, declare_robot_arg, declare_x_arg, declare_y_arg, declare_th_arg, declare_sim_time_arg, declare_prefix_arg,
-        robot_state_publisher_node, spawn_robot,
-        start_gazebo_ros_bridge_hacker_ed, start_gazebo_ros_bridge_jetson_lidar_ed, start_gazebo_ros_bridge_jetson_ed,
-        start_gazebo_ros_image_bridge_cmd,
+        robot_state_publisher_node, 
+        # spawn_robot,
+        # start_gazebo_ros_bridge_hacker_ed, start_gazebo_ros_bridge_jetson_lidar_ed, start_gazebo_ros_bridge_jetson_ed,
+        # start_gazebo_ros_image_bridge_cmd,
         declare_camera_frame_arg, declare_tof_frame_arg, declare_lidar_frame_arg
     ]
 

@@ -20,20 +20,15 @@ def generate_launch_description():
     # General Gazebo settings
     pause = 'false'           # Start Gazebo in paused state, world tf is not generated until Gazebo starts
     verbosity = '4'           # Gazebo log verbosity level
-    use_sim_time = 'true'     # Enable use of simulated clock (for ROS time sync)
+    use_sim_time = 'False'     # Enable use of simulated clock (for ROS time sync)
 
-    # mode_rviz = DeclareLaunchArgument(
-    #     'mode',
-    #     default_value='nav',
-    #     description='Mode to load RVIZ configuration'
-    # )
     
     # Robot configurations (can be extended or loaded from a JSON file in future)
     robot_config_list = [
         {
             'name': '',
             'type': 'puzzlebot_jetson_lidar_ed',
-            'x': 0.3, 'y': 2.66, 'yaw': 0.0,
+            'x': 0.3, 'y': 2.6, 'yaw': 0.0,
             'lidar_frame': 'laser_frame',
             'camera_frame': 'camera_link_optical',
             'tof_frame': 'tof_link'
@@ -98,38 +93,37 @@ def generate_launch_description():
 
         robot_launches.append(robot_launch)
     
-        
-    # -----------------------------------------------------------------------------
-    #                         ROBOT CONTROL NODES
-    # -----------------------------------------------------------------------------
-        controller_node = Node(
-            package='blackpearls_nav2_puzzlebot',
-            executable='point_stabilisation_controller',
-            name='point_stabilisation_controller',
-            output='screen',
-        )
-        # robot_launches.append(controller_node)
-        
     # -----------------------------------------------------------------------------
     #                         ROBOT LOCALIZATION NODES
     # -----------------------------------------------------------------------------
+        localisation_node=Node(
+            package='blackpearls_nav2_puzzlebot',
+            executable='localisation',
+            name='localisation',
+            output='screen',
+            parameters=[{
+                'wr': 'VelocityEncR',
+                'wl': 'VelocityEncL',
+                'initialPose':[float(x), float(y), float(yaw)], 
+            }]
+        )
+        robot_launches.append(localisation_node)
     
-    ### This node should gave the robot's covariance matrix 
-    ### but it doesn't work, when ever I try to run it covariance matrix 
-    ### is not published or is only zeros
-    
-        # localisation_node=Node(
-        #     package='blackpearls_nav2_puzzlebot',
-        #     executable='localisation',
-        #     name='localisation',
-        #     output='screen',
-        #     parameters=[{
-        #         'wr': 'VelocityEncR',
-        #         'wl': 'VelocityEncL',
-        #         'initialPose':[x, y, yaw], 
-        #     }]
-        # )
-        # robot_launches.append(localisation_node)
+    #------------------------------------------------------------------------------
+    #                       ROBOT JOINT STATE PUBLISHER                            
+    #------------------------------------------------------------------------------
+        JointStatePublisher_node= Node(
+            package='blackpearls_nav2_puzzlebot',
+            executable='jointstatepublisher',
+            name= 'JointStatePublisher',
+            output='screen',
+            parameters=[{
+                'initial_pose':[float(x), float(y), float(yaw)],
+            }]
+            
+        )
+        robot_launches.append(JointStatePublisher_node)
+
     # =============================================================================
     #                         MAP or NAV LAUNCH CONFIGURATION
     # =============================================================================
@@ -172,10 +166,9 @@ def generate_launch_description():
             default_value='map',
             description='Name of the map to load'
         ),
-        # static_tf2,
         
         # Core launches
-        gazebo_launch,
+        # gazebo_launch,
         *robot_launches,
         
         # Mode-specific launches
