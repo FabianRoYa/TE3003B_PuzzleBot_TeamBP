@@ -16,7 +16,7 @@ def generate_launch_description():
     declare_x_arg = DeclareLaunchArgument('x', default_value='0.0', description='X position of the robot')
     declare_y_arg = DeclareLaunchArgument('y', default_value='0.0', description='Y position of the robot')
     declare_th_arg = DeclareLaunchArgument('yaw', default_value='0.0', description='Yaw angle of the robot')
-    declare_sim_time_arg = DeclareLaunchArgument('use_sim_time', default_value='True', description='Use simulated time')
+    declare_sim_time_arg = DeclareLaunchArgument('use_sim_time', default_value='False', description='Use simulated time')
     declare_prefix_arg = DeclareLaunchArgument('prefix', default_value='', description='Prefix for robot links and namespaces')
     declare_camera_frame_arg = DeclareLaunchArgument('camera_frame', default_value='', description='Camera frame')
     declare_tof_frame_arg = DeclareLaunchArgument('tof_frame', default_value='', description='TOF sensor frame')

@@ -28,12 +28,12 @@ def launch_setup(context, *args, **kwargs):
     return [
         DeclareLaunchArgument(
             'use_sim_time',
-            default_value='true',
+            default_value='False',
             description='Use simulation time'
         ),
         DeclareLaunchArgument(
             'slam_params_file',
-            default_value=os.path.join(base_path, 'param', 'nav2_mapping.yaml'),
+            default_value=os.path.join(base_path, 'param', 'puzzlebot.yaml'),
             description='Full path to Slam Toolbox params file'
         ),
         

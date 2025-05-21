@@ -1,6 +1,6 @@
 amcl:
   ros__parameters:
-    use_sim_time: True               # Usar el reloj simulado de ROS (suscribirse a /clock)
+    use_sim_time: False               # Usar el reloj simulado de ROS (suscribirse a /clock)
     initial_pose:
       x: 0.31                         # Posición inicial en X (m) para la estimación de la pose
       y: 2.85                        # Posición inicial en Y (m) para la estimación de la pose
@@ -47,15 +47,15 @@ amcl:
 
 amcl_map_client:
   ros__parameters:
-    use_sim_time: True # Usar el reloj simulado de ROS (suscribirse a /clock)
+    use_sim_time: False # Usar el reloj simulado de ROS (suscribirse a /clock)
 
 amcl_rclcpp_node:
   ros__parameters:
-    use_sim_time: True # Usar el reloj simulado de ROS (suscribirse a /clock)
+    use_sim_time: False # Usar el reloj simulado de ROS (suscribirse a /clock)
 
 bt_navigator:
   ros__parameters:
-    use_sim_time: True                      # Usar el reloj simulado de ROS (suscribirse a /clock)
+    use_sim_time: False                      # Usar el reloj simulado de ROS (suscribirse a /clock)
     global_frame: map                       # Frame global de referencia para la navegación (mapa)
     robot_base_frame: base_link             # Frame base del robot utilizado para el seguimiento
     odom_topic: /odom                       # Topic de odometría que provee la posición del robot
@@ -101,11 +101,11 @@ bt_navigator:
 
 bt_navigator_rclcpp_node:
   ros__parameters:
-    use_sim_time: True # Usar el reloj simulado de ROS (suscribirse a /clock)
+    use_sim_time: False # Usar el reloj simulado de ROS (suscribirse a /clock)
 
 controller_server:
   ros__parameters:
-    use_sim_time: True                       # Usar el reloj simulado de ROS (suscribirse a /clock)
+    use_sim_time: False                       # Usar el reloj simulado de ROS (suscribirse a /clock)
     controller_frequency: 10.0               # Frecuencia (Hz) a la que se ejecuta el controlador local
     min_x_velocity_threshold: 0.001          # Velocidad mínima en X (m/s) para considerar movimiento
     min_y_velocity_threshold: 0.0            # Velocidad mínima en Y (m/s) para considerar movimiento lateral
@@ -180,7 +180,7 @@ controller_server:
 
 controller_server_rclcpp_node:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
 
 local_costmap:
   local_costmap:
@@ -189,8 +189,8 @@ local_costmap:
       publish_frequency: 2.0            # Frecuencia (Hz) a la que se publica el costmap local
       global_frame: odom                # Frame de referencia global para el costmap
       robot_base_frame: base_link       # Frame base del robot en el costmap
-      use_sim_time: True                # Usar el reloj simulado de ROS (suscribirse a /clock)
-      rolling_window: true              # Mantener el costmap centrado en el robot (ventana móvil)
+      use_sim_time: False                # Usar el reloj simulado de ROS (suscribirse a /clock)
+      rolling_window: True              # Mantener el costmap centrado en el robot (ventana móvil)
       width: 4                          # Ancho del costmap en metros
       height: 4                         # Alto del costmap en metros
       resolution: 0.03                  # Tamaño de cada celda en metros
@@ -217,11 +217,11 @@ local_costmap:
 
   local_costmap_client:
     ros__parameters:
-      use_sim_time: True              # Usar el reloj simulado de ROS (suscribirse a /clock)
+      use_sim_time: False              # Usar el reloj simulado de ROS (suscribirse a /clock)
 
   local_costmap_rclcpp_node:
     ros__parameters:
-      use_sim_time: True              # Usar el reloj simulado de ROS (suscribirse a /clock)
+      use_sim_time: False              # Usar el reloj simulado de ROS (suscribirse a /clock)
 
 
 global_costmap:
@@ -231,7 +231,7 @@ global_costmap:
       publish_frequency: 1.0           # Frecuencia (Hz) a la que se publica el costmap global
       global_frame: map                # Frame global de referencia (mapa)
       robot_base_frame: base_link      # Frame base del robot utilizado en el costmap
-      use_sim_time: True               # Usar el reloj simulado de ROS (suscribirse a /clock)
+      use_sim_time: False              # Usar el reloj simulado de ROS (suscribirse a /clock)
       robot_radius: 0.12               # Radio del robot (m) para ajustar la huella
       resolution: 0.03                 # Tamaño de celda del costmap (m)
       track_unknown_space: true        # Marcar el espacio desconocido como costo alto
@@ -264,16 +264,16 @@ global_costmap:
 
   global_costmap_client:
     ros__parameters:
-      use_sim_time: True               # Usar el reloj simulado de ROS (suscribirse a /clock)
+      use_sim_time: False               # Usar el reloj simulado de ROS (suscribirse a /clock)
 
   global_costmap_rclcpp_node:
     ros__parameters:
-      use_sim_time: True               # Usar el reloj simulado de ROS (suscribirse a /clock)
+      use_sim_time: False               # Usar el reloj simulado de ROS (suscribirse a /clock)
 
 
 map_server:
   ros__parameters:
-    use_sim_time: True               # Usar el reloj simulado de ROS (suscribirse a /clock)
+    use_sim_time: False               # Usar el reloj simulado de ROS (suscribirse a /clock)
     free_thresh_default: 0.25        # Umbral de probabilidad por debajo del cual una celda se considera libre
     occupied_thresh_default: 0.65    # Umbral de probabilidad por encima del cual una celda se considera ocupada
     yaml_filename: "maze_map.yaml"   # Nombre del archivo YAML que describe el mapa (ruta relativa)
@@ -281,7 +281,7 @@ map_server:
 
 map_saver:
   ros__parameters:
-    use_sim_time: True                    # Usar el reloj simulado de ROS (suscribirse a /clock)
+    use_sim_time: False                    # Usar el reloj simulado de ROS (suscribirse a /clock)
     save_map_timeout: 10.0                # Tiempo máximo (s) para esperar a que se complete el guardado del mapa
     free_thresh_default: 0.25             # Umbral de probabilidad por debajo del cual las celdas se guardan como libres
     occupied_thresh_default: 0.65         # Umbral de probabilidad por encima del cual las celdas se guardan como ocupadas
@@ -290,7 +290,7 @@ map_saver:
 planner_server:
   ros__parameters:
     expected_planner_frequency: 20.0    # Frecuencia (Hz) con la que se espera generar nuevos planes
-    use_sim_time: True                 # Usar el reloj simulado de ROS (suscribirse a /clock)
+    use_sim_time: False                 # Usar el reloj simulado de ROS (suscribirse a /clock)
     planner_plugins: ["GridBased"]     # Lista de plugins de planificación global a cargar
 
     GridBased:
@@ -304,7 +304,7 @@ planner_server:
 
 planner_server_rclcpp_node:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
 
 recoveries_server:
   ros__parameters:
@@ -321,7 +321,7 @@ recoveries_server:
     global_frame: odom                            # Frame global usado para referencias de posición
     robot_base_frame: base_link                   # Frame base del robot para calcular movimientos
     transform_timeout: 0.1                        # Tiempo máximo (s) para esperar transformaciones TF
-    use_sim_time: True                            # Usar el reloj simulado de ROS (suscribirse a /clock)
+    use_sim_time: False                           # Usar el reloj simulado de ROS (suscribirse a /clock)
     simulate_ahead_time: 2.0                      # Tiempo (s) hacia adelante para simular el efecto del recovery
     max_rotational_vel: 1.0                       # Velocidad angular máxima (rad/s) permitida en recoveries
     min_rotational_vel: 0.4                       # Velocidad angular mínima (rad/s) permitida en recoveries
@@ -330,7 +330,7 @@ recoveries_server:
 
 robot_state_publisher:
   ros__parameters:
-    use_sim_time: True
+    use_sim_time: False
 
 waypoint_follower:
   ros__parameters:
