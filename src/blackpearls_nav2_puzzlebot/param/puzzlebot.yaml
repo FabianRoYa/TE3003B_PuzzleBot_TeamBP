@@ -35,7 +35,7 @@ amcl:
     save_pose_rate: 0.5              # Frecuencia (Hz) para guardar la pose estimada
     sigma_hit: 0.2                   # Desviación estándar del ruido gaussiano en el modelo de impactos
     tf_broadcast: true               # Publicar la transformada entre map y odom
-    transform_tolerance: 0.5         # Tolerancia (s) para sincronización de transformadas
+    transform_tolerance: 0.7         # Tolerancia (s) para sincronización de transformadas
     update_min_a: 0.2                # Cambio mínimo de ángulo (rad) que desencadena actualización
     update_min_d: 0.02               # Cambio mínimo de distancia (m) que desencadena actualización
     z_hit: 0.5                       # Peso de la componente de lectura correcta (hit) en el modelo láser
@@ -58,10 +58,10 @@ bt_navigator:
     use_sim_time: False                      # Usar el reloj simulado de ROS (suscribirse a /clock)
     global_frame: map                       # Frame global de referencia para la navegación (mapa)
     robot_base_frame: base_link             # Frame base del robot utilizado para el seguimiento
-    odom_topic: /odom                       # Topic de odometría que provee la posición del robot
+    odom_topic: odom                       # Topic de odometría que provee la posición del robot
     default_bt_xml_filename: "navigate_w_replanning_and_recovery.xml"  # Archivo XML del Behavior Tree por defecto
     bt_loop_duration: 2                     # Duración (s) de cada ciclo de ejecución del Behavior Tree
-    #bt_loop_rate: 50.0                     # Frecuencia (Hz) para ejecutar el ciclo del Behavior Tree
+    bt_loop_rate: 50.0                     # Frecuencia (Hz) para ejecutar el ciclo del Behavior Tree
     default_server_timeout: 20              # Tiempo máximo (s) de espera para que los servidores de acción respondan
     enable_groot_monitoring: True           # Activar la integración con Groot para visualizar y depurar el BT
     groot_zmq_publisher_port: 1666          # Puerto ZMQ donde Groot publica información del BT
@@ -101,7 +101,7 @@ bt_navigator:
 
 bt_navigator_rclcpp_node:
   ros__parameters:
-    use_sim_time: False # Usar el reloj simulado de ROS (suscribirse a /clock)
+    use_sim_time: False   # Usar el reloj simulado de ROS (suscribirse a /clock)
 
 controller_server:
   ros__parameters:
@@ -125,8 +125,8 @@ controller_server:
     general_goal_checker:
       stateful: True                                    # Mantiene estado entre chequeos
       plugin: "nav2_controller::SimpleGoalChecker"      # Clase del plugin de chequeo de goal
-      xy_goal_tolerance: 0.05                           # Tolerancia (m) en posición para considerar meta alcanzada
-      yaw_goal_tolerance: 0.3                           # Tolerancia (rad) en orientación para meta alcanzada
+      xy_goal_tolerance: 0.09                           # Tolerancia (m) en posición para considerar meta alcanzada
+      yaw_goal_tolerance: 0.7                           # Tolerancia (rad) en orientación para meta alcanzada
 
     # Parámetros del Dynamic Window Approach (DWB) Local Planner
     FollowPath:
@@ -136,17 +136,17 @@ controller_server:
       min_vel_y: 0.0                                # Velocidad mínima en Y (m/s) permitida
       max_vel_x: 0.30                               # Velocidad máxima en X (m/s)
       max_vel_y: 0.0                                # Velocidad máxima en Y (m/s)
-      max_vel_theta: 3.0                            # Velocidad angular máxima (rad/s)
+      max_vel_theta: 0.3                           # Velocidad angular máxima (rad/s)
       min_speed_xy: 0.0                             # Velocidad mínima combinada (XY) para simulación
       max_speed_xy: 0.5                             # Velocidad máxima combinada (XY) para simulación
       min_speed_theta: -3.0                         # Velocidad angular mínima para simulación
       # Umbral de aceleración para TurtleBot3 (issue #75)
       acc_lim_x: 1.5                                # Límite de aceleración en X (m/s²)
       acc_lim_y: 0.0                                # Límite de aceleración en Y (m/s²)
-      acc_lim_theta: 8.0                            # Límite de aceleración angular (rad/s²)
+      acc_lim_theta: 0.04                            # Límite de aceleración angular (rad/s²)
       decel_lim_x: -1.5                             # Límite de deceleración en X (m/s²)
       decel_lim_y: 0.0                              # Límite de deceleración en Y (m/s²)
-      decel_lim_theta: -8.0                         # Límite de deceleración angular (rad/s²)
+      decel_lim_theta: -0.04                         # Límite de deceleración angular (rad/s²)
       vx_samples: 30                                # Número de muestras de velocidad en X en la simulación
       vy_samples: 0                                 # Número de muestras de velocidad en Y
       vtheta_samples: 50                            # Número de muestras de velocidad angular
@@ -188,13 +188,13 @@ local_costmap:
       update_frequency: 5.0             # Frecuencia (Hz) a la que se actualiza el costmap local
       publish_frequency: 2.0            # Frecuencia (Hz) a la que se publica el costmap local
       global_frame: odom                # Frame de referencia global para el costmap
-      robot_base_frame: base_link       # Frame base del robot en el costmap
+      robot_base_frame: base_footprint       # Frame base del robot en el costmap
       use_sim_time: False                # Usar el reloj simulado de ROS (suscribirse a /clock)
       rolling_window: True              # Mantener el costmap centrado en el robot (ventana móvil)
       width: 4                          # Ancho del costmap en metros
       height: 4                         # Alto del costmap en metros
       resolution: 0.03                  # Tamaño de cada celda en metros
-      robot_radius: 0.12                # Radio del robot para considerar su huella
+      robot_radius: 0.16                # Radio del robot para considerar su huella
       plugins: ["obstacle_layer", "inflation_layer"]  # Capas cargadas en el costmap
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"  # Clase que infla zonas alrededor de obstáculos
@@ -205,7 +205,7 @@ local_costmap:
         enabled: True                # Activar la detección de obstáculos
         observation_sources: scan    # Sensores usados como fuente de observaciones
         scan:
-          topic: /scan               # Topic del sensor láser
+          topic: scan               # Topic del sensor láser
           max_obstacle_height: 2.0   # Altura máxima (m) de los obstáculos detectados
           clearing: True             # Limpiar celdas cuando el láser ya no detecta obstáculo
           marking: True              # Marcar celdas con obstáculos detectados
@@ -230,9 +230,9 @@ global_costmap:
       update_frequency: 1.0            # Frecuencia (Hz) a la que se actualiza el costmap global
       publish_frequency: 1.0           # Frecuencia (Hz) a la que se publica el costmap global
       global_frame: map                # Frame global de referencia (mapa)
-      robot_base_frame: base_link      # Frame base del robot utilizado en el costmap
+      robot_base_frame: base_footprint      # Frame base del robot utilizado en el costmap
       use_sim_time: False              # Usar el reloj simulado de ROS (suscribirse a /clock)
-      robot_radius: 0.12               # Radio del robot (m) para ajustar la huella
+      robot_radius: 0.16                # Radio del robot (m) para ajustar la huella
       resolution: 0.03                 # Tamaño de celda del costmap (m)
       track_unknown_space: true        # Marcar el espacio desconocido como costo alto
       plugins:                         # Capas cargadas en el costmap global
@@ -244,7 +244,7 @@ global_costmap:
         enabled: True                   # Activar la capa de obstáculos
         observation_sources: scan       # Sensores usados como fuentes de observación
         scan:
-          topic: /scan                  # Topic del sensor láser
+          topic: scan                  # Topic del sensor láser
           max_obstacle_height: 2.0      # Altura máxima (m) de obstáculos detectados
           clearing: True                # Limpiar celdas cuando ya no se detecta obstáculo
           marking: True                 # Marcar celdas con obstáculos detectados
