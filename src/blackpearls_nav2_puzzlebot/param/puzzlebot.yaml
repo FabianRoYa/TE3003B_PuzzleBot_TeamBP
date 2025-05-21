@@ -13,7 +13,7 @@ amcl:
     alpha5: 0.05                     # Ruido extra (bias) en odometría
     base_frame_id: "base_footprint"  # Nombre del frame base del robot
     beam_skip_distance: 0.5          # Distancia (m) mínima para considerar omitir haces defectuosos
-    beam_skip_error_threshold: 0.1  # Umbral de error para detectar haces que no concuerdan con el mapa
+    beam_skip_error_threshold: 0.9  # Umbral de error para detectar haces que no concuerdan con el mapa
     beam_skip_threshold: 0.3         # Fracción de haces erróneos que activa el beam skipping
     do_beamskip: true                # Activar omisión de haces erróneos (beam skipping)
     global_frame_id: map             # Nombre del frame global de referencia (mapa)
@@ -36,7 +36,7 @@ amcl:
     sigma_hit: 0.2                   # Desviación estándar del ruido gaussiano en el modelo de impactos
     tf_broadcast: true               # Publicar la transformada entre map y odom
     transform_tolerance: 0.5         # Tolerancia (s) para sincronización de transformadas
-    update_min_a: 0.2                # Cambio mínimo de ángulo (rad) que desencadena actualización
+    update_min_a: 0.05                # Cambio mínimo de ángulo (rad) que desencadena actualización
     update_min_d: 0.02               # Cambio mínimo de distancia (m) que desencadena actualización
     z_hit: 0.5                       # Peso de la componente de lectura correcta (hit) en el modelo láser
     z_max: 0.05                      # Peso de la componente de lecturas fuera de rango (max) en el modelo láser
@@ -126,7 +126,7 @@ controller_server:
       stateful: True                                    # Mantiene estado entre chequeos
       plugin: "nav2_controller::SimpleGoalChecker"      # Clase del plugin de chequeo de goal
       xy_goal_tolerance: 0.05                           # Tolerancia (m) en posición para considerar meta alcanzada
-      yaw_goal_tolerance: 0.3                           # Tolerancia (rad) en orientación para meta alcanzada
+      yaw_goal_tolerance: 0.31416                           # Tolerancia (rad) en orientación para meta alcanzada
 
     # Parámetros del Dynamic Window Approach (DWB) Local Planner
     FollowPath:
@@ -134,12 +134,12 @@ controller_server:
       debug_trajectory_details: true               # Imprimir detalles de trayectorias para debug
       min_vel_x: -0.3                               # Velocidad mínima en X (m/s) permitida
       min_vel_y: 0.0                                # Velocidad mínima en Y (m/s) permitida
-      max_vel_x: 0.30                               # Velocidad máxima en X (m/s)
+      max_vel_x: 0.3                                # Velocidad máxima en X (m/s)
       max_vel_y: 0.0                                # Velocidad máxima en Y (m/s)
-      max_vel_theta: 3.0                            # Velocidad angular máxima (rad/s)
+      max_vel_theta: 3.1416                         # Velocidad angular máxima (rad/s)
       min_speed_xy: 0.0                             # Velocidad mínima combinada (XY) para simulación
       max_speed_xy: 0.5                             # Velocidad máxima combinada (XY) para simulación
-      min_speed_theta: -3.0                         # Velocidad angular mínima para simulación
+      min_speed_theta: -3.1416                         # Velocidad angular mínima para simulación
       # Umbral de aceleración para TurtleBot3 (issue #75)
       acc_lim_x: 1.5                                # Límite de aceleración en X (m/s²)
       acc_lim_y: 0.0                                # Límite de aceleración en Y (m/s²)
@@ -154,18 +154,11 @@ controller_server:
       linear_granularity: 0.01                      # Resolución (m) para explorar velocidades lineales
       angular_granularity: 0.017                     # Resolución (rad) para explorar velocidades angulares
       transform_tolerance: 0.2                      # Tolerancia (s) para obtener transform en simulación
-      xy_goal_tolerance: 0.1                        # Tolerancia (m) adicional para comprobar goal en planner
+      xy_goal_tolerance: 0.10                        # Tolerancia (m) adicional para comprobar goal en planner
       trans_stopped_velocity: 0.25                  # Umbral (m/s) para considerar al robot detenido
       short_circuit_trajectory_evaluation: True     # Detener evaluación de trayectorias temprano si es mala
       stateful: True                                # Mantener estado interno entre iteraciones
-      critics:                                      # Lista de funciones de coste (críticos) a usar
-        - "RotateToGoal"
-        - "Oscillation"
-        - "BaseObstacle"
-        - "GoalAlign"
-        - "PathAlign"
-        - "PathDist"
-        - "GoalDist"
+      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
       BaseObstacle.scale: 0.01                     # Factor de escala para penalización de obstáculos
       PathAlign.scale: 20.0                        # Factor de escala para alineación al camino
       PathAlign.forward_point_distance: 0.1        # Distancia (m) al punto de evaluación hacia adelante
@@ -194,12 +187,12 @@ local_costmap:
       width: 4                          # Ancho del costmap en metros
       height: 4                         # Alto del costmap en metros
       resolution: 0.03                  # Tamaño de cada celda en metros
-      robot_radius: 0.12                # Radio del robot para considerar su huella
-      plugins: ["obstacle_layer", "inflation_layer"]  # Capas cargadas en el costmap
+      robot_radius: 0.11                # Radio del robot para considerar su huella
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]  # Capas cargadas en el costmap
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"  # Clase que infla zonas alrededor de obstáculos
-        inflation_radius: 0.15        # Radio (m) de inflación alrededor de cada obstáculo
-        cost_scaling_factor: 3.0      # Tasa de decaimiento del costo desde el obstáculo
+        inflation_radius: 0.20        # Radio (m) de inflación alrededor de cada obstáculo
+        cost_scaling_factor: 10.0      # Tasa de decaimiento del costo desde el obstáculo
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"   # Clase que marca y limpia obstáculos
         enabled: True                # Activar la detección de obstáculos
@@ -232,13 +225,10 @@ global_costmap:
       global_frame: map                # Frame global de referencia (mapa)
       robot_base_frame: base_link      # Frame base del robot utilizado en el costmap
       use_sim_time: True               # Usar el reloj simulado de ROS (suscribirse a /clock)
-      robot_radius: 0.12               # Radio del robot (m) para ajustar la huella
+      robot_radius: 0.11               # Radio del robot (m) para ajustar la huella
       resolution: 0.03                 # Tamaño de celda del costmap (m)
       track_unknown_space: true        # Marcar el espacio desconocido como costo alto
-      plugins:                         # Capas cargadas en el costmap global
-        - "static_layer"
-        - "obstacle_layer"
-        - "inflation_layer"
+      plugins: ["static_layer", "inflation_layer"]
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"  # Clase que detecta y marca obstáculos
         enabled: True                   # Activar la capa de obstáculos
@@ -256,10 +246,11 @@ global_costmap:
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"    # Clase que incorpora el mapa estático
         map_subscribe_transient_local: True  # QoS transient local para recibir el mapa
+      always_send_full_costmap: True
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"  # Clase que infla zonas alrededor de obstáculos
-        cost_scaling_factor: 3.0       # Tasa de decaimiento del costo desde el obstáculo
-        inflation_radius: 0.15         # Radio (m) de inflación alrededor de cada obstáculo
+        cost_scaling_factor: 4.0       # Tasa de decaimiento del costo desde el obstáculo
+        inflation_radius: 0.16         # Radio (m) de inflación alrededor de cada obstáculo
       always_send_full_costmap: True   # Publicar siempre el costmap completo, no solo diffs
 
   global_costmap_client:
@@ -336,10 +327,9 @@ waypoint_follower:
   ros__parameters:
     loop_rate: 200                    # Frecuencia (Hz) a la que se ejecuta el bucle principal del seguidor de waypoints
     stop_on_failure: false            # Si es true, detiene el seguimiento al fallar en un waypoint
-    waypoint_task_executor_plugin:    # Plugin que define la acción a realizar en cada waypoint
-      "wait_at_waypoint"
+    waypoint_task_executor_plugin: "wait_at_waypoint"   # Plugin que define la acción a realizar en cada waypoint      
     wait_at_waypoint:
       plugin: "nav2_waypoint_follower::WaitAtWaypoint"  # Clase que implementa la espera en cada waypoint
       enabled: True               # Activar la funcionalidad de espera en waypoint
-      waypoint_pause_duration:    # Duración (s) de la pausa en cada waypoint antes de avanzar al siguiente
-        200
+      waypoint_pause_duration: 200   # Duración (s) de la pausa en cada waypoint antes de avanzar al siguiente
+        
