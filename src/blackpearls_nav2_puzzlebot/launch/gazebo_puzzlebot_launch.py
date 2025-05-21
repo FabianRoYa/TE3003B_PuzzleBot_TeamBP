@@ -182,7 +182,7 @@ def generate_launch_description():
         # start_gazebo_ros_bridge_hacker_ed,
         # start_gazebo_ros_bridge_jetson_lidar_ed, start_gazebo_ros_bridge_jetson_ed,
         # start_gazebo_ros_image_bridge_cmd,
-        # declare_camera_frame_arg, declare_tof_frame_arg, declare_lidar_frame_arg
+        declare_camera_frame_arg, declare_tof_frame_arg, declare_lidar_frame_arg
     ]
 
     return LaunchDescription(l_d)
