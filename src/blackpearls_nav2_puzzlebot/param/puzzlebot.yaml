@@ -34,7 +34,7 @@ amcl:
     robot_model_type: "nav2_amcl::DifferentialMotionModel"  # Modelo de movimiento diferencial
     save_pose_rate: 0.5              # Frecuencia (Hz) para guardar la pose estimada
     sigma_hit: 0.2                   # Desviación estándar del ruido gaussiano en el modelo de impactos
-    tf_broadcast: true               # Publicar la transformada entre map y odom
+    tf_broadcast: false               # Publicar la transformada entre map y odom
     transform_tolerance: 0.7         # Tolerancia (s) para sincronización de transformadas
     update_min_a: 0.2                # Cambio mínimo de ángulo (rad) que desencadena actualización
     update_min_d: 0.02               # Cambio mínimo de distancia (m) que desencadena actualización
@@ -305,7 +305,7 @@ planner_server:
 planner_server_rclcpp_node:
   ros__parameters:
     use_sim_time: False
-loop
+
 recoveries_server:
   ros__parameters:
     costmap_topic: local_costmap/costmap_raw      # Topic del costmap local para leer costos de obstáculo
