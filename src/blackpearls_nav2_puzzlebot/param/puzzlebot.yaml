@@ -6,11 +6,11 @@ amcl:
       y: 2.85                        # Posición inicial en Y (m) para la estimación de la pose
       z: 0.0                         # Altura inicial en Z (m), normalmente 0 para robots diferenciales
     set_initial_pose: true           # Aplicar la pose inicial especificada al arrancar AMCL
-    alpha1: 0.05                     # Ruido de rotación debido a rotación en odometría
-    alpha2: 0.01                     # Ruido de rotación debido a traslación en odometría
+    alpha1: 0.02                     # Ruido de rotación debido a rotación en odometría
+    alpha2: 0.02                     # Ruido de rotación debido a traslación en odometría
     alpha3: 0.02                     # Ruido de traslación debido a traslación en odometría
-    alpha4: 0.01                     # Ruido de traslación debido a rotación en odometría
-    alpha5: 0.05                     # Ruido extra (bias) en odometría
+    alpha4: 0.02                     # Ruido de traslación debido a rotación en odometría
+    alpha5: 0.02                     # Ruido extra (bias) en odometría
     base_frame_id: base_footprint  # Nombre del frame base del robot
     beam_skip_distance: 0.5          # Distancia (m) mínima para considerar omitir haces defectuosos
     beam_skip_error_threshold: 0.1  # Umbral de error para detectar haces que no concuerdan con el mapa
@@ -125,36 +125,36 @@ controller_server:
     general_goal_checker:
       stateful: True                                    # Mantiene estado entre chequeos
       plugin: "nav2_controller::SimpleGoalChecker"      # Clase del plugin de chequeo de goal
-      xy_goal_tolerance: 0.09                           # Tolerancia (m) en posición para considerar meta alcanzada
-      yaw_goal_tolerance: 0.7                           # Tolerancia (rad) en orientación para meta alcanzada
+      xy_goal_tolerance: 0.3                           # Tolerancia (m) en posición para considerar meta alcanzada
+      yaw_goal_tolerance: 0.1                           # Tolerancia (rad) en orientación para meta alcanzada
 
     # Parámetros del Dynamic Window Approach (DWB) Local Planner
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"           # Clase del planner local DWB
       debug_trajectory_details: true               # Imprimir detalles de trayectorias para debug
-      min_vel_x: -0.3                               # Velocidad mínima en X (m/s) permitida
+      min_vel_x: -0.1                               # Velocidad mínima en X (m/s) permitida
       min_vel_y: 0.0                                # Velocidad mínima en Y (m/s) permitida
-      max_vel_x: 0.30                               # Velocidad máxima en X (m/s)
+      max_vel_x: 0.6                               # Velocidad máxima en X (m/s)
       max_vel_y: 0.0                                # Velocidad máxima en Y (m/s)
-      max_vel_theta: 0.3                           # Velocidad angular máxima (rad/s)
+      max_vel_theta: 0.2                           # Velocidad angular máxima (rad/s)
       min_speed_xy: 0.0                             # Velocidad mínima combinada (XY) para simulación
-      max_speed_xy: 0.5                             # Velocidad máxima combinada (XY) para simulación
-      min_speed_theta: -3.0                         # Velocidad angular mínima para simulación
+      max_speed_xy: 0.8                             # Velocidad máxima combinada (XY) para simulación
+      min_speed_theta: -0.2                         # Velocidad angular mínima para simulación
       # Umbral de aceleración para TurtleBot3 (issue #75)
-      acc_lim_x: 1.5                                # Límite de aceleración en X (m/s²)
+      acc_lim_x: 0.2                               # Límite de aceleración en X (m/s²)
       acc_lim_y: 0.0                                # Límite de aceleración en Y (m/s²)
       acc_lim_theta: 0.04                            # Límite de aceleración angular (rad/s²)
-      decel_lim_x: -1.5                             # Límite de deceleración en X (m/s²)
+      decel_lim_x: -0.02                             # Límite de deceleración en X (m/s²)
       decel_lim_y: 0.0                              # Límite de deceleración en Y (m/s²)
       decel_lim_theta: -0.04                         # Límite de deceleración angular (rad/s²)
       vx_samples: 30                                # Número de muestras de velocidad en X en la simulación
       vy_samples: 0                                 # Número de muestras de velocidad en Y
       vtheta_samples: 50                            # Número de muestras de velocidad angular
       sim_time: 1.0                                 # Tiempo (s) de simulación para cada comando
-      linear_granularity: 0.01                      # Resolución (m) para explorar velocidades lineales
-      angular_granularity: 0.017                     # Resolución (rad) para explorar velocidades angulares
+      linear_granularity: 0.1                      # Resolución (m) para explorar velocidades lineales
+      angular_granularity: 0.1                     # Resolución (rad) para explorar velocidades angulares
       transform_tolerance: 0.2                      # Tolerancia (s) para obtener transform en simulación
-      xy_goal_tolerance: 0.1                        # Tolerancia (m) adicional para comprobar goal en planner
+      xy_goal_tolerance: 0.05                        # Tolerancia (m) adicional para comprobar goal en planner
       trans_stopped_velocity: 0.25                  # Umbral (m/s) para considerar al robot detenido
       short_circuit_trajectory_evaluation: True     # Detener evaluación de trayectorias temprano si es mala
       stateful: True                                # Mantener estado interno entre iteraciones
@@ -194,11 +194,11 @@ local_costmap:
       width: 4                          # Ancho del costmap en metros
       height: 4                         # Alto del costmap en metros
       resolution: 0.03                  # Tamaño de cada celda en metros
-      robot_radius: 0.16                # Radio del robot para considerar su huella
+      robot_radius: 0.10                # Radio del robot para considerar su huella
       plugins: ["obstacle_layer", "inflation_layer"]  # Capas cargadas en el costmap
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"  # Clase que infla zonas alrededor de obstáculos
-        inflation_radius: 0.25        # Radio (m) de inflación alrededor de cada obstáculo
+        inflation_radius: 0.15        # Radio (m) de inflación alrededor de cada obstáculo
         cost_scaling_factor: 3.0      # Tasa de decaimiento del costo desde el obstáculo
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"   # Clase que marca y limpia obstáculos
@@ -232,7 +232,7 @@ global_costmap:
       global_frame: map                # Frame global de referencia (mapa)
       robot_base_frame: base_link      # Frame base del robot utilizado en el costmap
       use_sim_time: False              # Usar el reloj simulado de ROS (suscribirse a /clock)
-      robot_radius: 0.16              # Radio del robot (m) para ajustar la huella
+      robot_radius: 0.10              # Radio del robot (m) para ajustar la huella
       resolution: 0.03                 # Tamaño de celda del costmap (m)
       track_unknown_space: true        # Marcar el espacio desconocido como costo alto
       plugins:                         # Capas cargadas en el costmap global
@@ -259,7 +259,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"  # Clase que infla zonas alrededor de obstáculos
         cost_scaling_factor: 3.0       # Tasa de decaimiento del costo desde el obstáculo
-        inflation_radius: 0.25         # Radio (m) de inflación alrededor de cada obstáculo
+        inflation_radius: 0.15         # Radio (m) de inflación alrededor de cada obstáculo
       always_send_full_costmap: True   # Publicar siempre el costmap completo, no solo diffs
 
   global_costmap_client:
@@ -305,7 +305,7 @@ planner_server:
 planner_server_rclcpp_node:
   ros__parameters:
     use_sim_time: False
-
+loop
 recoveries_server:
   ros__parameters:
     costmap_topic: local_costmap/costmap_raw      # Topic del costmap local para leer costos de obstáculo
@@ -323,9 +323,9 @@ recoveries_server:
     transform_timeout: 0.1                        # Tiempo máximo (s) para esperar transformaciones TF
     use_sim_time: False                           # Usar el reloj simulado de ROS (suscribirse a /clock)
     simulate_ahead_time: 2.0                      # Tiempo (s) hacia adelante para simular el efecto del recovery
-    max_rotational_vel: 1.0                       # Velocidad angular máxima (rad/s) permitida en recoveries
-    min_rotational_vel: 0.4                       # Velocidad angular mínima (rad/s) permitida en recoveries
-    rotational_acc_lim: 3.2                       # Límite de aceleración angular (rad/s²) durante recoveries
+    max_rotational_vel: 0.01                       # Velocidad angular máxima (rad/s) permitida en recoveries
+    min_rotational_vel: -0.01                       # Velocidad angular mínima (rad/s) permitida en recoveries
+    rotational_acc_lim: 0.03                       # Límite de aceleración angular (rad/s²) durante recoveries
 
 
 robot_state_publisher:
