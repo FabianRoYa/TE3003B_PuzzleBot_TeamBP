@@ -9,6 +9,7 @@ import numpy as np
 import rclpy.qos as qos
 from std_msgs.msg import Float32
 from rclpy.parameter import Parameter
+from builtin_interfaces.msg import Time
 
 class JointStatePublisher(Node):
 
@@ -22,7 +23,7 @@ class JointStatePublisher(Node):
         self.declare_parameter('odometry_frame', 'odom')
 
         # Configuration parameters
-        self.wheel_radius = 0.05  # Ensure this matches your robot's wheel radius
+        self.wheel_radius = 0.05
         self.base_height = 0.05
         
         # Frames 
@@ -32,7 +33,7 @@ class JointStatePublisher(Node):
         self.joint_pub = self.create_publisher(JointState, 'joint_states', 10)
         self.tf_static_broadcaster = StaticTransformBroadcaster(self)
         self.tf_broadcaster = TransformBroadcaster(self)
-        self.create_timer(0.1, self.timer_callback)
+        self.create_timer(0.01, self.timer_callback)  # 20 Hz
         self.publish_static_transforms()
         
         # Subscribers
@@ -40,7 +41,7 @@ class JointStatePublisher(Node):
             Odometry,
             'odom',
             self.odom_callback,
-            qos.qos_profile_sensor_data
+            qos.qos_profile_system_default  # Mejor QoS
         )
         self.wr_sub = self.create_subscription(
             Float32, 
@@ -58,85 +59,88 @@ class JointStatePublisher(Node):
         # State variables
         self.x = 0.0
         self.y = 0.0
-        self.q = None
-        self.wr = 0.0  # Angular velocity (rad/s)
-        self.wl = 0.0  # Angular velocity (rad/s)
+        self.q = [0.0, 0.0, 0.0, 1.0]  # Quaternion neutro inicial
+        self.wr = 0.0
+        self.wl = 0.0
+        self.last_time = self.get_clock().now()  # Para cálculo correcto de dt
         
         # Joint state initialization
         self.joint_state = JointState()
         self.joint_state.name = ['wheel_left_joint', 'wheel_right_joint']
         self.joint_state.position = [0.0, 0.0]
-        self.joint_state.velocity = [0.0, 0.0]  # Will be updated dynamically
-        self.joint_state.effort = []
-        
-        self.start_time = self.get_clock().now().nanoseconds / 1e9
+        self.joint_state.velocity = [0.0, 0.0]
 
     def wr_callback(self, msg):
-        # Convert linear velocity (m/s) to angular velocity (rad/s)
         self.wr = msg.data / self.wheel_radius
 
     def wl_callback(self, msg):
-        # Convert linear velocity (m/s) to angular velocity (rad/s)
         self.wl = msg.data / self.wheel_radius
 
     def odom_callback(self, msg):
-        initial_pose = self.get_parameter('initial_pose').get_parameter_value().double_array_value
+        # Actualizar solo posición, mantener orientación anterior si no hay datos nuevos
         self.x = msg.pose.pose.position.x
         self.y = msg.pose.pose.position.y
-        self.q = msg.pose.pose.orientation
+        
+        # Actualizar quaternion solo si hay datos válidos
+        if msg.pose.pose.orientation.x != 0.0 or \
+           msg.pose.pose.orientation.y != 0.0 or \
+           msg.pose.pose.orientation.z != 0.0:
+            self.q = [
+                msg.pose.pose.orientation.x,
+                msg.pose.pose.orientation.y,
+                msg.pose.pose.orientation.z,
+                msg.pose.pose.orientation.w
+            ]
 
     def publish_static_transforms(self):
         initial_pose = self.get_parameter('initial_pose').get_parameter_value().double_array_value
         static_transforms = [
             self.create_transform(
-            parent_frame='map',
-            child_frame=self.odomFrame,
-            x=initial_pose[0], y=initial_pose[1], z=0.0,
-            roll=0.0, pitch=0.0, yaw=initial_pose[2]
+                parent_frame='map',
+                child_frame=self.odomFrame,
+                x=initial_pose[0], y=initial_pose[1], z=0.0,
+                roll=0.0, pitch=0.0, yaw=initial_pose[2]
             ),
         ]
         self.tf_static_broadcaster.sendTransform(static_transforms)
 
     def publish_dynamic_transforms(self):
-        current_time = self.get_clock().now().nanoseconds / 1e9
-        dt = current_time - self.start_time
-        self.start_time = current_time
+        # Calcular dt preciso
+        current_time = self.get_clock().now()
+        dt = (current_time - self.last_time).nanoseconds * 1e-9
+        self.last_time = current_time
         
-        # Update joint positions
+        # Actualizar posiciones de las ruedas
         self.joint_state.position[0] += self.wl * dt
         self.joint_state.position[1] += self.wr * dt
         
-        # Keep positions within [-π, π] for visualization (optional)
+        # Mantener posiciones en rango [-π, π]
         self.joint_state.position = [
             (pos + np.pi) % (2 * np.pi) - np.pi 
             for pos in self.joint_state.position
         ]
         
-        # Update joint velocities
+        # Publicar estados de las articulaciones
         self.joint_state.velocity = [self.wl, self.wr]
+        self.joint_state.header.stamp = self.get_clock().now().to_msg()
         self.joint_pub.publish(self.joint_state)
         
-        # Publish joint states
-        self.joint_state.header.stamp = self.get_clock().now().to_msg()
-        
-        # Publish base_link transform
+        # Publicar transformada odom->base_footprint (siempre, aunque no haya nuevos datos)
         dynamic_transform = TransformStamped()
         dynamic_transform.header.stamp = self.get_clock().now().to_msg()
-        # dynamic_transform.header.frame_id = f'{self.namespace}/base_footprint'
         dynamic_transform.header.frame_id = self.odomFrame
-        dynamic_transform.child_frame_id = f'{self.namespace}/base_footprint'
+        dynamic_transform.child_frame_id = f'{self.namespace}base_footprint'
         
         dynamic_transform.transform.translation.x = self.x
         dynamic_transform.transform.translation.y = self.y
         dynamic_transform.transform.translation.z = 0.0
         
-        if self.q:
-            dynamic_transform.transform.rotation = self.q
-        else:
-            dynamic_transform.transform.rotation.w = 1.0  # Default to no rotation
+        dynamic_transform.transform.rotation.x = self.q[0]
+        dynamic_transform.transform.rotation.y = self.q[1]
+        dynamic_transform.transform.rotation.z = self.q[2]
+        dynamic_transform.transform.rotation.w = self.q[3]
         
         self.tf_broadcaster.sendTransform(dynamic_transform)
-        
 
     def timer_callback(self):
         self.publish_dynamic_transforms()

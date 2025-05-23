@@ -46,7 +46,7 @@ class Localisation(Node):
         self.prev_time = self.get_clock().now().nanoseconds
         self.get_logger().info("Localisation node started")
 
-        self.create_timer(0.1, self.timer_callback)
+        self.create_timer(0.01, self.timer_callback)
 
     def timer_callback(self):
         current_time = self.get_clock().now().nanoseconds

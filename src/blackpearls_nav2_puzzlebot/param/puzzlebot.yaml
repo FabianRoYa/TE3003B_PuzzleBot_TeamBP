@@ -11,7 +11,7 @@ amcl:
     alpha3: 0.02                     # Ruido de traslación debido a traslación en odometría
     alpha4: 0.01                     # Ruido de traslación debido a rotación en odometría
     alpha5: 0.05                     # Ruido extra (bias) en odometría
-    base_frame_id: "base_footprint"  # Nombre del frame base del robot
+    base_frame_id: base_footprint  # Nombre del frame base del robot
     beam_skip_distance: 0.5          # Distancia (m) mínima para considerar omitir haces defectuosos
     beam_skip_error_threshold: 0.1  # Umbral de error para detectar haces que no concuerdan con el mapa
     beam_skip_threshold: 0.3         # Fracción de haces erróneos que activa el beam skipping
@@ -25,7 +25,7 @@ amcl:
     max_beams: 90                    # Número máximo de haces de láser a procesar
     max_particles: 2000              # Número máximo de partículas en el filtro
     min_particles: 500               # Número mínimo de partículas en el filtro
-    odom_frame_id: "odom"            # Nombre del frame de odometría
+    odom_frame_id: odom            # Nombre del frame de odometría
     pf_err: 0.05                     # Error admisible en la estimación de pose
     pf_z: 0.9                      # Factor de mezcla de pesos en el resampling de partículas
     recovery_alpha_fast: 0.1         # Tasa rápida de mezcla de partículas en recuperación
@@ -188,7 +188,7 @@ local_costmap:
       update_frequency: 5.0             # Frecuencia (Hz) a la que se actualiza el costmap local
       publish_frequency: 2.0            # Frecuencia (Hz) a la que se publica el costmap local
       global_frame: odom                # Frame de referencia global para el costmap
-      robot_base_frame: base_footprint       # Frame base del robot en el costmap
+      robot_base_frame: base_link       # Frame base del robot en el costmap
       use_sim_time: False                # Usar el reloj simulado de ROS (suscribirse a /clock)
       rolling_window: True              # Mantener el costmap centrado en el robot (ventana móvil)
       width: 4                          # Ancho del costmap en metros
@@ -198,14 +198,14 @@ local_costmap:
       plugins: ["obstacle_layer", "inflation_layer"]  # Capas cargadas en el costmap
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"  # Clase que infla zonas alrededor de obstáculos
-        inflation_radius: 0.15        # Radio (m) de inflación alrededor de cada obstáculo
+        inflation_radius: 0.25        # Radio (m) de inflación alrededor de cada obstáculo
         cost_scaling_factor: 3.0      # Tasa de decaimiento del costo desde el obstáculo
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"   # Clase que marca y limpia obstáculos
         enabled: True                # Activar la detección de obstáculos
         observation_sources: scan    # Sensores usados como fuente de observaciones
         scan:
-          topic: scan               # Topic del sensor láser
+          topic: /scan               # Topic del sensor láser
           max_obstacle_height: 2.0   # Altura máxima (m) de los obstáculos detectados
           clearing: True             # Limpiar celdas cuando el láser ya no detecta obstáculo
           marking: True              # Marcar celdas con obstáculos detectados
@@ -230,9 +230,9 @@ global_costmap:
       update_frequency: 1.0            # Frecuencia (Hz) a la que se actualiza el costmap global
       publish_frequency: 1.0           # Frecuencia (Hz) a la que se publica el costmap global
       global_frame: map                # Frame global de referencia (mapa)
-      robot_base_frame: base_footprint      # Frame base del robot utilizado en el costmap
+      robot_base_frame: base_link      # Frame base del robot utilizado en el costmap
       use_sim_time: False              # Usar el reloj simulado de ROS (suscribirse a /clock)
-      robot_radius: 0.16                # Radio del robot (m) para ajustar la huella
+      robot_radius: 0.16              # Radio del robot (m) para ajustar la huella
       resolution: 0.03                 # Tamaño de celda del costmap (m)
       track_unknown_space: true        # Marcar el espacio desconocido como costo alto
       plugins:                         # Capas cargadas en el costmap global
@@ -244,7 +244,7 @@ global_costmap:
         enabled: True                   # Activar la capa de obstáculos
         observation_sources: scan       # Sensores usados como fuentes de observación
         scan:
-          topic: scan                  # Topic del sensor láser
+          topic: /scan                  # Topic del sensor láser
           max_obstacle_height: 2.0      # Altura máxima (m) de obstáculos detectados
           clearing: True                # Limpiar celdas cuando ya no se detecta obstáculo
           marking: True                 # Marcar celdas con obstáculos detectados
@@ -259,7 +259,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"  # Clase que infla zonas alrededor de obstáculos
         cost_scaling_factor: 3.0       # Tasa de decaimiento del costo desde el obstáculo
-        inflation_radius: 0.15         # Radio (m) de inflación alrededor de cada obstáculo
+        inflation_radius: 0.25         # Radio (m) de inflación alrededor de cada obstáculo
       always_send_full_costmap: True   # Publicar siempre el costmap completo, no solo diffs
 
   global_costmap_client:
