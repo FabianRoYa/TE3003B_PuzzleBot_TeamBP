@@ -40,14 +40,14 @@
     lidar_base_pos_z:='0.070'
     lidar_base_pos_r:='0.0'
     lidar_base_pos_p:='0.0'
-    lidar_base_pos_w:='0.0'
+    lidar_base_pos_w:='3.14159'
 
     lidar_pos_x:='0.0'
     lidar_pos_y:='0.00'
     lidar_pos_z:='0.035'
     lidar_pos_r:='0.0'
     lidar_pos_p:='0.0'
-    lidar_pos_w:='3.14'
+    lidar_pos_w:='0.0'
     
     update_rate:='10'
     ray_count:='360'

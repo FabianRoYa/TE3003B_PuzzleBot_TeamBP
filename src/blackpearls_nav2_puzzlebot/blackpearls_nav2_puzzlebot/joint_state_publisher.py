@@ -102,7 +102,7 @@ class JointStatePublisher(Node):
                 roll=0.0, pitch=0.0, yaw=initial_pose[2]
             ),
         ]
-        self.tf_static_broadcaster.sendTransform(static_transforms)
+        # self.tf_static_broadcaster.sendTransform(static_transforms)
 
     def publish_dynamic_transforms(self):
         # Calcular dt preciso
