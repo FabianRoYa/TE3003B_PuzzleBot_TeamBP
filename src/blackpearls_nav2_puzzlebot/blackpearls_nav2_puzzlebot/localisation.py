@@ -15,9 +15,9 @@ class Localisation(Node):
         
         self.declare_parameter('wr', 'wr')
         self.declare_parameter('wl', 'wl')
-        
-        # self.declare_parameter('initialPose',[0,0,0])
-        
+
+        self.declare_parameter('initialPose',[0.0,0.0,0.0])
+
         # Create subscribers
         self.wr_sub = self.create_subscription(
             Float32, self.get_parameter('wr').value, self.wr_callback, qos.qos_profile_sensor_data)
@@ -26,18 +26,19 @@ class Localisation(Node):
 
         # Create publishers
         self.odom_pub = self.create_publisher(Odometry, 'ground_truth', 10)
-        # self.tf_broadcaster = TransformBroadcaster(self)
-        # self.wr_pub = self.create_publisher(Float32, 'wr_loc', qos.qos_profile_sensor_data)
-        # self.wl_pub = self.create_publisher(Float32, 'wl_loc', qos.qos_profile_sensor_data)
+        self.tf_broadcaster = TransformBroadcaster(self)
+        self.wr_pub = self.create_publisher(Float32, 'wr_loc', qos.qos_profile_sensor_data)
+        self.wl_pub = self.create_publisher(Float32, 'wl_loc', qos.qos_profile_sensor_data)
 
         # Robot constants
         self.r = 0.05    # Wheel radius [m]
         self.L = 0.19    # Wheel separation [m]
 
         # State variables
-        self.x = 0.0     # Position x [m]
-        self.y = 0.0     # Position y [m]
-        self.theta = 0.0 # Orientation [rad]
+        self.initial_pose = self.get_parameter('initialPose').value
+        self.x = self.initial_pose[0]     # Position x [m]
+        self.y = self.initial_pose[1]     # Position y [m]
+        self.theta = self.initial_pose[2] # Orientation [rad]
         self.wr = 0.0    # Right wheel speed [rad/s]
         self.wl = 0.0    # Left wheel speed [rad/s]
         
@@ -72,7 +73,7 @@ class Localisation(Node):
         
         # Publish odometry
         self.publish_odometry()
-        # self.publish_wheels()
+        self.publish_wheels()
 
     # NEW METHOD: Covariance propagation    
     def update_covariance(self, v, w,dt):
@@ -110,17 +111,17 @@ class Localisation(Node):
         odom_msg.header.frame_id = 'world'
         odom_msg.child_frame_id = 'base_footprint'
         
-        # # Position
-        # odom_msg.pose.pose.position.x = self.x
-        # odom_msg.pose.pose.position.y = self.y
-        # odom_msg.pose.pose.position.z = 0.05
+        # Position
+        odom_msg.pose.pose.position.x = self.x
+        odom_msg.pose.pose.position.y = self.y
+        odom_msg.pose.pose.position.z = 0.05
         
-        # # Orientation
-        # q = transforms3d.euler.euler2quat(0, 0, self.theta)
-        # odom_msg.pose.pose.orientation.x = q[1]
-        # odom_msg.pose.pose.orientation.y = q[2]
-        # odom_msg.pose.pose.orientation.z = q[3]
-        # odom_msg.pose.pose.orientation.w = q[0]
+        # Orientation
+        q = transforms3d.euler.euler2quat(0, 0, self.theta)
+        odom_msg.pose.pose.orientation.x = q[1]
+        odom_msg.pose.pose.orientation.y = q[2]
+        odom_msg.pose.pose.orientation.z = q[3]
+        odom_msg.pose.pose.orientation.w = q[0]
 
         # Covariance matrix (NEW SECTION)
         odom_msg.pose.covariance = [0.0]*36

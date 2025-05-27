@@ -16,18 +16,13 @@ def generate_launch_description():
     # -----------------------------------------------------------------------------
     
     # Name of the Gazebo world to load
-    world = 'empty.world'
+    world = 'maze.world'
 
     # General Gazebo settings
     pause = 'false'           # Start Gazebo in paused state, world tf is not generated until Gazebo starts
-    verbosity = '4'           # Gazebo log verbosity level
+    verbosity = '1'           # Gazebo log verbosity level
     use_sim_time = 'true'     # Enable use of simulated clock (for ROS time sync)
 
-    # mode_rviz = DeclareLaunchArgument(
-    #     'mode',
-    #     default_value='nav',
-    #     description='Mode to load RVIZ configuration'
-    # )
     
     # Robot configurations (can be extended or loaded from a JSON file in future)
     robot_config_list = [
@@ -65,7 +60,7 @@ def generate_launch_description():
     robot_launches = []
     for robot in robot_config_list:
         robot_name   = robot['name']
-        robot_type   = robot['type']
+        robot_type   = robot['type']    
         x            = str(robot.get('x', 0.0))
         y            = str(robot.get('y', 0.0))
         yaw          = str(robot.get('yaw', 0.0))
@@ -109,7 +104,7 @@ def generate_launch_description():
             name='point_stabilisation_controller',
             output='screen',
         )
-        robot_launches.append(controller_node)
+        # robot_launches.append(controller_node)
         
     # -----------------------------------------------------------------------------
     #                         ROBOT LOCALIZATION NODES
@@ -119,18 +114,18 @@ def generate_launch_description():
     ### but it doesn't work, when ever I try to run it covariance matrix 
     ### is not published or is only zeros
     
-        # localisation_node=Node(
-        #     package='blackpearls_nav2_puzzlebot',
-        #     executable='localisation',
-        #     name='localisation',
-        #     output='screen',
-        #     parameters=[{
-        #         'wr': 'VelocityEncR',
-        #         'wl': 'VelocityEncL',
-        #         'initialPose':[x, y, yaw], 
-        #     }]
-        # )
-        # robot_launches.append(localisation_node)
+        localisation_node=Node(
+            package='blackpearls_nav2_puzzlebot',
+            executable='localisation',
+            name='localisation',
+            output='screen',
+            parameters=[{
+                'wr': 'VelocityEncR',
+                'wl': 'VelocityEncL',
+                'initialPose':[float(x), float(y), float(yaw)],
+            }]
+        )
+        robot_launches.append(localisation_node)
     # -----------------------------------------------------------------------------
     #                         RVIZ2 NODE
     # -----------------------------------------------------------------------------
@@ -151,8 +146,6 @@ def generate_launch_description():
     executable='rviz2',
     name='rviz2',
     output='screen',
-    # arguments=['-d', rviz_config],
-    # parameters=[{'use_sim_time': use_sim_time}],
     )
     
     # -----------------------------------------------------------------------------
