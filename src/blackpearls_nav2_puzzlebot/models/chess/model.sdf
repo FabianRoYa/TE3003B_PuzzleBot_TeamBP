@@ -9,7 +9,7 @@
                 <cast_shadows>0</cast_shadows>
                     <geometry>
                         <box>
-                            <size>0.001 0.14 0.14</size>
+                            <size>0.001 0.3 0.3</size>
                         </box>
                     </geometry>
                 <material>
@@ -26,7 +26,7 @@
                 <geometry>
                     <plane>
                         <normal>0 0 1</normal>
-                        <size>0.117 0.078</size>
+                        <size>0.27 0.18</size>
                     </plane>
                 </geometry>
                 <material>

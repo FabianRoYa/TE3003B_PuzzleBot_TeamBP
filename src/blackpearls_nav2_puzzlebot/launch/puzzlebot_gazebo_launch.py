@@ -30,7 +30,7 @@ def generate_launch_description():
         {
             'name': '',
             'type': 'puzzlebot_jetson_lidar_ed',
-            'x': 0.4, 'y': 2.7, 'yaw': 0.0,
+            'x': 0.2, 'y': 2.7, 'yaw': 0.0,
             'lidar_frame': 'laser_frame',
             'camera_frame': 'camera_link_optical',
             'tof_frame': 'tof_link'
@@ -121,11 +121,39 @@ def generate_launch_description():
             name='bug_algorithm',
             output='screen',
             parameters=[{
-                'mode': 'bug2',  # or 'bug2'
+                'mode': 'bug2',# or 'bug2'
+                'goal_tolerance': 0.1,
+                'angular_tolerance': math.radians(5),  # 5 grados en radianes
+                
+                # Goal pose & safe distances
+                'goal_pose': [0.3, 0.1], # Goal position [x, y] in meters
+                'safe_distance': 0.4,   # Safe distance from obstacles [meters]
+                'safe_wall': 0.35,       # Safe distance from walls [meters]
+
+                # Controller parameters
+                'kp_angular': 0.2,
+                
+                
             }]
         )
         robot_launches.append(bug_algorithm_node)
         
+    # -----------------------------------------------------------------------------
+    #                         ROBOT VISION NODES
+    # -----------------------------------------------------------------------------
+
+        vision_node = Node(
+            package='blackpearls_nav2_puzzlebot',
+            executable='vision',
+            name='vision',
+            output='screen',
+            parameters=[{
+                'camera_frame': 'camera_link_optical',
+                'aruco_marker_length': 0.14,
+            }]
+        )
+        robot_launches.append(vision_node)
+
     # -----------------------------------------------------------------------------
     #                         ROBOT LOCALIZATION NODES
     # -----------------------------------------------------------------------------
