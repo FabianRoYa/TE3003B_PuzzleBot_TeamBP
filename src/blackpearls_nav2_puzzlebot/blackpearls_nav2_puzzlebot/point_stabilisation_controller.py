@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Twist, Point
+from geometry_msgs.msg import Twist, Point 
+from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 from std_msgs.msg import Bool
 import math
@@ -13,13 +14,23 @@ class point_stabilisation_controller(Node):
     def __init__(self):
         super().__init__('point_stabilisation_controller')
         
+        # Parámetros del nodo
+        self.declare_parameter('kp_linear', 0.2)
+        self.declare_parameter('kp_angular', 0.1)
+        self.declare_parameter('max_linear_speed', 0.55)
+        self.declare_parameter('max_angular_speed', 0.5)
+        self.declare_parameter('goal_tolerance', 0.1)
+        self.declare_parameter('angular_tolerance', math.radians(5))  # 5 grados en radianes
+        
+        
+        
         # Parámetros del controlador
-        self.kp_linear = 0.2
-        self.kp_angular = 0.1
-        self.max_linear_speed = 0.55
-        self.max_angular_speed = 0.5
-        self.goal_tolerance = 0.1
-        self.angular_tolerance = math.radians(5)   # 5 grados en radianes
+        self.kp_linear = self.get_parameter('kp_linear').get_parameter_value().double_value
+        self.kp_angular = self.get_parameter('kp_angular').get_parameter_value().double_value
+        self.max_linear_speed = self.get_parameter('max_linear_speed').get_parameter_value().double_value
+        self.max_angular_speed = self.get_parameter('max_angular_speed').get_parameter_value().double_value
+        self.goal_tolerance = self.get_parameter('goal_tolerance').get_parameter_value().double_value
+        self.angular_tolerance = self.get_parameter('angular_tolerance').get_parameter_value().double_value      
         
         # Estado del robot
         self.current_pose = Point()
@@ -27,7 +38,7 @@ class point_stabilisation_controller(Node):
         self.goal_pose = None
         self.goal_reached = False
         self.orientation_locked = False  # Nuevo estado de orientación
-        
+        self.obstacle_near = False  # Estado de proximidad a obstáculos
         # Subsciptores
         self.odom_sub = self.create_subscription(
             Odometry,
@@ -40,7 +51,7 @@ class point_stabilisation_controller(Node):
             'goal',
             self.goal_callback,
             10)
-        
+        self.scan_sub = self.create_subscription(LaserScan, 'scan', self.scan_callback, 10)
         # Publicadores
         self.cmd_vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
         self.goal_reached_pub = self.create_publisher(Bool, 'goal_reached', 10)
@@ -125,7 +136,12 @@ class point_stabilisation_controller(Node):
         cmd_vel.linear.y = 0.0
         cmd_vel.angular.z = 0.0
         self.cmd_vel_pub.publish(cmd_vel)
-
+    
+    def scan_callback(self, msg):
+        front_angles = range(-30, 30)
+        min_distance = min([msg.ranges[i] for i in front_angles if not math.isinf(msg.ranges[i])])
+        self.obstacle_near = min_distance < 0.5
+        
 def main(args=None):
     rclpy.init(args=args)
     nodo = point_stabilisation_controller()

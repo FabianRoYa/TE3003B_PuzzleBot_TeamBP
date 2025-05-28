@@ -20,7 +20,7 @@ def generate_launch_description():
     declare_prefix_arg = DeclareLaunchArgument('prefix', default_value='', description='Prefix for robot links and namespaces')
     declare_camera_frame_arg = DeclareLaunchArgument('camera_frame', default_value='', description='Camera frame')
     declare_tof_frame_arg = DeclareLaunchArgument('tof_frame', default_value='', description='TOF sensor frame')
-    declare_lidar_frame_arg = DeclareLaunchArgument('lidar_frame', default_value='', description='Lidar sensor frame')
+    declare_lidar_frame_arg = DeclareLaunchArgument('lidar_frame', default_value='laser_frame', description='Lidar sensor frame')
 
     # Get launch configurations (parameters used later in launch file)
     robot_name = LaunchConfiguration('robot_name')

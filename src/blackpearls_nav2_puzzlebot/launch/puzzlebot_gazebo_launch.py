@@ -7,6 +7,7 @@ from launch_ros.substitutions import FindPackageShare
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from ament_index_python.packages import get_package_share_directory
 from launch_ros.actions import Node
+import math
 
 
 def generate_launch_description():
@@ -21,7 +22,7 @@ def generate_launch_description():
     # General Gazebo settings
     pause = 'false'           # Start Gazebo in paused state, world tf is not generated until Gazebo starts
     verbosity = '1'           # Gazebo log verbosity level
-    use_sim_time = 'true'     # Enable use of simulated clock (for ROS time sync)
+    use_sim_time = 'True'     # Enable use of simulated clock (for ROS time sync)
 
     
     # Robot configurations (can be extended or loaded from a JSON file in future)
@@ -103,8 +104,27 @@ def generate_launch_description():
             executable='point_stabilisation_controller',
             name='point_stabilisation_controller',
             output='screen',
+            parameters=[{
+                'kp_linear': 0.2,
+                'kp_angular': 0.1,
+                'max_linear_speed': 0.4,
+                'max_angular_speed': 0.3,
+                'goal_tolerance': 0.1,
+                'angular_tolerance': math.radians(5)  # 5 grados en radianes
+            }]
         )
         # robot_launches.append(controller_node)
+
+        bug_algorithm_node = Node(
+            package='blackpearls_nav2_puzzlebot',
+            executable='bug_algorithm',
+            name='bug_algorithm',
+            output='screen',
+            parameters=[{
+                'mode': 'bug0',  # or 'bug2'
+            }]
+        )
+        robot_launches.append(bug_algorithm_node)
         
     # -----------------------------------------------------------------------------
     #                         ROBOT LOCALIZATION NODES
