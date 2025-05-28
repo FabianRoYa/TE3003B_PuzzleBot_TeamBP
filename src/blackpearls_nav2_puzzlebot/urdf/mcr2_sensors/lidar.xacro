@@ -53,7 +53,7 @@
     ray_count:='360'
     min_angle:='0.0'
     max_angle:='6.283185'
-    min_range:='0.15'
+    min_range:='0.05'
     max_range:='12.0'
     range_resolution:='0.017'
     topic_name:='scan'

@@ -121,7 +121,7 @@ def generate_launch_description():
             name='bug_algorithm',
             output='screen',
             parameters=[{
-                'mode': 'bug0',  # or 'bug2'
+                'mode': 'bug2',  # or 'bug2'
             }]
         )
         robot_launches.append(bug_algorithm_node)
