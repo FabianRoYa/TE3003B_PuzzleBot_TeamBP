@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+    <sdf version="1.5">
+        <model name="black">
+            <static>true</static>
+                <link name="link">
+                    <pose>0 0 0 0 0 0</pose>
+                    <visual name="visual">
+                        <cast_shadows>false</cast_shadows>
+                        <geometry>
+                            <plane>
+                                <normal>0 0 1</normal>
+                                <size>0.013 0.013</size>
+                            </plane>
+                        </geometry>
+                        <material>
+                            <ambient>0 0 0 0</ambient>
+                            <diffuse>0 0 0 1</diffuse>
+                            <specular>0 0 0 0</specular>
+                            <emissive>0.0 0.0 0.0 1</emissive>
+                        </material>
+                    </visual>
+                </link>
+        </model>
+    </sdf>

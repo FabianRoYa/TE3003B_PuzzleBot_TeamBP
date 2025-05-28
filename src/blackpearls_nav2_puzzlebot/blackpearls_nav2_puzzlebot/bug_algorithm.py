@@ -101,7 +101,7 @@ class BugAlgorithm(Node):
         self.current_yaw = transforms3d.euler.quat2euler([q.w, q.x, q.y, q.z])[2]
 
     def scan_callback(self, msg):
-        front_angles = range(-30, 30)
+        front_angles = range(-32,32)
         R_wall_angles = range(-135,-75)
         L_wall_angles = range(75, 135)
         
