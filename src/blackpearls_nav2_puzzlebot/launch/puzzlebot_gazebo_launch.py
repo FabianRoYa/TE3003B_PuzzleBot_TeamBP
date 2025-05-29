@@ -121,15 +121,15 @@ def generate_launch_description():
             output='screen',
             parameters=[{
                 'mode': 'bug2',# or 'bug2'
-                'goal_tolerance': 0.1,
+                'goal_tolerance': 0.01,
                 'angular_tolerance': math.radians(5),  # 5 grados en radianes
                 
                 # Goal pose & safe distances
                 'goal_pose': [0.3, 0.1], # Goal position [x, y] in meters
-                'safe_distance': 0.4,   # Safe distance from obstacles [meters]
-                'safe_wall': 0.35,       # Safe distance from walls [meters]
+                'safe_distance': 0.3,   # Safe distance from obstacles [meters]
+                'safe_wall': 0.25,       # Safe distance from walls [meters]
                 # Controller parameters
-                'kp_angular': 0.1,
+                'kp_angular': 0.15,
             }]
         )
         robot_launches.append(bug_algorithm_node)

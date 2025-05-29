@@ -101,7 +101,7 @@ class BugAlgorithm(Node):
         self.current_yaw = transforms3d.euler.quat2euler([q.w, q.x, q.y, q.z])[2]
 
     def scan_callback(self, msg):
-        front_angles = range(-32,32)
+        front_angles = range(-40,40)
         R_wall_angles = range(-135,-75)
         L_wall_angles = range(75, 135)
         
@@ -148,7 +148,7 @@ class BugAlgorithm(Node):
                     cmd_vel = self.bug2_behavior()
             else:
                 cmd_vel.linear.x = 0.1 * distance
-                cmd_vel.angular.z = self.kp_angular * -yaw_error
+                cmd_vel.angular.z = self.kp_angular * yaw_error
         return cmd_vel
 
     def normalize_angle(self, angle):
