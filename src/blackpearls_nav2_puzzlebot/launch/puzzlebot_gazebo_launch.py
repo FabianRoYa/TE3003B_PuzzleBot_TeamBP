@@ -94,8 +94,7 @@ def generate_launch_description():
         )
 
         robot_launches.append(robot_launch)
-    
-        
+            
     # -----------------------------------------------------------------------------
     #                         ROBOT CONTROL NODES
     # -----------------------------------------------------------------------------
@@ -129,11 +128,8 @@ def generate_launch_description():
                 'goal_pose': [0.3, 0.1], # Goal position [x, y] in meters
                 'safe_distance': 0.4,   # Safe distance from obstacles [meters]
                 'safe_wall': 0.35,       # Safe distance from walls [meters]
-
                 # Controller parameters
-                'kp_angular': 0.2,
-                
-                
+                'kp_angular': 0.1,
             }]
         )
         robot_launches.append(bug_algorithm_node)
@@ -147,10 +143,8 @@ def generate_launch_description():
             executable='vision',
             name='vision',
             output='screen',
-            parameters=[{
-                'camera_frame': 'camera_link_optical',
-                'aruco_marker_length': 0.14,
-            }]
+            parameters=[{'use_sim_time': True}], # KEEP IT TRUE
+            
         )
         robot_launches.append(vision_node)
 
@@ -182,12 +176,6 @@ def generate_launch_description():
     ### The mapping mode is used to create the map and the navigation mode
     ### is used to navigate the robot using the map created in the mapping mode
     ### BUT I can't make it work, neither of them.
-    
-    rviz_config = PathJoinSubstitution([
-    FindPackageShare('blackpearls_nav2_puzzlebot'),
-    'rviz',
-    PythonExpression(["'", LaunchConfiguration('mode'), "' + '.rviz'"])
-    ])
 
     rviz2_pub_node = Node(
     package='rviz2',
@@ -195,12 +183,11 @@ def generate_launch_description():
     name='rviz2',
     output='screen',
     )
-    
     # -----------------------------------------------------------------------------
     #                         COMPOSE FINAL LAUNCH DESCRIPTION
     # -----------------------------------------------------------------------------
     ld = LaunchDescription([
-        # mode_rviz,
+        
         rviz2_pub_node,
         gazebo_launch,
         *robot_launches,

@@ -148,6 +148,7 @@ class BugAlgorithm(Node):
                     cmd_vel = self.bug2_behavior()
             else:
                 cmd_vel.linear.x = 0.1 * distance
+                cmd_vel.angular.z = self.kp_angular * -yaw_error
         return cmd_vel
 
     def normalize_angle(self, angle):

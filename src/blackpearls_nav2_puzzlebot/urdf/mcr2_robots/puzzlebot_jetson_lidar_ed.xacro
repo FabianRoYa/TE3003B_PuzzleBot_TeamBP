@@ -2,9 +2,9 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="Puzzlebot_Jetson_Ed.">
 
 <xacro:arg name="prefix" default=""/>
-<xacro:arg name="lidar_frame" default=""/>
-<xacro:arg name="camera_frame" default=""/>
-<xacro:arg name="tof_frame" default=""/>
+<xacro:arg name="lidar_frame" default="laser_frame"/>
+<xacro:arg name="camera_frame" default="camera_link_optical"/>
+<xacro:arg name="tof_frame" default="tof_link"/>
 
 <!-- files for gazebo costumization -->
 <xacro:include filename="$(find blackpearls_nav2_puzzlebot)/urdf/mcr2_mechanical/puzzlebot_jetson_lidar_base.urdf.xacro"/>

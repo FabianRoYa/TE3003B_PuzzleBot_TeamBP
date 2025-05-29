@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from geometry_msgs.msg import Twist, TransformStamped
+from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
@@ -9,14 +9,13 @@ import cv2
 from cv2 import aruco
 import numpy as np
 import transforms3d
-import time
 import warnings
 warnings.filterwarnings('ignore')
 
 class VisionClass(Node):
     def __init__(self):
         super().__init__('vision')
-        timer_period = 0.1
+        timer_period = 0.01
         self.img = []
         self.image_received = False
         self.cam_m = np.array([[256.35397772, 0, 160.40473426], [0, 257.6063827, 119.19494887], [0, 0, 1]], dtype = np.float32)
@@ -65,22 +64,25 @@ class VisionClass(Node):
                     aruco.drawDetectedMarkers(img_mod, markerCorners, markerIds) 
                     cv2.drawFrameAxes(img_mod, self.cam_m, self.cam_d, rvec, tvec, 0.1)
                     cv2.putText(img_mod, f"{distance:.2f} m", (cX, cY-15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 2)
-                rot, _ = cv2.Rodrigues(rvec[0][0])
-                roll, pitch, yaw = self.rot2rpy(rot)
-                #self.inf.data = str(rvec) + "t " + str(tvec)
-                #self.pub.publish(self.inf)
-                self.t.header.stamp = self.get_clock().now().to_msg()
-                self.t.header.frame_id = 'camera_link_optical'
-                self.t.child_frame_id = 'aruco'
-                q = transforms3d.euler.euler2quat(roll, pitch, yaw)
-                self.t.transform.translation.x = tvec[0][0][0]
-                self.t.transform.translation.y = tvec[0][0][1]
-                self.t.transform.translation.z = tvec[0][0][2]
-                self.t.transform.rotation.x = q[1]
-                self.t.transform.rotation.y = q[2]
-                self.t.transform.rotation.z = q[3]
-                self.t.transform.rotation.w = q[0]
-                self.tf_br1.sendTransform(self.t)
+                
+                    rot, _ = cv2.Rodrigues(rvec[0][0])
+                    roll, pitch, yaw = self.rot2rpy(rot)
+                    
+                    self.t.header.stamp = self.get_clock().now().to_msg()
+                    self.t.header.frame_id = 'camera_link_optical'
+                    self.t.child_frame_id = 'aruco'
+                    
+                    q = transforms3d.euler.euler2quat(roll, pitch, yaw)
+                    
+                    self.t.transform.translation.x = tvec[0][0][0]
+                    self.t.transform.translation.y = tvec[0][0][1]
+                    self.t.transform.translation.z = tvec[0][0][2]
+                    self.t.transform.rotation.x = q[1]
+                    self.t.transform.rotation.y = q[2]
+                    self.t.transform.rotation.z = q[3]
+                    self.t.transform.rotation.w = q[0]
+                    # self.get_logger().info(f"Marker ID: {markerIds[i][0]},tf:{self.t}")
+                    self.tf_br1.sendTransform(self.t)
             self.pub_image1.publish(self.bridge.cv2_to_imgmsg(img_mod, 'bgr8'))
 
 def main(args=None):

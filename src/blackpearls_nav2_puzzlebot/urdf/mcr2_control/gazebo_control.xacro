@@ -61,6 +61,7 @@
                 <render_engine>ogre2</render_engine>
         </plugin>
 
+
         <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
         <odom_frame>world</odom_frame>
         <robot_base_frame>${prefix}base_footprint</robot_base_frame>
@@ -69,7 +70,7 @@
         <tf_topic>tf</tf_topic>
         <dimensions>2</dimensions>
         </plugin>
-
+            
     </gazebo>
 
 </xacro:macro>
