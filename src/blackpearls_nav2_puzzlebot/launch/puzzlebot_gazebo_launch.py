@@ -165,8 +165,8 @@ def generate_launch_description():
             name='localisation',
             output='screen',
             parameters=[{
-                'wr': 'VelocityEncR',
-                'wl': 'VelocityEncL',
+                'wr_topic': 'VelocityEncR',
+                'wl_topic': 'VelocityEncL',
                 'initial_pose':[float(x), float(y), float(yaw)],
                 'use_sim_time': True,             
             }]

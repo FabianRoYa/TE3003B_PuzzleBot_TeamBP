@@ -25,12 +25,13 @@ class localisation(Node):
         self.declare_parameter('marker_frame_prefix', 'aruco_')
 
         # Un Snickers a quien pueda hacerlo parametros
+        # Tienen que estar en order de aparición.
         self.marker_positions = {
-            1: [0.25, 1.88, 0.08],    # Marcador 1 en x=1.5m, y=0.5m, orientación 90°
-            2: [2.7, 0.08, 0.08],      # Marcador 2 en x=2.0m, y=1.0m
-            3: [2.0, 1.825, 0.08],    # Marcador 3 en x=2.0m, y=1.5m
-            4: [0.09, 0.85, 0.08],     # Marcador 4 en x=0.5m, y=1.5m
-            5: [0.09, 0.85, 0.08],    # Marcador 5 en x=0.5m, y=2.0m
+            # 1: [1.88,0.25,0.0],   # 1: [0.25, 1.88, 0.0],    # Marcador 1 en x=1.5m, y=0.5m, orientación 90°
+            2: [0.08,2.7,0.0],    # 2: [2.7, 0.08, 0.0],      # Marcador 2 en x=2.0m, y=1.0m
+            3: [1.825,2.0,0.0],   # 3: [2.0, 1.825, 0.0],    # Marcador 3 en x=2.0m, y=1.5m
+            # 4: [0.09,0.85,0.0],   # 4: [0.09, 0.85, 0.0],     # Marcador 4 en x=0.5m, y=1.5m
+            # 5: [0.09,0.85,0.0],   # 5: [0.09, 0.85, 0.0],    # Marcador 5 en x=0.5m, y=2.0m
         }
 
         # Obtener parámetros
@@ -73,8 +74,8 @@ class localisation(Node):
         self.tf_broadcaster = TransformBroadcaster(self)
         
         # Temporizador principal
-        self.create_timer(0.05, self.timer_callback)  # 20 Hz
-        
+        self.create_timer(0.1, self.timer_callback)  # 10 Hz
+
         self.get_logger().info("EKF Localisation node started")
 
     def wr_callback(self, msg):
@@ -143,6 +144,7 @@ class localisation(Node):
                 self.apply_marker_correction(trans, marker_pose)
                 
             except Exception as e:
+                # self.get_logger().warn(f'No se pudo obtener transformación para {marker_frame}: {e}')
                 # Marcador no visible o transformación no disponible
                 pass
 
@@ -196,7 +198,7 @@ class localisation(Node):
         self.x[2] = math.atan2(math.sin(self.x[2]), math.cos(self.x[2]))
         self.P = (np.eye(3) - K @ H) @ self.P
         
-        self.get_logger().info(f'Pose corregida con marcador')
+        # self.get_logger().info(f'Pose corregida con marcador')
 
     def publish_odometry(self):
         odom = Odometry()
@@ -208,14 +210,14 @@ class localisation(Node):
         odom.pose.pose.position.x = self.x[0, 0]
         odom.pose.pose.position.y = self.x[1, 0]
         odom.pose.pose.position.z = 0.05
-        
+        self.get_logger().info(f'Posición: {odom.pose.pose.position.x:.2f}, {odom.pose.pose.position.y:.2f}')
         # Orientación
         q = transforms3d.euler.euler2quat(0, 0, self.x[2, 0])
         odom.pose.pose.orientation.x = q[1]
         odom.pose.pose.orientation.y = q[2]
         odom.pose.pose.orientation.z = q[3]
         odom.pose.pose.orientation.w = q[0]
-        
+        self.get_logger().info(f'Orientación: {odom.pose.pose.orientation.w:.2f}')
         # Covarianza
         odom.pose.covariance = [0.0] * 36
         odom.pose.covariance[0] = self.P[0, 0]  # xx
