@@ -46,6 +46,9 @@ class localisation(Node):
         self.marker_frame_prefix = self.get_parameter('marker_frame_prefix').value
         # self.marker_positions = self.get_parameter('marker_positions').value
         
+
+        self.T_base_camera = np.array([[0, 0, 1, 0.1241], [-1, 0, 0, 0], [0, -1, 0, 0.117], [0, 0, 0, 1]])
+
         # Estado del robot [x, y, theta]
         self.x = np.array(initial_pose).reshape(3, 1)
         self.P = np.diag([0.01, 0.01, 0.01])  # Covarianza inicial
@@ -175,16 +178,15 @@ class localisation(Node):
             [math.sin(marker_theta), math.cos(marker_theta)]
         ])
         
-        # Calcular transformación cámara->mundo
-        T_world_cam = T_world_marker @ np.linalg.inv(T_cam_marker)
+        T_world_base = T_world_marker @ np.inv(T_cam_marker) @ np.inv(self.T_base_camera)
         
         # Extraer posición y orientación
-        cam_x = T_world_cam[0, 3]
-        cam_y = T_world_cam[1, 3]
-        cam_theta = math.atan2(T_world_cam[1, 0], T_world_cam[0, 0])
+        robot_x = T_world_base[0, 3]
+        robot_y = T_world_base[1, 3]
+        robot_theta = math.atan2(T_world_base[1, 0], T_world_base[0, 0])
         
         # Asumir cámara montada en centro del robot
-        z = np.array([[cam_x], [cam_y], [cam_theta]])
+        z = np.array([[robot_x], [robot_y], [robot_theta]])
         
         # Actualización EKF
         H = np.eye(3)  # Matriz de observación
