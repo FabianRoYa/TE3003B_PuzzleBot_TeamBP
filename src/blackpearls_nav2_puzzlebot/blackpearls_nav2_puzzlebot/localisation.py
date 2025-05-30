@@ -1,151 +1,240 @@
-import rclpy 
-from rclpy.node import Node 
-from nav_msgs.msg import Odometry 
-from std_msgs.msg import Float32 
-from tf2_ros import TransformBroadcaster
-from rclpy import qos 
-import numpy as np 
-import transforms3d 
+import rclpy
+from rclpy.node import Node
+from nav_msgs.msg import Odometry
+from geometry_msgs.msg import TransformStamped
+from tf2_ros import TransformBroadcaster, TransformListener, Buffer
+from std_msgs.msg import Float32
+import numpy as np
+import math
+import transforms3d
+from rclpy.duration import Duration
 
-class Localisation(Node): 
-
-    def __init__(self): 
-        super().__init__('localisation') 
+class EKF_Localisation(Node):
+    def __init__(self):
+        super().__init__('ekf_localisation')
         
-        self.declare_parameter('wr', 'wr')
-        self.declare_parameter('wl', 'wl')
-
-        self.declare_parameter('initialPose',[0.0,0.0,0.0])
-
-        # Create subscribers
-        self.wr_sub = self.create_subscription(
-            Float32, self.get_parameter('wr').value, self.wr_callback, qos.qos_profile_sensor_data)
-        self.wl_sub = self.create_subscription(
-            Float32,self.get_parameter('wl').value, self.wl_callback, qos.qos_profile_sensor_data)
-    
+        # Parámetros configurables
+        self.declare_parameter('wr_topic', 'wr')
+        self.declare_parameter('wl_topic', 'wl')
+        self.declare_parameter('initial_pose', [0.0, 0.0, 0.0])
+        self.declare_parameter('wheel_radius', 0.05)
+        self.declare_parameter('wheel_separation', 0.19)
+        self.declare_parameter('camera_frame', 'camera_link_optical')
+        self.declare_parameter('base_frame', 'base_footprint')
+        self.declare_parameter('world_frame', 'world')
+        self.declare_parameter('marker_frame_prefix', 'aruco_')
+        self.declare_parameter('marker_positions', {})  # {id: [x, y, theta]}
         
+        # Obtener parámetros
+        wr_topic = self.get_parameter('wr_topic').value
+        wl_topic = self.get_parameter('wl_topic').value
+        initial_pose = self.get_parameter('initial_pose').value
+        self.r = self.get_parameter('wheel_radius').value
+        self.L = self.get_parameter('wheel_separation').value
+        self.camera_frame = self.get_parameter('camera_frame').value
+        self.base_frame = self.get_parameter('base_frame').value
+        self.world_frame = self.get_parameter('world_frame').value
+        self.marker_frame_prefix = self.get_parameter('marker_frame_prefix').value
+        self.marker_positions = self.get_parameter('marker_positions').value
         
-        # Create publishers
+        # Estado del robot [x, y, theta]
+        self.x = np.array(initial_pose).reshape(3, 1)
+        self.P = np.diag([0.01, 0.01, 0.01])  # Covarianza inicial
+        
+        # Matrices de ruido
+        self.Q = np.diag([0.01, 0.01, 0.01])  # Ruido del proceso
+        self.R = np.diag([0.05, 0.05, 0.05])  # Ruido de medición
+        
+        # Variables de control
+        self.wr = 0.0
+        self.wl = 0.0
+        self.last_time = self.get_clock().now()
+        
+        # TF
+        self.tf_buffer = Buffer()
+        self.tf_listener = TransformListener(self.tf_buffer, self)
+        
+        # Suscriptores
+        self.wr_sub = self.create_subscription(Float32, wr_topic, self.wr_callback, 10)
+        self.wl_sub = self.create_subscription(Float32, wl_topic, self.wl_callback, 10)
+        
+        # Publicadores
         self.odom_pub = self.create_publisher(Odometry, 'ground_truth', 10)
+        self.wr_pub = self.create_publisher(Float32, 'wr_loc', 10)
+        self.wl_pub = self.create_publisher(Float32, 'wl_loc', 10)
         self.tf_broadcaster = TransformBroadcaster(self)
-        self.wr_pub = self.create_publisher(Float32, 'wr_loc', qos.qos_profile_sensor_data)
-        self.wl_pub = self.create_publisher(Float32, 'wl_loc', qos.qos_profile_sensor_data)
+        
+        # Temporizador principal
+        self.create_timer(0.05, self.timer_callback)  # 20 Hz
+        
+        self.get_logger().info("EKF Localisation node started")
 
-        # Robot constants
-        self.r = 0.05    # Wheel radius [m]
-        self.L = 0.19    # Wheel separation [m]
-
-        # State variables
-        self.initial_pose = self.get_parameter('initialPose').value
-        self.x = self.initial_pose[0]     # Position x [m]
-        self.y = self.initial_pose[1]     # Position y [m]
-        self.theta = self.initial_pose[2] # Orientation [rad]
-        self.wr = 0.0    # Right wheel speed [rad/s]
-        self.wl = 0.0    # Left wheel speed [rad/s]
-        
-        ## NO TOCAR !!!
-        # Covariance parameters
-        self.P = np.diag([0.01, 0.01, 0.01])  # 3x3 covariance matrix
-        self.A = 8.85e-5   # Varianza promedio x e y (0.000885 m²)
-        self.B = -4.6e-6   # Covarianza xy (-0.000046 m²)
-        self.C = 6.08e-5   # Varianza theta (0.000608 rad²)
-        
-        
-        # Timing control
-        self.prev_time = self.get_clock().now().nanoseconds
-        self.get_logger().info("Localisation node started")
-
-        self.create_timer(0.1, self.timer_callback)
-
-    def timer_callback(self):
-        current_time = self.get_clock().now().nanoseconds
-        dt = (current_time - self.prev_time) * 1e-9
-        
-        # Calculate velocities
-        v = self.r * (self.wr + self.wl) / 2.0
-        w = self.r * (self.wr - self.wl) / self.L
-        
-        # Update pose and covariance (UPDATED)
-        self.update_pose(v, w, dt)
-        self.update_covariance(v, w, dt)  # NEW METHOD
-        
-        # Update time
-        self.prev_time = current_time 
-        
-        # Publish odometry
-        self.publish_odometry()
-        self.publish_wheels()
-
-    # NEW METHOD: Covariance propagation    
-    def update_covariance(self, v, w,dt):
-        # Jacobian matrices
-        J_h = np.array([
-            [1, 0, -v * dt * np.sin(self.theta)],
-            [0, 1, v * dt * np.cos(self.theta)],
-            [0, 0, 1]
-        ])
-        
-        Q = np.array([
-            [self.A,self.B,self.B],
-            [self.B,self.A,self.B],
-            [self.B,self.B,self.C]
-        ])
-        # Covariance propagation
-        self.P = J_h @ self.P @ J_h.T + Q
     def wr_callback(self, msg):
         self.wr = msg.data
+        self.wr_pub.publish(msg)
 
     def wl_callback(self, msg):
         self.wl = msg.data
+        self.wl_pub.publish(msg)
 
-    def update_pose(self, v, w, dt):
-        # Update position and orientation
-        self.x += v * np.cos(self.theta) * dt
-        self.y += v * np.sin(self.theta) * dt
-        self.theta += w * dt
-        # Normalize angle
-        self.theta = np.arctan2(np.sin(self.theta), np.cos(self.theta))
+    def timer_callback(self):
+        current_time = self.get_clock().now()
+        dt = (current_time - self.last_time).nanoseconds * 1e-9
         
+        if dt < 0.001:
+            return
+        
+        # Paso 1: Predicción con odometría
+        self.predict_with_odometry(dt)
+        
+        # Paso 2: Intentar corrección con marcadores visibles
+        self.try_marker_correction()
+        
+        # Paso 3: Publicar estado actualizado
+        self.publish_odometry()
+        
+        self.last_time = current_time
+
+    def predict_with_odometry(self, dt):
+        # Calcular velocidades
+        v = self.r * (self.wr + self.wl) / 2.0
+        w = self.r * (self.wr - self.wl) / self.L
+        
+        theta = self.x[2, 0]
+        
+        # Jacobiano del modelo de movimiento
+        F = np.eye(3)
+        F[0, 2] = -v * math.sin(theta) * dt
+        F[1, 2] = v * math.cos(theta) * dt
+        
+        # Actualizar estado
+        self.x[0] += v * math.cos(theta) * dt
+        self.x[1] += v * math.sin(theta) * dt
+        self.x[2] += w * dt
+        
+        # Normalizar ángulo
+        self.x[2] = math.atan2(math.sin(self.x[2]), math.cos(self.x[2]))
+        
+        # Actualizar covarianza
+        self.P = F @ self.P @ F.T + self.Q
+
+    def try_marker_correction(self):
+        # Para cada marcador conocido
+        for marker_id, marker_pose in self.marker_positions.items():
+            marker_frame = f"{self.marker_frame_prefix}{marker_id}"
+            
+            try:
+                # Obtener transformación del marcador a la cámara
+                trans = self.tf_buffer.lookup_transform(
+                    self.camera_frame,
+                    marker_frame,
+                    rclpy.time.Time(),
+                    timeout=Duration(seconds=0.1))
+                
+                # Calcular corrección
+                self.apply_marker_correction(trans, marker_pose)
+                
+            except Exception as e:
+                # Marcador no visible o transformación no disponible
+                pass
+
+    def apply_marker_correction(self, transform, marker_pose):
+        # Obtener transformación de cámara a marcador
+        t = transform.transform.translation
+        q = transform.transform.rotation
+        
+        # Convertir a matriz de rotación
+        roll, pitch, yaw = transforms3d.euler.quat2euler([q.w, q.x, q.y, q.z])
+        rot_matrix = transforms3d.euler.euler2mat(roll, pitch, yaw)
+        
+        # Construir matriz de transformación homogénea
+        T_cam_marker = np.eye(4)
+        T_cam_marker[:3, :3] = rot_matrix
+        T_cam_marker[0, 3] = t.x
+        T_cam_marker[1, 3] = t.y
+        T_cam_marker[2, 3] = t.z
+        
+        # Obtener posición del marcador en el mundo
+        marker_x, marker_y, marker_theta = marker_pose
+        
+        # Construir transformación marcador->mundo
+        T_world_marker = np.eye(4)
+        T_world_marker[:2, 3] = [marker_x, marker_y]
+        T_world_marker[:2, :2] = np.array([
+            [math.cos(marker_theta), -math.sin(marker_theta)],
+            [math.sin(marker_theta), math.cos(marker_theta)]
+        ])
+        
+        # Calcular transformación cámara->mundo
+        T_world_cam = T_world_marker @ np.linalg.inv(T_cam_marker)
+        
+        # Extraer posición y orientación
+        cam_x = T_world_cam[0, 3]
+        cam_y = T_world_cam[1, 3]
+        cam_theta = math.atan2(T_world_cam[1, 0], T_world_cam[0, 0])
+        
+        # Asumir cámara montada en centro del robot
+        z = np.array([[cam_x], [cam_y], [cam_theta]])
+        
+        # Actualización EKF
+        H = np.eye(3)  # Matriz de observación
+        y = z - self.x
+        y[2] = math.atan2(math.sin(y[2]), math.cos(y[2]))  # Normalizar ángulo
+        
+        S = H @ self.P @ H.T + self.R
+        K = self.P @ H.T @ np.linalg.inv(S)
+        
+        self.x += K @ y
+        self.x[2] = math.atan2(math.sin(self.x[2]), math.cos(self.x[2]))
+        self.P = (np.eye(3) - K @ H) @ self.P
+        
+        self.get_logger().info(f'Pose corregida con marcador')
+
     def publish_odometry(self):
-        odom_msg = Odometry()
-        odom_msg.header.stamp = self.get_clock().now().to_msg()
-        odom_msg.header.frame_id = 'world'
-        odom_msg.child_frame_id = 'base_footprint'
+        odom = Odometry()
+        odom.header.stamp = self.get_clock().now().to_msg()
+        odom.header.frame_id = self.world_frame
+        odom.child_frame_id = self.base_frame
         
-        # Position
-        odom_msg.pose.pose.position.x = self.x
-        odom_msg.pose.pose.position.y = self.y
-        odom_msg.pose.pose.position.z = 0.05
+        # Posición
+        odom.pose.pose.position.x = self.x[0, 0]
+        odom.pose.pose.position.y = self.x[1, 0]
+        odom.pose.pose.position.z = 0.05
         
-        # Orientation
-        q = transforms3d.euler.euler2quat(0, 0, self.theta)
-        odom_msg.pose.pose.orientation.x = q[1]
-        odom_msg.pose.pose.orientation.y = q[2]
-        odom_msg.pose.pose.orientation.z = q[3]
-        odom_msg.pose.pose.orientation.w = q[0]
-
-        # Covariance matrix (NEW SECTION)
-        odom_msg.pose.covariance = [0.0]*36
-        odom_msg.pose.covariance[0] = self.P[0,0]  # var x
-        odom_msg.pose.covariance[7] = self.P[1,1]   # var y
-        odom_msg.pose.covariance[35] = self.P[2,2]  # var theta
-        odom_msg.pose.covariance[1] = self.P[0,1]   # cov xy
-        odom_msg.pose.covariance[6] = self.P[1,0]   # cov yx
-        odom_msg.pose.covariance[5] = self.P[0,2]   # cov xθ
-        odom_msg.pose.covariance[30] = self.P[2,0]  # cov θx
-        odom_msg.pose.covariance[11] = self.P[1,2]  # cov yθ
-        odom_msg.pose.covariance[31] = self.P[2,1]  # cov θy
-
-        self.odom_pub.publish(odom_msg)
-
-    def publish_wheels(self):
-        self.wr_pub.publish(Float32(data=self.wr))
-        self.wl_pub.publish(Float32(data=self.wl))
+        # Orientación
+        q = transforms3d.euler.euler2quat(0, 0, self.x[2, 0])
+        odom.pose.pose.orientation.x = q[1]
+        odom.pose.pose.orientation.y = q[2]
+        odom.pose.pose.orientation.z = q[3]
+        odom.pose.pose.orientation.w = q[0]
+        
+        # Covarianza
+        odom.pose.covariance = [0.0] * 36
+        odom.pose.covariance[0] = self.P[0, 0]  # xx
+        odom.pose.covariance[1] = self.P[0, 1]  # xy
+        odom.pose.covariance[5] = self.P[0, 2]  # xθ
+        odom.pose.covariance[6] = self.P[1, 0]  # yx
+        odom.pose.covariance[7] = self.P[1, 1]  # yy
+        odom.pose.covariance[11] = self.P[1, 2]  # yθ
+        odom.pose.covariance[30] = self.P[2, 0]  # θx
+        odom.pose.covariance[31] = self.P[2, 1]  # θy
+        odom.pose.covariance[35] = self.P[2, 2]  # θθ
+        
+        self.odom_pub.publish(odom)
+        
+        # Publicar transformación TF
+        t = TransformStamped()
+        t.header.stamp = odom.header.stamp
+        t.header.frame_id = self.world_frame
+        t.child_frame_id = self.base_frame
+        t.transform.translation.x = self.x[0, 0]
+        t.transform.translation.y = self.x[1, 0]
+        t.transform.rotation = odom.pose.pose.orientation
+        self.tf_broadcaster.sendTransform(t)
 
 def main(args=None):
     rclpy.init(args=args)
-    node = Localisation()
-    
+    node = EKF_Localisation()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:

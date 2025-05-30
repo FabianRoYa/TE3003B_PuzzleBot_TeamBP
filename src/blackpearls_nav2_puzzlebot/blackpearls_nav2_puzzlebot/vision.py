@@ -70,8 +70,7 @@ class VisionClass(Node):
                     
                     self.t.header.stamp = self.get_clock().now().to_msg()
                     self.t.header.frame_id = 'camera_link_optical'
-                    self.t.child_frame_id = 'aruco'
-                    
+                    self.t.child_frame_id = 'aruco_' + str(markerIds[i][0])  # Marcador específico                    
                     q = transforms3d.euler.euler2quat(roll, pitch, yaw)
                     
                     self.t.transform.translation.x = tvec[0][0][0]

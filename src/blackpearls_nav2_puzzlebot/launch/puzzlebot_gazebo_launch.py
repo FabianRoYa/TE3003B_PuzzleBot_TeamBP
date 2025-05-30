@@ -36,6 +36,12 @@ def generate_launch_description():
             'tof_frame': 'tof_link'
         }
     ]
+    # Posiciones conocidas de los marcadores
+    marker_positions = {
+        0: [0.0, 0.0, 0.0],    # Marcador 0 en origen
+        1: [1.5, 0.5, 1.57],    # Marcador 1 en x=1.5m, y=0.5m, orientación 90°
+        2: [2.0, 1.0, 0.0]      # Marcador 2 en x=2.0m, y=1.0m
+    }
 
     # -----------------------------------------------------------------------------
     #                         LOAD GAZEBO WORLD
@@ -165,6 +171,7 @@ def generate_launch_description():
                 'wr': 'VelocityEncR',
                 'wl': 'VelocityEncL',
                 'initialPose':[float(x), float(y), float(yaw)],
+                
             }]
         )
         robot_launches.append(localisation_node)
