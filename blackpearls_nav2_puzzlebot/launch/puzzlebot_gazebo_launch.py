@@ -19,6 +19,7 @@ def generate_launch_description():
     # Name of the Gazebo world to load
     # world = 'puzzlebot_final_world.world' # Paolo's world [Final world]
     world = 'maze_aruco.world'  # Gadi's world for testing
+    rviz_config_path = os.path.join(get_package_share_directory('blackpearls_nav2_puzzlebot'), 'rviz/conf.rviz')
 
     # General Gazebo settings
     pause = 'false'           # Start Gazebo in paused state, world tf is not generated until Gazebo starts
@@ -146,7 +147,7 @@ def generate_launch_description():
             executable='vision',
             name='vision',
             output='screen',
-            parameters=[{'use_sim_time': True}], # KEEP IT TRUE
+            parameters=[{'use_sim_time': bool(use_sim_time)}], # KEEP IT TRUE
             
         )
         robot_launches.append(vision_node)
@@ -168,7 +169,7 @@ def generate_launch_description():
                 'wr_topic': 'VelocityEncR',
                 'wl_topic': 'VelocityEncL',
                 'initial_pose':[float(x), float(y), float(yaw)],
-                'use_sim_time': True,             
+                'use_sim_time': bool(use_sim_time),             
             }]
         )
         robot_launches.append(localisation_node)
@@ -185,6 +186,8 @@ def generate_launch_description():
     package='rviz2',
     executable='rviz2',
     name='rviz2',
+    arguments=['-d', rviz_config_path],
+    parameters=[{'use_sim_time': bool(use_sim_time)}],
     output='screen',
     )
     # -----------------------------------------------------------------------------

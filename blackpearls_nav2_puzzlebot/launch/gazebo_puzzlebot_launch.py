@@ -76,42 +76,6 @@ def generate_launch_description():
         output="screen",
     )
 
-        # # Bridge for puzzlebot_hacker_ed: publishes basic sensors and cmd_vel
-        # start_gazebo_ros_bridge_hacker_ed = Node(
-        #     package='ros_gz_bridge',
-        #     executable='parameter_bridge',
-        #     name='robot_bridge',
-        #     arguments=[
-        #         [TextSubstitution(text='/'), prefix_name, TextSubstitution(text='ground_truth@nav_msgs/msg/Odometry[gz.msgs.Odometry')],
-        #         [TextSubstitution(text='/'), prefix_name, TextSubstitution(text='VelocityEncL@std_msgs/msg/Float32[gz.msgs.Float')],
-        #         [TextSubstitution(text='/'), prefix_name, TextSubstitution(text='VelocityEncR@std_msgs/msg/Float32[gz.msgs.Float')],
-        #         [TextSubstitution(text='/'), prefix_name, TextSubstitution(text='joint_states@sensor_msgs/msg/JointState[gz.msgs.Model')],
-        #         [TextSubstitution(text='/'), prefix_name, TextSubstitution(text='cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist')],
-        #     ],
-        #     condition=IfCondition(PythonExpression(['"', robot, '" == "puzzlebot_hacker_ed"'])),
-        #     namespace=prefix_name,
-        #     output='screen'
-        # )
-
-    # Bridge for puzzlebot_jetson_ed: includes camera and tof_scan
-    # start_gazebo_ros_bridge_jetson_ed = Node(
-    #     package='ros_gz_bridge',
-    #     executable='parameter_bridge',
-    #     name='robot_bridge',
-    #     arguments=[
-    #         [TextSubstitution(text='/'), prefix_name, TextSubstitution(text='ground_truth@nav_msgs/msg/Odometry[gz.msgs.Odometry')],
-    #         [TextSubstitution(text='/'), prefix_name, TextSubstitution(text='VelocityEncL@std_msgs/msg/Float32[gz.msgs.Float')],
-    #         [TextSubstitution(text='/'), prefix_name, TextSubstitution(text='VelocityEncR@std_msgs/msg/Float32[gz.msgs.Float')],
-    #         [TextSubstitution(text='/'), prefix_name, TextSubstitution(text='joint_states@sensor_msgs/msg/JointState[gz.msgs.Model')],
-    #         [TextSubstitution(text='/'), prefix_name, TextSubstitution(text='camera_info@sensor_msgs/msg/CameraInfo[gz.msgs.CameraInfo')],
-    #         [TextSubstitution(text='/'), prefix_name, TextSubstitution(text='tof_scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan')],
-    #         [TextSubstitution(text='/'), prefix_name, TextSubstitution(text='cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist')],
-    #     ],
-    #     condition=IfCondition(PythonExpression(['"', robot, '" == "puzzlebot_jetson_ed"'])),
-    #     namespace=prefix_name,
-    #     output='screen'
-    # )
-
     # Bridge for puzzlebot_jetson_lidar_ed: adds LIDAR (scan) on top of the previous sensors
     start_gazebo_ros_bridge_jetson_lidar_ed = Node(
         package='ros_gz_bridge',
@@ -163,9 +127,7 @@ def generate_launch_description():
     l_d = [
         declare_robot_name_arg, declare_robot_arg, declare_x_arg, declare_y_arg, declare_th_arg, declare_sim_time_arg, declare_prefix_arg,
         robot_state_publisher_node, spawn_robot,
-        # start_gazebo_ros_bridge_hacker_ed,
         start_gazebo_ros_bridge_jetson_lidar_ed, 
-        # start_gazebo_ros_bridge_jetson_ed,
         start_gazebo_ros_image_bridge_cmd,
         declare_camera_frame_arg, declare_tof_frame_arg, declare_lidar_frame_arg
     ]
