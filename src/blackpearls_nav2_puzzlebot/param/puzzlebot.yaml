@@ -185,7 +185,7 @@ controller_server_rclcpp_node:
 local_costmap:
   local_costmap:
     ros__parameters:
-      update_frequency: 5.0             # Frecuencia (Hz) a la que se actualiza el costmap local
+      update_frequency: 10.0             # Frecuencia (Hz) a la que se actualiza el costmap local
       publish_frequency: 3.0            # Frecuencia (Hz) a la que se publica el costmap local
       global_frame: odom               # Frame de referencia global para el costmap
       robot_base_frame: base_link       # Frame base del robot en el costmap
@@ -259,7 +259,7 @@ global_costmap:
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"  # Clase que infla zonas alrededor de obstáculos
         cost_scaling_factor: 2.0       # Tasa de decaimiento del costo desde el obstáculo
-        inflation_radius: 0.15         # Radio (m) de inflación alrededor de cada obstáculo
+        inflation_radius: 0.2         # Radio (m) de inflación alrededor de cada obstáculo
       always_send_full_costmap: True   # Publicar siempre el costmap completo, no solo diffs
 
   global_costmap_client:
