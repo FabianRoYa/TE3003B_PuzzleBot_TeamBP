@@ -17,7 +17,8 @@ def generate_launch_description():
     # -----------------------------------------------------------------------------
     
     # Name of the Gazebo world to load
-    world = 'maze_aruco.world'
+    # world = 'puzzlebot_final_world.world' # Paolo's world [Final world]
+    world = 'maze_aruco.world'  # Gadi's world for testing
 
     # General Gazebo settings
     pause = 'false'           # Start Gazebo in paused state, world tf is not generated until Gazebo starts
@@ -37,11 +38,7 @@ def generate_launch_description():
         }
     ]
     # Posiciones conocidas de los marcadores
-    marker_positions = {
-        0: [0.0, 0.0, 0.0],    # Marcador 0 en origen
-        1: [1.5, 0.5, 1.57],    # Marcador 1 en x=1.5m, y=0.5m, orientación 90°
-        2: [2.0, 1.0, 0.0]      # Marcador 2 en x=2.0m, y=1.0m
-    }
+ 
 
     # -----------------------------------------------------------------------------
     #                         LOAD GAZEBO WORLD
@@ -138,7 +135,7 @@ def generate_launch_description():
                 'kp_angular': 0.15,
             }]
         )
-        robot_launches.append(bug_algorithm_node)
+        # robot_launches.append(bug_algorithm_node)
         
     # -----------------------------------------------------------------------------
     #                         ROBOT VISION NODES
@@ -170,8 +167,8 @@ def generate_launch_description():
             parameters=[{
                 'wr': 'VelocityEncR',
                 'wl': 'VelocityEncL',
-                'initialPose':[float(x), float(y), float(yaw)],
-                
+                'initial_pose':[float(x), float(y), float(yaw)],
+                'use_sim_time': True,             
             }]
         )
         robot_launches.append(localisation_node)

@@ -9,9 +9,9 @@ import math
 import transforms3d
 from rclpy.duration import Duration
 
-class EKF_Localisation(Node):
+class localisation(Node):
     def __init__(self):
-        super().__init__('ekf_localisation')
+        super().__init__('localisation')
         
         # Parámetros configurables
         self.declare_parameter('wr_topic', 'wr')
@@ -23,8 +23,16 @@ class EKF_Localisation(Node):
         self.declare_parameter('base_frame', 'base_footprint')
         self.declare_parameter('world_frame', 'world')
         self.declare_parameter('marker_frame_prefix', 'aruco_')
-        self.declare_parameter('marker_positions', {})  # {id: [x, y, theta]}
-        
+
+        # Un Snickers a quien pueda hacerlo parametros
+        self.marker_positions = {
+            1: [0.25, 1.88, 0.08],    # Marcador 1 en x=1.5m, y=0.5m, orientación 90°
+            2: [2.7, 0.08, 0.08],      # Marcador 2 en x=2.0m, y=1.0m
+            3: [2.0, 1.825, 0.08],    # Marcador 3 en x=2.0m, y=1.5m
+            4: [0.09, 0.85, 0.08],     # Marcador 4 en x=0.5m, y=1.5m
+            5: [0.09, 0.85, 0.08],    # Marcador 5 en x=0.5m, y=2.0m
+        }
+
         # Obtener parámetros
         wr_topic = self.get_parameter('wr_topic').value
         wl_topic = self.get_parameter('wl_topic').value
@@ -35,7 +43,7 @@ class EKF_Localisation(Node):
         self.base_frame = self.get_parameter('base_frame').value
         self.world_frame = self.get_parameter('world_frame').value
         self.marker_frame_prefix = self.get_parameter('marker_frame_prefix').value
-        self.marker_positions = self.get_parameter('marker_positions').value
+        # self.marker_positions = self.get_parameter('marker_positions').value
         
         # Estado del robot [x, y, theta]
         self.x = np.array(initial_pose).reshape(3, 1)
@@ -234,7 +242,7 @@ class EKF_Localisation(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = EKF_Localisation()
+    node = localisation()
     try:
         rclpy.spin(node)
     except KeyboardInterrupt:
