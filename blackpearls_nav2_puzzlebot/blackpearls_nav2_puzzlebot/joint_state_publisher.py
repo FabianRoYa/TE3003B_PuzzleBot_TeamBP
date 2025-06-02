@@ -28,8 +28,8 @@ class JointStatePublisher(Node):
         # Setup publishers and timers
         self.wr = 0.0
         self.wl = 0.0
-        self.wr_sub = self.create_subscription(Float32, 'wr', self.wr_callback, qos.qos_profile_sensor_data)
-        self.wl_sub = self.create_subscription(Float32, 'wl', self.wl_callback, qos.qos_profile_sensor_data)
+        self.wr_sub = self.create_subscription(Float32, 'VelocityEncR', self.wr_callback, qos.qos_profile_sensor_data)
+        self.wl_sub = self.create_subscription(Float32, 'VelocityEncL', self.wl_callback, qos.qos_profile_sensor_data)
         self.joint_pub = self.create_publisher(JointState, 'joint_states', 10)
         self.create_timer(0.1, self.timer_callback)  # 10 Hz
         self.last_time = self.get_clock().now()  # Para cálculo correcto de dt
