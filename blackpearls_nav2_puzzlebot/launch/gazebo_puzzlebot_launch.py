@@ -16,7 +16,7 @@ def generate_launch_description():
     declare_x_arg = DeclareLaunchArgument('x', default_value='0.0', description='X position of the robot')
     declare_y_arg = DeclareLaunchArgument('y', default_value='0.0', description='Y position of the robot')
     declare_th_arg = DeclareLaunchArgument('yaw', default_value='0.0', description='Yaw angle of the robot')
-    declare_sim_time_arg = DeclareLaunchArgument('use_sim_time', default_value='true', description='Use simulated time')
+    declare_sim_time_arg = DeclareLaunchArgument('use_sim_time', default_value='True', description='Use simulated time')
     declare_prefix_arg = DeclareLaunchArgument('prefix', default_value='', description='Prefix for robot links and namespaces')
     declare_camera_frame_arg = DeclareLaunchArgument('camera_frame', default_value='', description='Camera frame')
     declare_tof_frame_arg = DeclareLaunchArgument('tof_frame', default_value='', description='TOF sensor frame')
@@ -72,6 +72,7 @@ def generate_launch_description():
             "-topic", "robot_description",
             "-x", x, "-y", y, "-Y", yaw,
         ],
+        condition=IfCondition(PythonExpression(['"', use_sim_time, '" == "True"'])),
         namespace=prefix_name,
         output="screen",
     )
@@ -91,7 +92,7 @@ def generate_launch_description():
             [TextSubstitution(text='/'), prefix_name, TextSubstitution(text='scan@sensor_msgs/msg/LaserScan[gz.msgs.LaserScan')],
             [TextSubstitution(text='/'), prefix_name, TextSubstitution(text='cmd_vel@geometry_msgs/msg/Twist]gz.msgs.Twist')],
         ],
-        condition=IfCondition(PythonExpression(['"', robot, '" == "puzzlebot_jetson_lidar_ed"'])),
+        condition=IfCondition(PythonExpression(['"', use_sim_time, '" == "True"'])),
         namespace=prefix_name,
         output='screen'
     )
@@ -103,7 +104,7 @@ def generate_launch_description():
         arguments=[
             PathJoinSubstitution([prefix_name, TextSubstitution(text='camera')])
         ],
-        condition=IfCondition(PythonExpression(['"', robot, '" != "puzzlebot_hacker_ed"'])),
+        condition=IfCondition(PythonExpression(['"', use_sim_time, '" == "True"'])),
         namespace=prefix_name,
         remappings=[
             # Remap raw image
@@ -126,7 +127,8 @@ def generate_launch_description():
     # Final launch description list of all declared arguments and nodes
     l_d = [
         declare_robot_name_arg, declare_robot_arg, declare_x_arg, declare_y_arg, declare_th_arg, declare_sim_time_arg, declare_prefix_arg,
-        robot_state_publisher_node, spawn_robot,
+        robot_state_publisher_node, 
+        spawn_robot,
         start_gazebo_ros_bridge_jetson_lidar_ed, 
         start_gazebo_ros_image_bridge_cmd,
         declare_camera_frame_arg, declare_tof_frame_arg, declare_lidar_frame_arg

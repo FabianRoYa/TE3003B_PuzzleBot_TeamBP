@@ -57,7 +57,8 @@ def generate_launch_description():
             'world': world,
             'pause': pause,
             'verbosity': verbosity
-        }.items()
+        }.items(),
+        condition = IfCondition(PythonExpression(["'", use_sim_time, "' == 'True'"])),
     )
     # -----------------------------------------------------------------------------
     #                       SPAWN EACH ROBOT DYNAMICALLY
@@ -124,8 +125,8 @@ def generate_launch_description():
             name='point_stabilisation_controller',
             output='screen',
             parameters=[{
-                'x': 0.3,
-                'y': 2.7,
+                'x': float(x),
+                'y': float(y),
                 'use_sim_time': bool(use_sim_time)
             }]
         )
@@ -186,6 +187,18 @@ def generate_launch_description():
             }]
         )
         robot_launches.append(localisation_node)
+
+        joint_state_publisher_node= Node(
+            package='blackpearls_nav2_puzzlebot',
+            executable='joint_state_publisher',
+            name= 'joint_state_publisher',
+            output='screen',
+            parameters=[{
+                'use_sim_time': False,
+            }],
+            condition = IfCondition(PythonExpression(["'", use_sim_time, "' == 'False'"]))
+        )
+        robot_launches.append(joint_state_publisher_node)
 
         static_tf3 = Node(
             package='tf2_ros',

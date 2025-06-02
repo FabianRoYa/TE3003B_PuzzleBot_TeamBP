@@ -45,6 +45,7 @@ setup(
             'point_stabilisation_controller = blackpearls_nav2_puzzlebot.point_stabilisation_controller:main',
             'bug_algorithm = blackpearls_nav2_puzzlebot.bug_algorithm:main',
             'vision = blackpearls_nav2_puzzlebot.vision:main',
+            'joint_state_publisher = blackpearls_nav2_puzzlebot.joint_state_publisher:main',
         ],
     },
 )
