@@ -27,7 +27,7 @@
                 <pid_Ti>0.05</pid_Ti>
                 <pid_Td>0</pid_Td>
                 <input_type>1</input_type>
-                <rate>100</rate>
+                <rate>10</rate>
         </plugin>
 
 
@@ -49,7 +49,7 @@
         
         <plugin filename="gz-sim-joint-state-publisher-system" name="gz::sim::systems::JointStatePublisher">
             <topic>${prefix}joint_states</topic>
-            <update_rate>50</update_rate>
+            <update_rate>10</update_rate>
             <joint_name>${prefix}wheel_right_joint</joint_name>
             <joint_name>${prefix}wheel_left_joint</joint_name>
         </plugin>
@@ -61,7 +61,7 @@
                 <render_engine>ogre2</render_engine>
         </plugin>
 
-
+        <!--
         <plugin filename="gz-sim-odometry-publisher-system" name="gz::sim::systems::OdometryPublisher">
         <odom_frame>world</odom_frame>
         <robot_base_frame>${prefix}base_footprint</robot_base_frame>
@@ -70,7 +70,7 @@
         <tf_topic>tf</tf_topic>
         <dimensions>2</dimensions>
         </plugin>
-            
+        -->
     </gazebo>
 
 </xacro:macro>

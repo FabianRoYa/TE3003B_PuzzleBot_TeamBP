@@ -3,7 +3,7 @@ from rclpy.node import Node
 from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster
 from sensor_msgs.msg import Image
-from std_msgs.msg import String
+from std_msgs.msg import String, Int32
 from cv_bridge import CvBridge
 import cv2
 from cv2 import aruco
@@ -15,7 +15,7 @@ warnings.filterwarnings('ignore')
 class VisionClass(Node):
     def __init__(self):
         super().__init__('vision')
-        timer_period = 0.01
+        timer_period = 0.1
         self.img = []
         self.image_received = False
         self.cam_m = np.array([[256.35397772, 0, 160.40473426], [0, 257.6063827, 119.19494887], [0, 0, 1]], dtype = np.float32)
@@ -27,11 +27,13 @@ class VisionClass(Node):
         self.detector = aruco.ArucoDetector(dictionary, parameters)
         self.bridge = CvBridge()
         self.inf = String()
+        self.id = Int32()
         self.t = TransformStamped()
         self.tf_br1 = TransformBroadcaster(self)
         self.sub_image = self.create_subscription(Image, 'camera', self.camera_callback, 10)
         self.pub_image1 = self.create_publisher(Image, 'image_process', 10)
         self.pub = self.create_publisher(String, 'inf', 10)
+        self.pub_id = self.create_publisher(Int32, 'id', 10)
         self.timer = self.create_timer(timer_period, self.timer_callback)
 
     def rot2rpy(self, R):
@@ -49,6 +51,7 @@ class VisionClass(Node):
             self.image_received = False
 
     def timer_callback(self):
+        self.id.data = 0
         if self.image_received:
             img_mod = self.img.copy()
             gray = cv2.cvtColor(img_mod, cv2.COLOR_BGR2GRAY)
@@ -64,25 +67,26 @@ class VisionClass(Node):
                     aruco.drawDetectedMarkers(img_mod, markerCorners, markerIds) 
                     cv2.drawFrameAxes(img_mod, self.cam_m, self.cam_d, rvec, tvec, 0.1)
                     cv2.putText(img_mod, f"{distance:.2f} m", (cX, cY-15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 2)
-                
-                    rot, _ = cv2.Rodrigues(rvec[0][0])
-                    roll, pitch, yaw = self.rot2rpy(rot)
-                    
-                    self.t.header.stamp = self.get_clock().now().to_msg()
-                    self.t.header.frame_id = 'camera_link_optical'
-                    self.t.child_frame_id = 'aruco_' + str(markerIds[i][0])  # Marcador específico                    
-                    q = transforms3d.euler.euler2quat(roll, pitch, yaw)
-                    
-                    self.t.transform.translation.x = tvec[0][0][0]
-                    self.t.transform.translation.y = tvec[0][0][1]
-                    self.t.transform.translation.z = tvec[0][0][2]
-                    self.t.transform.rotation.x = q[1]
-                    self.t.transform.rotation.y = q[2]
-                    self.t.transform.rotation.z = q[3]
-                    self.t.transform.rotation.w = q[0]
-                    # self.get_logger().info(f"Marker ID: {markerIds[i][0]},tf:{self.t}")
-                    self.tf_br1.sendTransform(self.t)
+                    if float(distance) <= 1.5:
+                        rot, _ = cv2.Rodrigues(rvec[0][0])
+                        roll, pitch, yaw = self.rot2rpy(rot)
+                        self.t.header.stamp = self.get_clock().now().to_msg()
+                        self.t.header.frame_id = 'camera_link_optical'
+                        self.t.child_frame_id = 'aruco'
+                        q = transforms3d.euler.euler2quat(roll, pitch, yaw)
+                        self.t.transform.translation.x = tvec[0][0][0]
+                        self.t.transform.translation.y = tvec[0][0][1]
+                        self.t.transform.translation.z = tvec[0][0][2]
+                        self.t.transform.rotation.x = q[1]
+                        self.t.transform.rotation.y = q[2]
+                        self.t.transform.rotation.z = q[3]
+                        self.t.transform.rotation.w = q[0]
+                        self.id.data = int(markerIds[i][0])
+                        if markerIds[i][0] > 5:
+                            self.id.data = 0
+                        self.tf_br1.sendTransform(self.t)
             self.pub_image1.publish(self.bridge.cv2_to_imgmsg(img_mod, 'bgr8'))
+        self.pub_id.publish(self.id)
 
 def main(args=None):
     rclpy.init(args=args)

@@ -32,7 +32,7 @@ def generate_launch_description():
         {
             'name': '',
             'type': 'puzzlebot_jetson_lidar_ed',
-            'x': 0.2, 'y': 2.7, 'yaw': 0.0,
+            'x': 0.3, 'y': 2.7, 'yaw': 0.0,
             'lidar_frame': 'laser_frame',
             'camera_frame': 'camera_link_optical',
             'tof_frame': 'tof_link'
@@ -102,6 +102,7 @@ def generate_launch_description():
     # -----------------------------------------------------------------------------
     #                         ROBOT CONTROL NODES
     # -----------------------------------------------------------------------------
+        '''
         controller_node = Node(
             package='blackpearls_nav2_puzzlebot',
             executable='point_stabilisation_controller',
@@ -116,7 +117,19 @@ def generate_launch_description():
                 'angular_tolerance': math.radians(5)  # 5 grados en radianes
             }]
         )
-        # robot_launches.append(controller_node)
+        '''
+        controller_node = Node(
+            package='blackpearls_nav2_puzzlebot',
+            executable='point_stabilisation_controller',
+            name='point_stabilisation_controller',
+            output='screen',
+            parameters=[{
+                'x': 0.3,
+                'y': 2.7,
+                'use_sim_time': bool(use_sim_time)
+            }]
+        )
+        robot_launches.append(controller_node)
 
         bug_algorithm_node = Node(
             package='blackpearls_nav2_puzzlebot',
@@ -136,7 +149,7 @@ def generate_launch_description():
                 'kp_angular': 0.15,
             }]
         )
-        # robot_launches.append(bug_algorithm_node)
+        #robot_launches.append(bug_algorithm_node)
         
     # -----------------------------------------------------------------------------
     #                         ROBOT VISION NODES
@@ -169,10 +182,17 @@ def generate_launch_description():
                 'wr_topic': 'VelocityEncR',
                 'wl_topic': 'VelocityEncL',
                 'initial_pose':[float(x), float(y), float(yaw)],
-                'use_sim_time': bool(use_sim_time),             
+                'use_sim_time': bool(use_sim_time),
             }]
         )
         robot_launches.append(localisation_node)
+
+        static_tf3 = Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            arguments=['0.3', '0.6', '0', '0', '0', '0', 'world', 'goal_frame'],
+        )
+        robot_launches.append(static_tf3)
     # -----------------------------------------------------------------------------
     #                         RVIZ2 NODE
     # -----------------------------------------------------------------------------
