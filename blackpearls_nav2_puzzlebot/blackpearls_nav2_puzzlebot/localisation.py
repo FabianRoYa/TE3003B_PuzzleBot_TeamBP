@@ -89,8 +89,8 @@ class localisation(Node):
 
         # Publicadores
         self.odom_pub = self.create_publisher(Odometry, 'ground_truth', 10)
-        #self.wr_pub = self.create_publisher(Float32, 'wr_loc', 10)
-        #self.wl_pub = self.create_publisher(Float32, 'wl_loc', 10)
+        self.wr_pub = self.create_publisher(Float32, 'wr_loc', 10)
+        self.wl_pub = self.create_publisher(Float32, 'wl_loc', 10)
         self.tf_broadcaster = TransformBroadcaster(self)
         
         # Temporizador principal
@@ -122,6 +122,8 @@ class localisation(Node):
         # Paso 3: Publicar estado actualizado
         self.publish_odometry()
         
+        self.publish_wheels()
+        
         self.last_time = current_time
 
     def predict_with_odometry(self, dt):
@@ -146,29 +148,6 @@ class localisation(Node):
             trans = self.tf_buffer.lookup_transform(self.camera_frame, 'aruco', rclpy.time.Time())
             marker_pose = self.marker_positions[self.id - 1]
             self.apply_marker_correction(trans, marker_pose)
-        '''
-        # Para cada marcador conocido
-        for marker_id, marker_pose in self.marker_positions.items():
-            marker_frame = f"{self.marker_frame_prefix}{marker_id}"
-            
-            try:
-                # Obtener transformación del marcador a la cámara
-                trans = self.tf_buffer.lookup_transform(
-                    self.camera_frame,
-                    marker_frame,
-                    rclpy.time.Time(),
-                    timeout=Duration(seconds=0.1))
-                
-                # Calcular corrección
-                #self.get_logger().info(f'transformación para {marker_frame}')
-                self.apply_marker_correction(trans, marker_pose)
-                
-                
-            except Exception as e:
-                #self.get_logger().warn(f'No se pudo obtener transformación para {marker_frame}: {e}')
-                # Marcador no visible o transformación no disponible
-                pass
-        '''
 
     def apply_marker_correction(self, transform, marker_pose):
         # Obtener transformación de cámara a marcador
@@ -251,6 +230,15 @@ class localisation(Node):
         self.tf_broadcaster.sendTransform(t)
 
         self.pub.publish(self.inf)
+        
+    def publish_wheels(self):
+        wr_msg = Float32()
+        wr_msg.data = self.wr
+        self.wr_pub.publish(wr_msg)
+
+        wl_msg = Float32()
+        wl_msg.data = self.wl
+        self.wl_pub.publish(wl_msg)
 
 def main(args=None):
     rclpy.init(args=args)

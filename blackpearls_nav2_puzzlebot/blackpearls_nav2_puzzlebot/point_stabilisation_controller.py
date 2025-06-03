@@ -229,6 +229,13 @@ class ControllerClass(Node):
             # Lógica de Bug2
             current_pos = np.array([self.x, self.y])
             
+            if goal_view == "clear" or error_distance < obj_distance:
+                # Vista despejada o cerca del objetivo - desactivar seguimiento
+                self.follow = False
+                self.begin_follow = False
+                self.hit_point = None
+                self.hit_dist = float('inf')
+            
             if not self.follow:
                 # Modo navegación directa
                 if goal_view == "obstacle" and obj_distance <= self.follow_distance:
@@ -247,14 +254,14 @@ class ControllerClass(Node):
 
         # Comportamiento de seguimiento (obstacle avoidance)
         if self.follow:
-            if np.abs(follow_angle) < self.turning_d:
+            # if np.abs(follow_angle) < self.turning_d:
                 # Avanzar si el ángulo es pequeño
-                self.robot_vel.linear.x = self.max_linear_speed * obj_distance - self.stop_d
-                self.robot_vel.angular.z = 0.0
-            else:
+                self.robot_vel.linear.x = self.max_linear_speed * (obj_distance-self.stop_d)
+                # self.robot_vel.angular.z = 0.0
+            # else:
                 # Girar para alinearse
                 angular_speed = self.Kp_angular * follow_angle
-                self.robot_vel.linear.x = 0.0
+                # self.robot_vel.linear.x = 0.0
                 self.robot_vel.angular.z = max(min(angular_speed, self.max_angular_speed), -self.max_angular_speed)
         
         # Comportamiento normal (navegación al objetivo)
@@ -280,7 +287,7 @@ class ControllerClass(Node):
         # Detención de emergencia por obstáculo cercano
         if obj_distance < self.stop_d:
             stopped = True
-            self.robot_vel.linear.x = 0.0
+            self.robot_vel.linear.x = self.max_linear_speed * 2 * (obj_distance - self.stop_d)
             self.robot_vel.angular.z = 0.0
             self.get_logger().warn("Obstáculo muy cercano. Deteniendo robot.")
 

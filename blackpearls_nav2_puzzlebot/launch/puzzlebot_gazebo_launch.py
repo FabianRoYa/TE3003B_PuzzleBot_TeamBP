@@ -159,18 +159,16 @@ def generate_launch_description():
                 'Kp_angular': 0.3, # Proportional gain for angular velocity
                 
                 'max_linear_speed': 0.8,  # Maximum linear speed
-                'max_angular_speed': 0.5, # Maximum angular speed
+                'max_angular_speed': 1.0, # Maximum angular speed
                 
-                'follow_distance': 0.3,  # Distance to maintain from the goal
-                'stop_d': 0.15,  # Distance to stop before reaching the goal [The less that the lidar can handle is 0.15]
+                'follow_distance': 0.2,  # Distance to maintain from the goal
+                'stop_d': 0.2,  # Distance to stop before reaching the goal [The less that the lidar can handle is 0.15]
                 'goal_tolerance_distance': 0.05,  # Tolerance distance to consider goal reached
                 'turning_d_deg': 5.0  # Turning distance in degrees
             }]
         )
         robot_launches.append(controller_node)
 
-        
-        
     # -----------------------------------------------------------------------------
     #                         ROBOT VISION NODES
     # -----------------------------------------------------------------------------
@@ -203,6 +201,7 @@ def generate_launch_description():
                 'wl_topic': 'VelocityEncL',
                 'initial_pose':[float(x), float(y), float(yaw)],
                 'use_sim_time': bool(use_sim_time),
+                'world_frame':'odom'
             }]
         )
         robot_launches.append(localisation_node)
@@ -214,6 +213,8 @@ def generate_launch_description():
             output='screen',
             parameters=[{
                 'use_sim_time': False,
+                'initial_pose': [float(x), float(y), float(yaw)],
+                'odometry_frame': 'odom',
             }],
             condition = IfCondition(PythonExpression(["'", use_sim_time, "' == 'False'"]))
         )
@@ -250,7 +251,7 @@ def generate_launch_description():
         
         
         rviz2_pub_node,
-        gazebo_launch,
+        # gazebo_launch,
         *robot_launches,
     ])
     

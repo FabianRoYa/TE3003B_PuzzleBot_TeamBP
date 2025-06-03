@@ -30,7 +30,7 @@ class VisionClass(Node):
         self.id = Int32()
         self.t = TransformStamped()
         self.tf_br1 = TransformBroadcaster(self)
-        self.sub_image = self.create_subscription(Image, 'camera', self.camera_callback, 10)
+        self.sub_image = self.create_subscription(Image, 'video_source/raw', self.camera_callback, 10)
         self.pub_image1 = self.create_publisher(Image, 'image_process', 10)
         self.pub = self.create_publisher(String, 'inf', 10)
         self.pub_id = self.create_publisher(Int32, 'id', 10)
