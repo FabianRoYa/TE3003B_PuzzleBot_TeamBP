@@ -1,7 +1,7 @@
 import os
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription, DeclareLaunchArgument
-from launch.substitutions import PathJoinSubstitution, LaunchConfiguration, PythonExpression
+from launch.substitutions import PathJoinSubstitution, LaunchConfiguration, PythonExpression, TextSubstitution, Command
 from launch.conditions import IfCondition
 from launch_ros.substitutions import FindPackageShare
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -11,6 +11,29 @@ import math
 
 
 def generate_launch_description():
+    # -----------------------------------------------------------------------------
+    #                          DECLARE LAUNCH ARGUMENTS
+    # -----------------------------------------------------------------------------
+    
+    goal_x_arg = DeclareLaunchArgument(
+        'goal_x',
+        default_value='0.3',
+        description='X coordinate of the goal position'
+    )
+    goal_y_arg = DeclareLaunchArgument(
+        'goal_y',
+        default_value='0.6',
+        description='Y coordinate of the goal position'
+    )
+    mode_arg = DeclareLaunchArgument(
+        'mode',
+        default_value='bug0',
+        description='Navigation mode: bug0 or bug2'
+    )
+    
+    goal_x = LaunchConfiguration('goal_x')
+    goal_y = LaunchConfiguration('goal_y')
+    mode = LaunchConfiguration('mode')
     
     # -----------------------------------------------------------------------------
     #                          SIMULATION CONFIGURATION
@@ -21,6 +44,9 @@ def generate_launch_description():
     world = 'maze_aruco.world'  # Gadi's world for testing
     rviz_config_path = os.path.join(get_package_share_directory('blackpearls_nav2_puzzlebot'), 'rviz/conf.rviz')
 
+    
+    
+    
     # General Gazebo settings
     pause = 'false'           # Start Gazebo in paused state, world tf is not generated until Gazebo starts
     verbosity = '1'           # Gazebo log verbosity level
@@ -38,8 +64,19 @@ def generate_launch_description():
             'tof_frame': 'tof_link'
         }
     ]
-    # Posiciones conocidas de los marcadores
- 
+    # -----------------------------------------------------------------------------
+    #                         STATIC TRANSFORM PUBLISHER
+    # -----------------------------------------------------------------------------
+    
+    # The goal frame, for better understanding of the robot's goal position
+    static_tf3 = Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            arguments=[
+                        goal_x, goal_y  , '0',  # X, Y, Z coordinates of the goal frame
+                       '0', '0', '0', 'world', 'goal_frame'],
+        )
+
 
     # -----------------------------------------------------------------------------
     #                         LOAD GAZEBO WORLD
@@ -112,20 +149,21 @@ def generate_launch_description():
                 'x': float(x),
                 'y': float(y),
 
-                'goal_x': 2.6,  # Initial goal position
-                'goal_y': 2.6,
+                'goal_x': goal_x,
+                'goal_y': goal_y,
 
                 'use_sim_time': bool(use_sim_time),
-                'mode': 'bug2', # 'bug0' or 'bug2'
-                
+                'mode': mode,
+
                 'Kp_linear': 0.5,  # Proportional gain for linear velocity
-                'Kp_angular': 0.5, # Proportional gain for angular velocity
+                'Kp_angular': 0.3, # Proportional gain for angular velocity
                 
-                'max_linear_speed': 0.5,  # Maximum linear speed
-                'max_angular_speed': 1.0, # Maximum angular speed
+                'max_linear_speed': 0.8,  # Maximum linear speed
+                'max_angular_speed': 0.5, # Maximum angular speed
                 
-                'follow_distance': 0.25,  # Distance to maintain from the goal
-                'stop_d': 0.05,  # Distance to stop before reaching the goal
+                'follow_distance': 0.3,  # Distance to maintain from the goal
+                'stop_d': 0.15,  # Distance to stop before reaching the goal [The less that the lidar can handle is 0.15]
+                'goal_tolerance_distance': 0.05,  # Tolerance distance to consider goal reached
                 'turning_d_deg': 5.0  # Turning distance in degrees
             }]
         )
@@ -181,12 +219,7 @@ def generate_launch_description():
         )
         robot_launches.append(joint_state_publisher_node)
 
-        static_tf3 = Node(
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            arguments=['0.3', '0.6', '0', '0', '0', '0', 'world', 'goal_frame'],
-        )
-        robot_launches.append(static_tf3)
+
     # -----------------------------------------------------------------------------
     #                         RVIZ2 NODE
     # -----------------------------------------------------------------------------
@@ -208,6 +241,13 @@ def generate_launch_description():
     #                         COMPOSE FINAL LAUNCH DESCRIPTION
     # -----------------------------------------------------------------------------
     ld = LaunchDescription([
+        
+        goal_x_arg,
+        goal_y_arg,
+        mode_arg,
+
+        static_tf3,
+        
         
         rviz2_pub_node,
         gazebo_launch,
