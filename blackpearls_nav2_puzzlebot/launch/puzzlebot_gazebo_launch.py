@@ -103,22 +103,6 @@ def generate_launch_description():
     # -----------------------------------------------------------------------------
     #                         ROBOT CONTROL NODES
     # -----------------------------------------------------------------------------
-        '''
-        controller_node = Node(
-            package='blackpearls_nav2_puzzlebot',
-            executable='point_stabilisation_controller',
-            name='point_stabilisation_controller',
-            output='screen',
-            parameters=[{
-                'kp_linear': 0.2,
-                'kp_angular': 0.1,
-                'max_linear_speed': 0.4,
-                'max_angular_speed': 0.3,
-                'goal_tolerance': 0.1,
-                'angular_tolerance': math.radians(5)  # 5 grados en radianes
-            }]
-        )
-        '''
         controller_node = Node(
             package='blackpearls_nav2_puzzlebot',
             executable='point_stabilisation_controller',
@@ -127,30 +111,27 @@ def generate_launch_description():
             parameters=[{
                 'x': float(x),
                 'y': float(y),
-                'use_sim_time': bool(use_sim_time)
+
+                'goal_x': 2.6,  # Initial goal position
+                'goal_y': 2.6,
+
+                'use_sim_time': bool(use_sim_time),
+                'mode': 'bug2', # 'bug0' or 'bug2'
+                
+                'Kp_linear': 0.5,  # Proportional gain for linear velocity
+                'Kp_angular': 0.5, # Proportional gain for angular velocity
+                
+                'max_linear_speed': 0.5,  # Maximum linear speed
+                'max_angular_speed': 1.0, # Maximum angular speed
+                
+                'follow_distance': 0.25,  # Distance to maintain from the goal
+                'stop_d': 0.05,  # Distance to stop before reaching the goal
+                'turning_d_deg': 5.0  # Turning distance in degrees
             }]
         )
         robot_launches.append(controller_node)
 
-        bug_algorithm_node = Node(
-            package='blackpearls_nav2_puzzlebot',
-            executable='bug_algorithm',
-            name='bug_algorithm',
-            output='screen',
-            parameters=[{
-                'mode': 'bug2',# or 'bug2'
-                'goal_tolerance': 0.01,
-                'angular_tolerance': math.radians(5),  # 5 grados en radianes
-                
-                # Goal pose & safe distances
-                'goal_pose': [0.3, 0.1], # Goal position [x, y] in meters
-                'safe_distance': 0.3,   # Safe distance from obstacles [meters]
-                'safe_wall': 0.25,       # Safe distance from walls [meters]
-                # Controller parameters
-                'kp_angular': 0.15,
-            }]
-        )
-        #robot_launches.append(bug_algorithm_node)
+        
         
     # -----------------------------------------------------------------------------
     #                         ROBOT VISION NODES

@@ -1,8 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from std_msgs.msg import String, Bool
-from tf2_ros import TransformBroadcaster
-from geometry_msgs.msg import Twist, TransformStamped, Point
+from geometry_msgs.msg import Twist, Point
 from sensor_msgs.msg import LaserScan
 from nav_msgs.msg import Odometry
 import transforms3d
@@ -11,35 +10,68 @@ import numpy as np
 class ControllerClass(Node):
     def __init__(self):
         super().__init__('point_stabilisation_controller')
+        # Parámetros de configuración
         self.declare_parameter('x', 0.0)
         self.declare_parameter('y', 0.0)
+        self.declare_parameter('mode', 'bug0')  # Nuevo parámetro para seleccionar modo
         self.initial_x = self.get_parameter('x').value
         self.initial_y = self.get_parameter('y').value
+        self.mode = self.get_parameter('mode').value  # Algoritmo seleccionado
+        
+        # Configuración de temporización
         timer_period = 0.1
-        self.goal_x = self.initial_x
-        self.goal_y = self.initial_y
+        
+        # Variables de estado del robot
+        self.declare_parameter('goal_x', self.initial_x)
+        self.declare_parameter('goal_y', self.initial_y)
+        self.goal_x = self.get_parameter('goal_x').value
+        self.goal_y = self.get_parameter('goal_y').value
+        
+        # Posición inicial del robot
         self.x = self.initial_x
         self.y = self.initial_y
         self.theta = 0.0
-        self.Kp_linear = 0.1
-        self.Kp_angular = 0.3
-        self.max_linear_speed = 0.3
-        self.max_angular_speed = 0.3
-        self.follow_distance = 0.8
-        self.stop_d = 0.05
-        self.turning_d = np.deg2rad(5)
+        
+        # Parámetros del controlador
+        self.declare_parameter('Kp_linear', 0.1)
+        self.declare_parameter('Kp_angular', 0.3)
+        self.declare_parameter('max_linear_speed', 0.3)
+        self.declare_parameter('max_angular_speed', 0.3)
+        self.declare_parameter('follow_distance', 0.8)
+        self.declare_parameter('stop_d', 0.05)
+        self.declare_parameter('turning_d_deg', 5.0)
+
+        self.Kp_linear = self.get_parameter('Kp_linear').value
+        self.Kp_angular = self.get_parameter('Kp_angular').value
+        self.max_linear_speed = self.get_parameter('max_linear_speed').value
+        self.max_angular_speed = self.get_parameter('max_angular_speed').value
+        self.follow_distance = self.get_parameter('follow_distance').value
+        self.stop_d = self.get_parameter('stop_d').value
+        self.turning_d = np.deg2rad(self.get_parameter('turning_d_deg').value)
+        
+        # Flags de estado
         self.follow = False
         self.lidar_recieved = False
         self.begin_follow = False
+        
+        # Variables específicas para Bug2
+        self.reference_line = None  # Línea de referencia (start, goal)
+        self.hit_point = None       # Punto de encuentro con obstáculo
+        self.hit_dist = float('inf')# Distancia al objetivo en hit_point
+        self.follow_direction = 'left'  # Dirección de seguimiento (left/right)
+        
+        # Datos de sensores
         self.lidar = LaserScan()
         self.robot_vel = Twist()
         self.next_point = Bool()
         self.inf1 = String()
         self.inf2 = String()
-        #self.tf_br2 = TransformBroadcaster(self)
-        #self.t = TransformStamped()
+
+        # Variables auxiliares
         self.ll = []
         self.zero = (np.zeros(360, dtype=np.float32) + 0.05).tolist()
+        
+        # Configuración de temporizador y suscriptores/publicadores
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.sub_p = self.create_subscription(Odometry, 'ground_truth', self.pose_callback, 10)
         self.sub_g = self.create_subscription(Point, 'goal', self.goal_callback, 10)
@@ -49,324 +81,233 @@ class ControllerClass(Node):
         self.pub2 = self.create_publisher(String, 'inf2', 10)
 
         self.start_time = self.get_clock().now()
+        self.get_logger().info(f"Controlador inicializado en modo {self.mode.upper()}")
 
     def get_view(self, r, center, limit, max_distance):
+        """Analiza una sección del escaneo LIDAR alrededor de un ángulo central"""
         self.ll = []
         detect = []
         i_i = center - limit
         i_f = center + limit
+        
+        # Manejo de índices circulares (0-360 grados)
         if i_i < 0:
+            # Caso cuando cruza 0°
             for i in range(0, i_f):
                 self.ll.append(r[i])
-                if r[i] > max_distance:
-                    detect.append(0)
-                else:
-                    detect.append(1)
-            for i in range(360 - i_i, 360):
+                detect.append(0 if r[i] > max_distance else 1)
+            for i in range(360 + i_i, 360):  # Corregido: 360 + i_i
                 self.ll.append(r[i])
-                if r[i] > max_distance:
-                    detect.append(0)
-                else:
-                    detect.append(1)
+                detect.append(0 if r[i] > max_distance else 1)
         elif i_f > 360:
+            # Caso cuando cruza 360°
             for i in range(i_i, 360):
                 self.ll.append(r[i])
-                if r[i] > max_distance:
-                    detect.append(0)
-                else:
-                    detect.append(1)
+                detect.append(0 if r[i] > max_distance else 1)
             for i in range(0, i_f - 360):
                 self.ll.append(r[i])
-                if r[i] > max_distance:
-                    detect.append(0)
-                else:
-                    detect.append(1)
+                detect.append(0 if r[i] > max_distance else 1)
         else:
+            # Caso normal
             for i in range(i_i, i_f):
                 self.ll.append(r[i])
-                if r[i] > max_distance:
-                    detect.append(0)
-                else:
-                    detect.append(1)
-        if np.sum(detect) == 0:
-            view = "clear"
-        else:
-            view = "obstacle"
-        return view
+                detect.append(0 if r[i] > max_distance else 1)
+        
+        # Determinar si la vista está despejada
+        return "clear" if np.sum(detect) == 0 else "obstacle"
+
+    def is_on_reference_line(self, point, threshold=0.05):
+        """Verifica si un punto está cerca de la línea de referencia (Bug2)"""
+        if self.reference_line is None:
+            return False
+            
+        start, goal = self.reference_line
+        line_vec = np.array([goal[0] - start[0], goal[1] - start[1]])
+        point_vec = np.array([point[0] - start[0], point[1] - start[1]])
+        
+        # Calcular proyección
+        line_len = np.linalg.norm(line_vec)
+        if line_len < 1e-5:
+            return False
+            
+        # Calcular parámetro t (proyección escalar)
+        t = np.dot(point_vec, line_vec) / (line_len * line_len)
+        
+        # Calcular punto más cercano en la línea
+        closest_point = start + t * line_vec
+        
+        # Calcular distancia al punto más cercano
+        distance = np.linalg.norm(np.array([point[0] - closest_point[0], 
+                                          point[1] - closest_point[1]]))
+        
+        return distance < threshold and 0 <= t <= 1
 
     def pose_callback(self, msg):
+        """Callback de odometría: actualiza posición y orientación"""
         self.x = msg.pose.pose.position.x
         self.y = msg.pose.pose.position.y
-        _, _, self.theta = transforms3d.euler.quat2euler([msg.pose.pose.orientation.w, msg.pose.pose.orientation.x, msg.pose.pose.orientation.y, msg.pose.pose.orientation.z])
+        # Convertir quaternion a ángulos de Euler
+        _, _, self.theta = transforms3d.euler.quat2euler([
+            msg.pose.pose.orientation.w,
+            msg.pose.pose.orientation.x,
+            msg.pose.pose.orientation.y,
+            msg.pose.pose.orientation.z
+        ])
 
     def goal_callback(self, msg1):
+        """Callback de objetivo: actualiza punto destino y línea de referencia"""
         self.goal_x = msg1.x
         self.goal_y = msg1.y
+        
+        # Para Bug2: establecer nueva línea de referencia
+        self.reference_line = (np.array([self.x, self.y]), 
+                               np.array([self.goal_x, self.goal_y]))
+        self.hit_point = None
+        self.follow = False
+        self.begin_follow = False
+        self.get_logger().info(f"Nuevo objetivo: ({self.goal_x}, {self.goal_y})")
 
     def lidar_callback(self, msg2):
+        """Callback de LIDAR: almacena datos del sensor"""
         self.lidar = msg2
         self.lidar_recieved = True
 
     def timer_callback(self):
-        if self.lidar_recieved:
-            goal_reached = False
-            stopped = False
-            error_distance = np.sqrt((self.goal_x - self.x) ** 2 + (self.goal_y - self.y) ** 2)
-            error_angle = np.arctan2(self.goal_y - self.y, self.goal_x - self.x) - self.theta
-            error_angle = np.arctan2(np.sin(error_angle), np.cos(error_angle))
-            index_goal = int(np.rint(np.rad2deg(error_angle) + 180))
-            goal_view = self.get_view(self.lidar.ranges, index_goal, 12, error_distance)
-            obj_distance = min(self.lidar.ranges[:180])
-            a1 = 0
-            a2 = 0
-            if obj_distance < 999999:
-                a1 = self.lidar.ranges.index(obj_distance) -180
-                a2 = a1 + 90
-                if obj_distance < 0.2:
-                    a2 += 10
-                if obj_distance > 0.3:
-                    a2 -= 5
-                
-            follow_angle = np.deg2rad(a2)
+        """Callback periódico: lógica principal de control"""
+        if not self.lidar_recieved:
+            return
+            
+        goal_reached = False
+        stopped = False
+        
+        # Cálculo de errores
+        error_distance = np.sqrt((self.goal_x - self.x)**2 + (self.goal_y - self.y)**2)
+        error_angle = np.arctan2(self.goal_y - self.y, self.goal_x - self.x) - self.theta
+        error_angle = np.arctan2(np.sin(error_angle), np.cos(error_angle))  # Normalizar ángulo
+        
+        # Convertir ángulo a índice LIDAR (0-359)
+        index_goal = int(np.rint(np.rad2deg(error_angle) + 180) % 360)
+        
+        # Analizar vista hacia el objetivo
+        goal_view = self.get_view(self.lidar.ranges, index_goal, 12, error_distance)
+        
+        # Detectar obstáculo más cercano (semi-círculo frontal)
+        obj_distance = min(self.lidar.ranges[0:180])
+        a1 = 0
+        a2 = 0
+        
+        if obj_distance < 999999:  # Valor por defecto cuando no hay obstáculo
+            obstacle_index = self.lidar.ranges.index(obj_distance)
+            a1 = obstacle_index - 180  # Ángulo relativo al robot
+            
+            # Determinar dirección de seguimiento según modo
+            if self.mode == 'bug2':
+                a2 = a1 + 90  # Bug2: seguir siempre a la izquierda
+            else:
+                a2 = a1 + 90  # Bug0: seguir a la derecha (compatibilidad con versión anterior)
+            
+            # Ajustes dinámicos basados en distancia
+            if obj_distance < 0.2:
+                a2 += 10
+            if obj_distance > 0.3:
+                a2 -= 5
+        
+        follow_angle = np.deg2rad(a2)  # Convertir a radianes
 
+        # Lógica específica para cada algoritmo
+        if self.mode == 'bug0':
+            # Lógica original de Bug0
             if goal_view == "clear" or error_distance < obj_distance:
                 self.follow = False
             elif goal_view == "obstacle" and obj_distance <= self.follow_distance and not self.begin_follow:
                 self.follow = True
                 self.begin_follow = True
-
-            if self.follow:
-                if np.abs(follow_angle) < self.turning_d:
-                    angular_speed = self.Kp_angular * follow_angle
-                    self.robot_vel.linear.x = 0.1
-                    self.robot_vel.angular.z = 0.0
-                else:
-                    angular_speed = self.Kp_angular * follow_angle
-                    self.robot_vel.linear.x = 0.0
-                    self.robot_vel.angular.z = max(min(angular_speed, self.max_angular_speed), -self.max_angular_speed)
+                
+        elif self.mode == 'bug2':
+            # Lógica de Bug2
+            current_pos = np.array([self.x, self.y])
             
+            if not self.follow:
+                # Modo navegación directa
+                if goal_view == "obstacle" and obj_distance <= self.follow_distance:
+                    # Encontrar obstáculo - activar modo seguimiento
+                    self.follow = True
+                    self.begin_follow = True
+                    self.hit_point = current_pos
+                    self.hit_dist = error_distance
+                    self.get_logger().info("Obstáculo detectado. Iniciando seguimiento Bug2")
             else:
-                if error_distance < self.stop_d:
-                    self.robot_vel.linear.x = 0.0
-                    self.robot_vel.angular.z = 0.0
-                    goal_reached = True
-                    stopped = True
-                elif np.absolute(error_angle) < self.turning_d:
-                    linear_speed = self.Kp_linear * error_distance
-                    angular_speed = self.Kp_angular * error_angle
-                    self.robot_vel.linear.x = max(min(linear_speed, self.max_linear_speed), -self.max_linear_speed)
-                    self.robot_vel.angular.z = max(min(angular_speed, self.max_angular_speed), -self.max_angular_speed)
-                else:
-                    angular_speed = self.Kp_angular * error_angle
-                    self.robot_vel.linear.x = 0.0
-                    self.robot_vel.angular.z = max(min(angular_speed, self.max_angular_speed), -self.max_angular_speed)
+                # Modo seguimiento de obstáculo
+                if self.is_on_reference_line(current_pos) and error_distance < self.hit_dist:
+                    # Volver a línea en punto más cercano al objetivo
+                    self.follow = False
+                    self.get_logger().info("Volviendo a línea de referencia. Fin seguimiento")
 
-            if obj_distance < self.stop_d:
-                stopped = True
+        # Comportamiento de seguimiento (obstacle avoidance)
+        if self.follow:
+            if np.abs(follow_angle) < self.turning_d:
+                # Avanzar si el ángulo es pequeño
+                self.robot_vel.linear.x = self.max_linear_speed * obj_distance
+                self.robot_vel.angular.z = 0.0
+            else:
+                # Girar para alinearse
+                angular_speed = self.Kp_angular * follow_angle
+                self.robot_vel.linear.x = 0.0
+                self.robot_vel.angular.z = max(min(angular_speed, self.max_angular_speed), -self.max_angular_speed)
+        
+        # Comportamiento normal (navegación al objetivo)
+        else:
+            if error_distance < self.stop_d:
+                # Detenerse al llegar al objetivo
                 self.robot_vel.linear.x = 0.0
                 self.robot_vel.angular.z = 0.0
-            
-            '''
-            self.t.header.stamp = self.get_clock().now().to_msg()
-            self.t.header.frame_id = 'base_footprint'
-            self.t.child_frame_id = 'goal_frame'
-            self.t.transform.translation.x = error_distance * np.cos(error_angle)
-            self.t.transform.translation.y = error_distance * np.sin(error_angle)
-            self.t.transform.translation.z = 0.0
-            q = transforms3d.euler.euler2quat(0, 0, error_angle)
-            self.t.transform.rotation.x = q[1]
-            self.t.transform.rotation.y = q[2]
-            self.t.transform.rotation.z = q[3]
-            self.t.transform.rotation.w = q[0]
-            self.tf_br2.sendTransform(self.t)
-            '''
-            self.pub_v.publish(self.robot_vel)
-            self.inf1.data = str(
-                str(goal_view == "obstacle") + " " +
-                str(self.follow) + " " +
-                "ind:" + str(index_goal) + " " +
-                "o_d:" + str(np.round(obj_distance, 2)) + " o_th:" + str(a1) + " " +
-                "f_th:" + str(a2) + " " +
-                "x:" + str(np.round(self.x, 2)) + " y:" + str(np.round(self.y, 2)) + " th:" + str(np.round(np.rad2deg(self.theta), 2)) + " " +
-                "g_x:" + str(np.round(self.goal_x, 2)) + " g_y:" + str(np.round(self.goal_y, 2)) + " " +
-                "e_d:" + str(np.round(error_distance, 2)) + " e_th:" + str(np.round(np.rad2deg(error_angle), 2)) + " " +
-                str(goal_reached) + " " +
-                str(stopped)
-            )
-            self.inf2.data = str(np.round(np.array(self.ll), 2)) +  " " + str(np.round(error_distance, 2)) + " " + str(np.round(np.rad2deg(error_angle), 2)) + " " + str(index_goal) + " " + str(goal_view)
-            self.pub.publish(self.inf1)
-            self.pub2.publish(self.inf2)
+                goal_reached = True
+                stopped = True
+            elif np.abs(error_angle) < self.turning_d:
+                # Avanzar corrigiendo dirección
+                linear_speed = self.Kp_linear * error_distance
+                angular_speed = self.Kp_angular * error_angle
+                self.robot_vel.linear.x = max(min(linear_speed, self.max_linear_speed), -self.max_linear_speed)
+                self.robot_vel.angular.z = max(min(angular_speed, self.max_angular_speed), -self.max_angular_speed)
+            else:
+                # Girar en el lugar para alinearse con el objetivo
+                angular_speed = self.Kp_angular * error_angle
+                self.robot_vel.linear.x = 0.0
+                self.robot_vel.angular.z = max(min(angular_speed, self.max_angular_speed), -self.max_angular_speed)
+
+        # Detención de emergencia por obstáculo cercano
+        if obj_distance < self.stop_d:
+            stopped = True
+            self.robot_vel.linear.x = self.max_linear_speed * obj_distance - self.stop_d
+            self.robot_vel.angular.z = 0.0
+
+        # Publicar comando de velocidad
+        self.pub_v.publish(self.robot_vel)
+        
+        # Preparar y publicar datos de depuración
+        mode_info = f"MODE:{self.mode} FOLLOW:{self.follow}"
+        obstacle_info = f"o_d:{obj_distance:.2f} o_th:{a1} f_th:{a2}"
+        position_info = f"x:{self.x:.2f} y:{self.y:.2f} th:{np.rad2deg(self.theta):.2f}"
+        goal_info = f"g_x:{self.goal_x:.2f} g_y:{self.goal_y:.2f}"
+        error_info = f"e_d:{error_distance:.2f} e_th:{np.rad2deg(error_angle):.2f}"
+        status_info = f"REACHED:{goal_reached} STOPPED:{stopped}"
+        
+        self.inf1.data = f"{mode_info} | {obstacle_info} | {position_info} | {goal_info} | {error_info} | {status_info}"
+        self.inf2.data = f"LIDAR:{np.round(self.ll, 2)} | GOAL_VIEW:{goal_view} | INDEX:{index_goal}"
+        
+        self.pub.publish(self.inf1)
+        self.pub2.publish(self.inf2)
 
 def main(args=None):
     rclpy.init(args=args)
-    node2 = ControllerClass()
+    controller = ControllerClass()
     try:
-        rclpy.spin(node2)
+        rclpy.spin(controller)
     except KeyboardInterrupt:
         pass
     finally:
-        if rclpy.ok():
-            rclpy.shutdown()
-        node2.destroy_node()
-
-if __name__ == '__main__':
-    main()
-'''
-import rclpy
-from rclpy.node import Node
-from geometry_msgs.msg import Twist, Point 
-from sensor_msgs.msg import LaserScan
-from nav_msgs.msg import Odometry
-from std_msgs.msg import Bool
-import math
-import transforms3d
-
-#   You are looking for this comand
-#   ros2 topic pub /goal geometry_msgs/msg/Point "{x: 1.0, y: 0.0, z: 0.0}" --once 
-
-class point_stabilisation_controller(Node):
-    def __init__(self):
-        super().__init__('point_stabilisation_controller')
-        
-        # Parámetros del nodo
-        self.declare_parameter('kp_linear', 0.2)
-        self.declare_parameter('kp_angular', 0.1)
-        self.declare_parameter('max_linear_speed', 0.55)
-        self.declare_parameter('max_angular_speed', 0.5)
-        self.declare_parameter('goal_tolerance', 0.1)
-        self.declare_parameter('angular_tolerance', math.radians(5))  # 5 grados en radianes
-        
-        
-        
-        # Parámetros del controlador
-        self.kp_linear = self.get_parameter('kp_linear').get_parameter_value().double_value
-        self.kp_angular = self.get_parameter('kp_angular').get_parameter_value().double_value
-        self.max_linear_speed = self.get_parameter('max_linear_speed').get_parameter_value().double_value
-        self.max_angular_speed = self.get_parameter('max_angular_speed').get_parameter_value().double_value
-        self.goal_tolerance = self.get_parameter('goal_tolerance').get_parameter_value().double_value
-        self.angular_tolerance = self.get_parameter('angular_tolerance').get_parameter_value().double_value      
-        
-        # Estado del robot
-        self.current_pose = Point()
-        self.current_yaw = 0.0
-        self.goal_pose = None
-        self.goal_reached = False
-        self.orientation_locked = False  # Nuevo estado de orientación
-        self.obstacle_near = False  # Estado de proximidad a obstáculos
-        # Subsciptores
-        self.odom_sub = self.create_subscription(
-            Odometry,
-            'ground_truth',
-            self.odom_callback,
-            10)
-            
-        self.goal_sub = self.create_subscription(
-            Point,
-            'goal',
-            self.goal_callback,
-            10)
-        self.scan_sub = self.create_subscription(LaserScan, 'scan', self.scan_callback, 10)
-        # Publicadores
-        self.cmd_vel_pub = self.create_publisher(Twist, 'cmd_vel', 10)
-        self.goal_reached_pub = self.create_publisher(Bool, 'goal_reached', 10)
-        
-        # Timer de control
-        self.control_timer = self.create_timer(0.01, self.control_loop)
-        
-        self.get_logger().info("Control de navegación listo")   
-
-    def goal_callback(self, msg):
-        self.goal_pose = msg
-        self.goal_reached = False
-        self.orientation_locked = False  # Resetear estado al nuevo objetivo
-        self.get_logger().info(f"Nuevo objetivo recibido: ({msg.x}, {msg.y})")
-
-    def odom_callback(self, msg):
-        self.current_pose.x = msg.pose.pose.position.x
-        self.current_pose.y = msg.pose.pose.position.y
-        q = msg.pose.pose.orientation
-        self.current_yaw = transforms3d.euler.quat2euler([q.w, q.x, q.y, q.z])[2]
-
-    def control_loop(self):
-        if self.goal_pose is None or self.goal_reached:
-            self.detener_robot()
-            return
-            
-        dx = self.goal_pose.x - self.current_pose.x
-        dy = self.goal_pose.y - self.current_pose.y
-        distance_error = math.hypot(dx, dy)
-        target_yaw = math.atan2(dy, dx)
-        yaw_error = target_yaw - self.current_yaw
-        yaw_error = math.atan2(math.sin(yaw_error), math.cos(yaw_error))
-        
-        # Máquina de estados
-        if not self.orientation_locked:
-            # Fase de orientación
-            if abs(yaw_error) > self.angular_tolerance:
-                self.rotate_to_target(yaw_error)
-            else:
-                self.orientation_locked = True
-                self.get_logger().info("Orientación bloqueada, iniciando movimiento")
-        else:
-            # Fase de movimiento
-            if distance_error < self.goal_tolerance:
-                self.finish_goal()
-            elif abs(yaw_error) > self.angular_tolerance * 2:  # Tolerancia dinámica
-                self.orientation_locked = False
-                self.get_logger().info("Reorientando...")
-            else:
-                self.move_to_target(distance_error)
-
-    def rotate_to_target(self, yaw_error):
-        """Control solo para rotación"""
-        velocidad_angular = self.kp_angular * yaw_error
-        velocidad_angular = max(min(velocidad_angular, self.max_angular_speed), -self.max_angular_speed)
-        
-        cmd_vel = Twist()
-        cmd_vel.angular.z = velocidad_angular
-        self.cmd_vel_pub.publish(cmd_vel)
-
-    def move_to_target(self, distance_error):
-        """Control solo para movimiento lineal"""
-        velocidad_lineal = self.kp_linear * distance_error
-        velocidad_lineal = min(velocidad_lineal, self.max_linear_speed)
-        
-        cmd_vel = Twist()
-        cmd_vel.linear.x = velocidad_lineal
-        self.cmd_vel_pub.publish(cmd_vel)
-
-    def finish_goal(self):
-        self.detener_robot()
-        self.goal_reached = True
-        self.orientation_locked = False
-        self.get_logger().info("¡Objetivo alcanzado!")
-        flag_msg = Bool()
-        flag_msg.data = True
-        self.goal_reached_pub.publish(flag_msg)
-
-    def detener_robot(self):
-        cmd_vel = Twist()
-        cmd_vel.linear.x = 0.0
-        cmd_vel.linear.y = 0.0
-        cmd_vel.angular.z = 0.0
-        self.cmd_vel_pub.publish(cmd_vel)
-    
-    def scan_callback(self, msg):
-        front_angles = range(-30, 30)
-        min_distance = min([msg.ranges[i] for i in front_angles if not math.isinf(msg.ranges[i])])
-        self.obstacle_near = min_distance < 0.5
-        
-def main(args=None):
-    rclpy.init(args=args)
-    nodo = point_stabilisation_controller()
-    try:
-        rclpy.spin(nodo)
-    except KeyboardInterrupt:
-        pass
-    finally:
-        nodo.destroy_node()
+        controller.destroy_node()
         rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
-'''
