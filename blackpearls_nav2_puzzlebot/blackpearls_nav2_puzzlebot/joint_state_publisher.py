@@ -85,11 +85,15 @@ class JointStatePublisher(Node):
         self.q = msg.pose.pose.orientation
 
     def publish_static_transforms(self):
+        initial_pose = self.get_parameter('initial_pose').get_parameter_value().double_array_value
+        x = initial_pose[0]
+        y = initial_pose[1]
+        
         static_transforms = [
             self.create_transform(
                 parent_frame='world',
                 child_frame=self.odomFrame,
-                x=0.0, y=0.0, z=0.0,
+                x=x, y=y, z=0.0,
                 roll=0.0, pitch=0.0, yaw=0.0
             ),
             self.create_transform(

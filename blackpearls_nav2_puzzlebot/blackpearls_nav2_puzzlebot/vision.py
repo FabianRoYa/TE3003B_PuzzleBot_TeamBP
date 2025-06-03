@@ -9,8 +9,7 @@ import cv2
 from cv2 import aruco
 import numpy as np
 import transforms3d
-import warnings
-warnings.filterwarnings('ignore')
+
 
 class VisionClass(Node):
     def __init__(self):
@@ -43,17 +42,21 @@ class VisionClass(Node):
         return roll, pitch, yaw
 
     def camera_callback(self, msg1):
-        try:
-            self.img = self.bridge.imgmsg_to_cv2(msg1, 'bgr8')
+        # try:
+            self.img = self.bridge.imgmsg_to_cv2(msg1, 'bgr8')            
             self.image_received = True
-        except Exception as e:
-            self.get_logger().error(f'Failed to get image: {e}')
-            self.image_received = False
+            cv2.imshow('Camera Feed', self.img)
+            cv2.waitKey(1)
+        # except Exception as e:
+        #     self.get_logger().error(f'Failed to get image: {e}')
+        #     self.image_received = False
 
     def timer_callback(self):
         self.id.data = 0
+        self.get_logger().info('Timer callback triggered')
         if self.image_received:
             img_mod = self.img.copy()
+            self.get_logger().info('Image received')
             gray = cv2.cvtColor(img_mod, cv2.COLOR_BGR2GRAY)
             markerCorners, markerIds, _ = self.detector.detectMarkers(gray)
             if len(markerCorners) > 0:

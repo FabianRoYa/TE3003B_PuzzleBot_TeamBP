@@ -50,7 +50,7 @@ def generate_launch_description():
     # General Gazebo settings
     pause = 'false'           # Start Gazebo in paused state, world tf is not generated until Gazebo starts
     verbosity = '1'           # Gazebo log verbosity level
-    use_sim_time = 'True'     # Enable use of simulated clock (for ROS time sync)
+    use_sim_time = 'False'     # Enable use of simulated clock (for ROS time sync)
 
     
     # Robot configurations (can be extended or loaded from a JSON file in future)
@@ -156,13 +156,13 @@ def generate_launch_description():
                 'mode': mode,
 
                 'Kp_linear': 0.5,  # Proportional gain for linear velocity
-                'Kp_angular': 0.3, # Proportional gain for angular velocity
+                'Kp_angular': 2.0, # Proportional gain for angular velocity
                 
                 'max_linear_speed': 0.8,  # Maximum linear speed
-                'max_angular_speed': 1.0, # Maximum angular speed
+                'max_angular_speed': 0.9, # Maximum angular speed
                 
-                'follow_distance': 0.2,  # Distance to maintain from the goal
-                'stop_d': 0.2,  # Distance to stop before reaching the goal [The less that the lidar can handle is 0.15]
+                'follow_distance': 0.8,  # Distance to maintain from the goal
+                'stop_d': 0.1,  # Distance to stop before reaching the goal [The less that the lidar can handle is 0.15]
                 'goal_tolerance_distance': 0.05,  # Tolerance distance to consider goal reached
                 'turning_d_deg': 5.0  # Turning distance in degrees
             }]
@@ -178,7 +178,8 @@ def generate_launch_description():
             executable='vision',
             name='vision',
             output='screen',
-            parameters=[{'use_sim_time': bool(use_sim_time)}], # KEEP IT TRUE
+            parameters=[{'use_sim_time': True,
+                         }], # KEEP IT TRUE
             
         )
         robot_launches.append(vision_node)
