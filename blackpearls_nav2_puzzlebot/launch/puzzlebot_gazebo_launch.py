@@ -182,7 +182,7 @@ def generate_launch_description():
                          }], # KEEP IT TRUE
             
         )
-        robot_launches.append(vision_node)
+        # robot_launches.append(vision_node)
 
     # -----------------------------------------------------------------------------
     #                         ROBOT LOCALIZATION NODES
