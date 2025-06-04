@@ -107,7 +107,7 @@ class VisionClass(Node):
                         roll, pitch, yaw = self.rot2rpy(rot)
                         self.t.header.stamp = self.get_clock().now().to_msg()
                         self.t.header.frame_id = 'camera_link_optical'
-                        self.t.child_frame_id = 'aruco'
+                        self.t.child_frame_id = f'aruco_{markerIds[i][0]}'
                         q = transforms3d.euler.euler2quat(roll, pitch, yaw)
                         self.t.transform.translation.x = tvec[0][0]
                         self.t.transform.translation.y = tvec[0][1]

@@ -134,7 +134,7 @@ class JointStatePublisher(Node):
         
         dynamic_transform.transform.translation.x = self.x
         dynamic_transform.transform.translation.y = self.y
-        dynamic_transform.transform.translation.z = self.base_height
+        dynamic_transform.transform.translation.z = 0.0
         
         if self.q:
             dynamic_transform.transform.rotation = self.q

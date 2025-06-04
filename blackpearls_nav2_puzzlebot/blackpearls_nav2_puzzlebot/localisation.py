@@ -9,6 +9,7 @@ import math
 import transforms3d
 from rclpy.duration import Duration
 from rclpy.qos import qos_profile_sensor_data
+from tf2_ros import LookupException, ConnectivityException, ExtrapolationException
 
 class localisation(Node):
     def __init__(self):
@@ -25,17 +26,6 @@ class localisation(Node):
         self.declare_parameter('world_frame', 'world')
         self.declare_parameter('marker_frame_prefix', 'aruco_')
 
-        # Un Snickers a quien pueda hacerlo parametros
-        # Tienen que estar en order de aparición.
-        '''
-        self.marker_positions = [
-            [2.0, 1.825, 0.0],
-            [0.25, 1.88, 0.0],
-            [2.25, 3.125, 0.0],
-            [2.7, 0.08, 0.0],
-            [0.09, 0.85, 0.0]
-        ]
-        '''
         self.marker_positions = [
             [2.4, 2.5, 0.0],
             [2.7, 0.0, 0.0],
@@ -56,22 +46,16 @@ class localisation(Node):
         self.world_frame = self.get_parameter('world_frame').value
         self.marker_frame_prefix = self.get_parameter('marker_frame_prefix').value
         
-        # self.marker_positions = self.get_parameter('marker_positions').value
         self.T_base_cam = np.array([[0, 0, 1, 0.1241], [-1, 0, 0, 0], [0, -1, 0, 0.117], [0, 0, 0, 1]])
 
         # Estado del robot [x, y, theta]
         self.x = np.array(initial_pose).reshape(3, 1)
         self.P = np.diag([0.01, 0.01, 0.01])  # Covarianza inicial
-        #self.P = np.diag([0.5, 0.5, 0.3])
-
-        # Matrices de ruido
         self.Q = np.diag([0.01, 0.01, 0.01])  # Ruido del proceso
-        #self.R = np.diag([0.05, 0.05, 0.05])  # Ruido de medición
-        #self.Q = np.array([[0.5, 0.01, 0.01], [0.01, 0.5, 0.01], [0.01, 0.01, 0.2]])
-        self.R = np.array([[0.04, 0], [0, 0.01]])
+        self.R = np.array([[0.04, 0], [0, 0.01]])  # Ruido de medición
         
         # Variables de control
-        self.id = 0
+        self.id = -1  # Inicializado como -1 (ningún marcador visible)
         self.wr = 0.0
         self.wl = 0.0
         self.last_time = self.get_clock().now().nanoseconds
@@ -100,15 +84,17 @@ class localisation(Node):
         self.get_logger().info("EKF Localisation node started")
 
     def id_callback(self, msg):
-        self.id = msg.data
+        # Solo aceptar IDs dentro del rango válido
+        if 1 <= msg.data <= len(self.marker_positions):
+            self.id = msg.data
+        else:
+            self.id = -1  # ID inválido o no detectado
 
     def wr_callback(self, msg):
         self.wr = msg.data
-        #self.wr_pub.publish(msg)
 
     def wl_callback(self, msg):
         self.wl = msg.data
-        #self.wl_pub.publish(msg)
 
     def timer_callback(self):
         current_time = self.get_clock().now().nanoseconds
@@ -122,7 +108,6 @@ class localisation(Node):
         
         # Paso 3: Publicar estado actualizado
         self.publish_odometry()
-        
         self.publish_wheels()
         
         self.last_time = current_time
@@ -140,15 +125,41 @@ class localisation(Node):
         self.x[2, 0] = np.arctan2(np.sin(self.x[2, 0]), np.cos(self.x[2, 0]))
         
         # Actualizar covarianza
-        H = np.array([[1, 0, -np.sin(theta) * v * dt], [0, 1, np.cos(theta) * v * dt], [0, 0, 1]])
+        H = np.array([
+            [1, 0, -np.sin(theta) * v * dt],
+            [0, 1, np.cos(theta) * v * dt],
+            [0, 0, 1]
+        ])
         self.P = H @ self.P @ np.transpose(H) + self.Q
-        self.inf.data = "x: " + str(np.round(self.x, 2))
+        self.inf.data = f"Predicción: x={self.x[0,0]:.2f}, y={self.x[1,0]:.2f}, θ={np.degrees(self.x[2,0]):.1f}°"
 
     def try_marker_correction(self):
-        if self.id != -1:
-            trans = self.tf_buffer.lookup_transform(self.camera_frame, 'aruco', rclpy.time.Time())
-            marker_pose = self.marker_positions[self.id - 1]
-            self.apply_marker_correction(trans, marker_pose)
+        # Solo intentar corrección si hay un marcador visible válido
+        if self.id > 0:
+            try:
+                # Construir nombre del frame del marcador
+                marker_frame = f"{self.marker_frame_prefix}{self.id}"
+                
+                # Intentar obtener la transformación con timeout
+                trans = self.tf_buffer.lookup_transform(
+                    self.camera_frame,
+                    marker_frame,
+                    rclpy.time.Time(),
+                    timeout=Duration(seconds=0.1)
+                )
+                
+                # Obtener posición conocida del marcador
+                marker_pose = self.marker_positions[self.id - 1]
+                self.apply_marker_correction(trans, marker_pose)
+                
+                self.get_logger().info(f"Corrección aplicada con marcador {self.id}", throttle_duration_sec=1.0)
+                
+            except (LookupException, ConnectivityException, ExtrapolationException) as e:
+                self.get_logger().error(f"Error en transformación TF: {str(e)}", throttle_duration_sec=1.0)
+            except Exception as e:
+                self.get_logger().error(f"Error en corrección de marcador: {str(e)}", throttle_duration_sec=1.0)
+        else:
+            self.inf.data += " | Sin marcador visible"
 
     def apply_marker_correction(self, transform, marker_pose):
         # Obtener transformación de cámara a marcador
@@ -171,18 +182,36 @@ class localisation(Node):
         # Obtener posición esperada del marcador en el mundo
         marker_x, marker_y, _ = marker_pose
 
-        z1 = np.array([[np.sqrt(T_base_marker[0, 3] ** 2 + T_base_marker[1, 3] ** 2)], [np.arctan2(T_base_marker[1, 3], T_base_marker[0, 3])]])
-        z2 = np.array([[np.sqrt((marker_x - self.x[0, 0]) ** 2 + (marker_y - self.x[1, 0]) ** 2)], [np.arctan2((marker_y - self.x[1, 0]), (marker_x - self.x[0, 0])) - self.x[2, 0]]])
-        z2[1][0] = np.arctan2(np.sin(z2[1][0]), np.cos(z2[1][0]))
+        # Calcular medidas
+        z1 = np.array([
+            [np.sqrt(T_base_marker[0, 3] ** 2 + T_base_marker[1, 3] ** 2)],
+            [np.arctan2(T_base_marker[1, 3], T_base_marker[0, 3])]
+        ])
+        
         dx = marker_x - self.x[0, 0]
         dy = marker_y - self.x[1, 0]
-        p = dx ** 2 + dy ** 2
-        G = np.array([[-dx/np.sqrt(p), -dy/np.sqrt(p), 0], [dy/p, -dx/p, -1]])
-        Z = G @ self.P @ np.transpose(G) + self.R
-        K = self.P @ np.transpose(G) @ np.linalg.inv(Z)
-        self.x = self.x + K @ (z1 - z2)
+        z2 = np.array([
+            [np.sqrt(dx**2 + dy**2)],
+            [np.arctan2(dy, dx) - self.x[2, 0]]
+        ])
+        z2[1][0] = np.arctan2(np.sin(z2[1][0]), np.cos(z2[1][0]))
+        
+        # Calcular matriz Jacobiana
+        p = dx**2 + dy**2
+        G = np.array([
+            [-dx/np.sqrt(p), -dy/np.sqrt(p), 0],
+            [dy/p, -dx/p, -1]
+        ])
+        
+        # Actualizar estado con filtro de Kalman
+        Z = G @ self.P @ G.T + self.R
+        K = self.P @ G.T @ np.linalg.inv(Z)
+        innovation = z1 - z2
+        self.x = self.x + K @ innovation
         self.P = (np.identity(3) - K @ G) @ self.P
-        self.inf.data = "z1: " + str(np.round(z1, 2)) + "z2: " + str(np.round(z2, 2)) + "mx: " + str(marker_x) + "my: " + str(marker_y) + "x: " + str(np.round(self.x, 2))
+        
+        # Actualizar info de depuración
+        self.inf.data += f" | Corrección: ID={self.id}, Innovación={innovation.flatten().round(3)}"
 
     def publish_odometry(self):
         odom = Odometry()
@@ -194,14 +223,14 @@ class localisation(Node):
         odom.pose.pose.position.x = self.x[0, 0]
         odom.pose.pose.position.y = self.x[1, 0]
         odom.pose.pose.position.z = 0.0
-        #self.get_logger().info(f'Posición: {odom.pose.pose.position.x:.2f}, {odom.pose.pose.position.y:.2f}')
+        
         # Orientación
         q = transforms3d.euler.euler2quat(0, 0, self.x[2, 0])
         odom.pose.pose.orientation.x = q[1]
         odom.pose.pose.orientation.y = q[2]
         odom.pose.pose.orientation.z = q[3]
         odom.pose.pose.orientation.w = q[0]
-        #self.get_logger().info(f'Orientación: {odom.pose.pose.orientation.w:.2f}')
+        
         # Covarianza
         odom.pose.covariance = [0.0] * 36
         odom.pose.covariance[0] = self.P[0, 0]  # xx
@@ -223,7 +252,6 @@ class localisation(Node):
         t.child_frame_id = self.base_frame
         t.transform.translation.x = self.x[0, 0]
         t.transform.translation.y = self.x[1, 0]
-        #t.transform.rotation = odom.pose.pose.orientation
         t.transform.rotation.x = q[1]
         t.transform.rotation.y = q[2]
         t.transform.rotation.z = q[3]
@@ -253,4 +281,4 @@ def main(args=None):
         rclpy.shutdown()
 
 if __name__ == '__main__':
-    main()
+    main()  

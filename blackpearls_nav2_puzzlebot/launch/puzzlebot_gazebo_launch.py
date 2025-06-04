@@ -131,7 +131,7 @@ def generate_launch_description():
                 'lidar_frame': lidar_frame,
                 'camera_frame': camera_frame,
                 'tof_frame': tof_frame,
-                'use_sim_time': use_sim_time
+                # 'use_sim_time': use_sim_time
             }.items()
         )
 
@@ -140,6 +140,8 @@ def generate_launch_description():
     # -----------------------------------------------------------------------------
     #                         ROBOT CONTROL NODES
     # -----------------------------------------------------------------------------
+    
+
         controller_node = Node(
             package='blackpearls_nav2_puzzlebot',
             executable='point_stabilisation_controller',
@@ -152,37 +154,22 @@ def generate_launch_description():
                 'goal_x': goal_x,
                 'goal_y': goal_y,
 
-                'use_sim_time': bool(use_sim_time),
+                # 'use_sim_time': bool(use_sim_time),
                 'mode': mode,
 
                 'Kp_linear': 0.5,  # Proportional gain for linear velocity
-                'Kp_angular': 2.0, # Proportional gain for angular velocity
+                'Kp_angular': 0.6,  # Proportional gain for angular velocity
+
+                'max_linear_speed': 0.3,  # Maximum linear speed
+                'max_angular_speed': 0.3, # Maximum angular speed
                 
-                'max_linear_speed': 0.8,  # Maximum linear speed
-                'max_angular_speed': 0.9, # Maximum angular speed
-                
-                'follow_distance': 0.8,  # Distance to maintain from the goal
-                'stop_d': 0.1,  # Distance to stop before reaching the goal [The less that the lidar can handle is 0.15]
+                'follow_distance': 0.3,  # Distance to maintain from the goal
+                'stop_d': 0.2,  # Distance to stop before reaching the goal [The less that the lidar can handle is 0.15]
                 'goal_tolerance_distance': 0.05,  # Tolerance distance to consider goal reached
                 'turning_d_deg': 5.0  # Turning distance in degrees
             }]
         )
         robot_launches.append(controller_node)
-
-    # -----------------------------------------------------------------------------
-    #                         ROBOT VISION NODES
-    # -----------------------------------------------------------------------------
-
-        vision_node = Node(
-            package='blackpearls_nav2_puzzlebot',
-            executable='vision',
-            name='vision',
-            output='screen',
-            parameters=[{'use_sim_time': True,
-                         }], # KEEP IT TRUE
-            
-        )
-        # robot_launches.append(vision_node)
 
     # -----------------------------------------------------------------------------
     #                         ROBOT LOCALIZATION NODES
@@ -201,8 +188,8 @@ def generate_launch_description():
                 'wr_topic': 'VelocityEncR',
                 'wl_topic': 'VelocityEncL',
                 'initial_pose':[float(x), float(y), float(yaw)],
-                'use_sim_time': bool(use_sim_time),
-                'world_frame':'odom'
+                # 'use_sim_time': bool(use_sim_time),
+                'world_frame':'world'
             }]
         )
         robot_launches.append(localisation_node)
@@ -213,11 +200,11 @@ def generate_launch_description():
             name= 'joint_state_publisher',
             output='screen',
             parameters=[{
-                'use_sim_time': False,
+                # 'use_sim_time': False,
                 'initial_pose': [float(x), float(y), float(yaw)],
-                'odometry_frame': 'odom',
+                'odometry_frame': 'world',
             }],
-            condition = IfCondition(PythonExpression(["'", use_sim_time, "' == 'False'"]))
+            # condition = IfCondition(PythonExpression(["'", use_sim_time, "' == 'False'"]))
         )
         robot_launches.append(joint_state_publisher_node)
 
@@ -236,7 +223,7 @@ def generate_launch_description():
     executable='rviz2',
     name='rviz2',
     arguments=['-d', rviz_config_path],
-    parameters=[{'use_sim_time': bool(use_sim_time)}],
+    # parameters=[{'use_sim_time': bool(use_sim_time)}],
     output='screen',
     )
     # -----------------------------------------------------------------------------
