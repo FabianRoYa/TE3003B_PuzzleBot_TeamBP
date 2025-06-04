@@ -251,7 +251,7 @@ class ControllerClass(Node):
         if self.follow:
             # if np.abs(follow_angle) < self.turning_d:
                 # Avanzar si el ángulo es pequeño
-                self.robot_vel.linear.x =(obj_distance-self.stop_d)/(3*self.max_linear_speed)
+                self.robot_vel.linear.x = self.max_linear_speed*obj_distance
                 # self.robot_vel.angular.z = 0.0
             # else:
                 # Girar para alinearse
@@ -279,11 +279,11 @@ class ControllerClass(Node):
                 self.robot_vel.linear.x = 0.0
                 self.robot_vel.angular.z = max(min(angular_speed, self.max_angular_speed), -self.max_angular_speed)
 
-        # # Detención de emergencia por obstáculo cercano
-        # if obj_distance < self.stop_d:
-        #     stopped = True
-        #     self.robot_vel.linear.x = 0.0
-        #     self.robot_vel.angular.z = 0.0
+        # Detención de emergencia por obstáculo cercano
+        if obj_distance < self.stop_d:
+            stopped = True
+            self.robot_vel.linear.x = 0.0
+            self.robot_vel.angular.z = 0.0
 
         # Publicar comando de velocidad
         self.pub_v.publish(self.robot_vel)

@@ -79,7 +79,7 @@ class localisation(Node):
         self.tf_broadcaster = TransformBroadcaster(self)
         
         # Temporizador principal
-        self.create_timer(0.1, self.timer_callback)  # 10 Hz
+        self.create_timer(0.05, self.timer_callback)  # 10 Hz
 
         self.get_logger().info("EKF Localisation node started")
 

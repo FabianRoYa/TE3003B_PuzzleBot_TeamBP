@@ -158,13 +158,13 @@ def generate_launch_description():
                 'mode': mode,
 
                 'Kp_linear': 0.5,  # Proportional gain for linear velocity
-                'Kp_angular': 0.6,  # Proportional gain for angular velocity
+                'Kp_angular': 0.5,  # Proportional gain for angular velocity
 
-                'max_linear_speed': 0.3,  # Maximum linear speed
+                'max_linear_speed': 0.5,  # Maximum linear speed
                 'max_angular_speed': 0.3, # Maximum angular speed
                 
-                'follow_distance': 0.3,  # Distance to maintain from the goal
-                'stop_d': 0.2,  # Distance to stop before reaching the goal [The less that the lidar can handle is 0.15]
+                'follow_distance': 0.35,  # Distance to maintain from the goal
+                'stop_d': 0.25,  # Distance to stop before reaching the goal [The less that the lidar can handle is 0.15]
                 'goal_tolerance_distance': 0.05,  # Tolerance distance to consider goal reached
                 'turning_d_deg': 5.0  # Turning distance in degrees
             }]
