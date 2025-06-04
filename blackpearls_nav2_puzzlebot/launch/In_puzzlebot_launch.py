@@ -81,11 +81,12 @@ def generate_launch_description():
         launch_arguments={
             'serial_port': '/dev/ttyUSB1',
             # 'serial_baudrate': '115200',
-            # 'frame_id': 'laser_frame'
+            'frame_id': 'laser_frame'
         }.items()
     )
     
     return LaunchDescription([
+        
         DeclareLaunchArgument(
             'camera_params_file',
             default_value='camera_calibration.yaml',
@@ -101,5 +102,6 @@ def generate_launch_description():
             default_value='camera',
             description='Nombre del topic para la imagen de la cámara'
         ),
+        rplidar_launch,
         OpaqueFunction(function=load_parameters)
     ])

@@ -176,8 +176,12 @@ class ControllerClass(Node):
 
     def timer_callback(self):
         """Callback periódico: lógica principal de control"""
+        
+        
         if not self.lidar_recieved:
+            self.get_logger().info('No recive lidar')
             return
+        
             
         goal_reached = False
         stopped = False
@@ -253,7 +257,7 @@ class ControllerClass(Node):
         if self.follow:
             # if np.abs(follow_angle) < self.turning_d:
                 # Avanzar si el ángulo es pequeño
-                self.robot_vel.linear.x =(obj_distance-self.stop_d)/(3*self.max_linear_speed)
+                self.robot_vel.linear.x =self.max_linear_speed*obj_distance
                 # self.robot_vel.angular.z = 0.0
             # else:
                 # Girar para alinearse
