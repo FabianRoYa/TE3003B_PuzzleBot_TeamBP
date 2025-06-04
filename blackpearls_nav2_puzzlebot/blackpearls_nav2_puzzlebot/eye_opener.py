@@ -25,7 +25,7 @@ class EyeOpener(Node):
         self.open_eye_pub = self.create_publisher(Image, self.camera_topic, 10)
 
         self.bridge = CvBridge()
-        self.eye = cv2.VideoCapture(self._gstreamer_pipeline(framerate=30), cv2.CAP_GSTREAMER)
+        self.eye = cv2.VideoCapture(self._gstreamer_pipeline(framerate=30,flip_method=3), cv2.CAP_GSTREAMER)
         
         self.get_logger().info(f'Opening camera on topic: {self.camera_topic} with resolution {self.image_width}x{self.image_height}')
         
