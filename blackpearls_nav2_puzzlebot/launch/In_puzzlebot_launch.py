@@ -4,6 +4,9 @@ from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch_ros.substitutions import FindPackageShare
 import yaml
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch_ros.substitutions import FindPackageShare
 
 def extract_camera_params(calib_data):
     """Extrae y reformatea los parámetros de calibración de la estructura YAML"""
@@ -66,15 +69,22 @@ def load_parameters(context, *args, **kwargs):
             name='camera_node',
             parameters=[camera_params],
             output='screen'
-        ),
-        Node(
-            package='rplidar_ros',
-            executable='rplidar_a1_launch',
-            output='screen',
         )
     ]
 
 def generate_launch_description():
+    
+    rplidar_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            [FindPackageShare('rplidar_ros'), 'launch', 'rplidar_a1_launch.py']
+        ),
+        launch_arguments={
+            'serial_port': '/dev/ttyUSB1',
+            # 'serial_baudrate': '115200',
+            # 'frame_id': 'laser_frame'
+        }.items()
+    )
+    
     return LaunchDescription([
         DeclareLaunchArgument(
             'camera_params_file',
