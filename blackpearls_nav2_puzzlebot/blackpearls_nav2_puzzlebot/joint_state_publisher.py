@@ -79,9 +79,8 @@ class JointStatePublisher(Node):
         self.wl = msg.data / self.wheel_radius
 
     def odom_callback(self, msg):
-        initial_pose = self.get_parameter('initial_pose').get_parameter_value().double_array_value
-        self.x = initial_pose[0] + msg.pose.pose.position.x
-        self.y = initial_pose[1] + msg.pose.pose.position.y
+        self.x =  msg.pose.pose.position.x
+        self.y =  msg.pose.pose.position.y
         self.q = msg.pose.pose.orientation
 
     def publish_static_transforms(self):
@@ -96,12 +95,12 @@ class JointStatePublisher(Node):
                 x=x, y=y, z=0.0,
                 roll=0.0, pitch=0.0, yaw=0.0
             ),
-            self.create_transform(
-                parent_frame=f'{self.namespace}/base_link',
-                child_frame=f'{self.namespace}/base_footprint',
-                x=0.0, y=0.0, z=self.base_height,
-                roll=0.0, pitch=0.0, yaw=0.0
-            )
+            # self.create_transform(
+            #     parent_frame=f'{self.namespace}/base_link',
+            #     child_frame=f'{self.namespace}/base_footprint',
+            #     x=0.0, y=0.0, z=self.base_height,
+            #     roll=0.0, pitch=0.0, yaw=0.0
+            # )
         ]
         self.tf_static_broadcaster.sendTransform(static_transforms)
 
@@ -131,7 +130,7 @@ class JointStatePublisher(Node):
         dynamic_transform = TransformStamped()
         dynamic_transform.header.stamp = self.get_clock().now().to_msg()
         dynamic_transform.header.frame_id = self.odomFrame
-        dynamic_transform.child_frame_id = f'{self.namespace}/base_link'
+        dynamic_transform.child_frame_id = f'{self.namespace}/base_footprint'
         
         dynamic_transform.transform.translation.x = self.x
         dynamic_transform.transform.translation.y = self.y
