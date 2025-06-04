@@ -13,6 +13,7 @@ class EyeOpener(Node):
         self.declare_parameter('camera_topic','camera')
         self.declare_parameter('image_width', 320)
         self.declare_parameter('image_height', 240)
+        
 
 
         # set parameters
@@ -24,7 +25,7 @@ class EyeOpener(Node):
         self.open_eye_pub = self.create_publisher(Image, self.camera_topic, 10)
 
         self.bridge = CvBridge()
-        self.eye = cv2.VideoCapture(self._gestreamer_pipeline(frame_rate=30, width=self.image_width, height=self.image_height), cv2.CAP_GSTREAMER)
+        self.eye = cv2.VideoCapture(self._gstreamer_pipeline(framerate=30), cv2.CAP_GSTREAMER)
         
         self.get_logger().info(f'Opening camera on topic: {self.camera_topic} with resolution {self.image_width}x{self.image_height}')
         
@@ -37,6 +38,12 @@ class EyeOpener(Node):
             self.open_eye_pub.publish(self.bridge.cv2_to_imgmsg(image_resize, 'bgr8'))
         else:
             self.get_logger().error('Failed to read from camera')
+            
+    def _gstreamer_pipeline(self, framerate: int = 30, flip_method: int = 0):
+        return (f'nvarguscamerasrc ! video/x-raw(memory:NVMM), width=1280, height=720, '
+                f'format=NV12, framerate={framerate}/1 ! nvvidconv flip-method={flip_method} ! '
+                f'video/x-raw, width=1280, height=720, format=BGRx ! '
+                f'videoconvert ! video/x-raw, format=BGR ! appsink')
 
 def main():
     rclpy.init()

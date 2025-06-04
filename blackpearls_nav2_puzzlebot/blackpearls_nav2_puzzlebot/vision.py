@@ -4,26 +4,34 @@ from geometry_msgs.msg import TransformStamped
 from tf2_ros import TransformBroadcaster
 from sensor_msgs.msg import Image
 from std_msgs.msg import String, Int32
-from cv_bridge import CvBridge
 import cv2
 from cv2 import aruco
 import numpy as np
 import transforms3d
+from cv_bridge import CvBridge
+
 
 
 class VisionClass(Node):
     def __init__(self):
         super().__init__('vision')
         timer_period = 0.1
+        
+        self.declare_parameter('camera_matrix',[0, 0, 0, 0, 0, 0, 0, 0, 0])
+        self.declare_parameter('distortion_coefficients', [0, 0, 0, 0, 0])
+        self.declare_parameter('marker_length', 0.14)
+        
         self.img = []
         self.image_received = False
-        self.cam_m = np.array([[256.35397772, 0, 160.40473426], [0, 257.6063827, 119.19494887], [0, 0, 1]], dtype = np.float32)
-        self.cam_d = np.array([[-1.56195788e-01, 8.46768719e-01, 5.77097679e-04, 4.96796474e-03, -1.27232494]], dtype = np.float32)
-        #self.T_b_c = np.array([[0, 0, 1, 0.1241], [-1, 0, 0, 0], [0, -1, 0, 0.117], [0, 0, 0, 1]])
-        self.markerLength = 0.14
-        dictionary = aruco.getPredefinedDictionary(aruco.DICT_4X4_50)
-        parameters = aruco.DetectorParameters()
-        self.detector = aruco.ArucoDetector(dictionary, parameters)
+        
+        self.cam_m = np.array(self.get_parameter('camera_matrix').get_parameter_value().double_array_value).reshape((3, 3))
+        self.cam_d = np.array(self.get_parameter('distortion_coefficients').get_parameter_value().double_array_value).reshape((5, 1))
+        self.markerLength = self.get_parameter('marker_length').get_parameter_value().double_value
+
+        # API LEGACY para OpenCV 4.2.0
+        self.dictionary = aruco.Dictionary_get(aruco.DICT_4X4_50)
+        self.parameters = aruco.DetectorParameters_create()
+        
         self.bridge = CvBridge()
         self.inf = String()
         self.id = Int32()
@@ -56,28 +64,47 @@ class VisionClass(Node):
         if self.image_received:
             img_mod = self.img.copy()
             gray = cv2.cvtColor(img_mod, cv2.COLOR_BGR2GRAY)
-            markerCorners, markerIds, _ = self.detector.detectMarkers(gray)
-            if len(markerCorners) > 0:
+            
+            # Detección de marcadores con API legacy
+            markerCorners, markerIds, _ = aruco.detectMarkers(
+                gray, 
+                self.dictionary,
+                parameters=self.parameters
+            )
+            
+            if markerIds is not None and len(markerIds) > 0:
+                # Estimación de pose para todos los marcadores
+                rvecs, tvecs, _ = aruco.estimatePoseSingleMarkers(
+                    markerCorners, 
+                    self.markerLength, 
+                    self.cam_m, 
+                    self.cam_d
+                )
+                
                 for i in range(len(markerIds)):
-                    rvec, tvec = aruco.estimatePoseSingleMarkers(markerCorners[i], self.markerLength, self.cam_m, self.cam_d)[:2]
-                    distance = np.linalg.norm(tvec[0][0])
+                    rvec = rvecs[i]
+                    tvec = tvecs[i]
+                    distance = np.linalg.norm(tvec)
                     corners = markerCorners[i].reshape((4, 2))
                     topLeft, _, bottomRight, _ = corners
                     cX = int((topLeft[0] + bottomRight[0]) /2.0)
                     cY = int((topLeft[1] + bottomRight[1]) /2.0)
+                    
+                    # Dibujar marcadores y ejes
                     aruco.drawDetectedMarkers(img_mod, markerCorners, markerIds) 
                     cv2.drawFrameAxes(img_mod, self.cam_m, self.cam_d, rvec, tvec, 0.1)
                     cv2.putText(img_mod, f"{distance:.2f} m", (cX, cY-15), cv2.FONT_HERSHEY_SIMPLEX, 0.4, (0, 255, 0), 2)
+                    
                     if float(distance) <= 1.5:
-                        rot, _ = cv2.Rodrigues(rvec[0][0])
+                        rot, _ = cv2.Rodrigues(rvec)
                         roll, pitch, yaw = self.rot2rpy(rot)
                         self.t.header.stamp = self.get_clock().now().to_msg()
                         self.t.header.frame_id = 'camera_link_optical'
                         self.t.child_frame_id = 'aruco'
                         q = transforms3d.euler.euler2quat(roll, pitch, yaw)
-                        self.t.transform.translation.x = tvec[0][0][0]
-                        self.t.transform.translation.y = tvec[0][0][1]
-                        self.t.transform.translation.z = tvec[0][0][2]
+                        self.t.transform.translation.x = tvec[0][0]
+                        self.t.transform.translation.y = tvec[0][1]
+                        self.t.transform.translation.z = tvec[0][2]
                         self.t.transform.rotation.x = q[1]
                         self.t.transform.rotation.y = q[2]
                         self.t.transform.rotation.z = q[3]
