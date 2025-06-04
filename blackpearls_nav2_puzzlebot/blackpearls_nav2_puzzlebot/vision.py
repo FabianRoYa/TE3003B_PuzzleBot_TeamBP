@@ -17,15 +17,23 @@ class VisionClass(Node):
         super().__init__('vision')
         timer_period = 0.1
         
-        self.declare_parameter('camera_matrix',[0, 0, 0, 0, 0, 0, 0, 0, 0])
-        self.declare_parameter('distortion_coefficients', [0, 0, 0, 0, 0])
+                # CAMBIO: Usar valores float en lugar de int
+        self.declare_parameter('camera_matrix', [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
+        self.declare_parameter('distortion_coefficients', [0.0, 0.0, 0.0, 0.0, 0.0])
         self.declare_parameter('marker_length', 0.14)
         
         self.img = []
         self.image_received = False
         
-        self.cam_m = np.array(self.get_parameter('camera_matrix').get_parameter_value().double_array_value).reshape((3, 3))
-        self.cam_d = np.array(self.get_parameter('distortion_coefficients').get_parameter_value().double_array_value).reshape((5, 1))
+        # CAMBIO: Usar double_array_value en lugar de double_array_value (ya es float)
+        self.cam_m = np.array(
+            self.get_parameter('camera_matrix').get_parameter_value().double_array_value
+        ).reshape((3, 3))
+        
+        self.cam_d = np.array(
+            self.get_parameter('distortion_coefficients').get_parameter_value().double_array_value
+        ).reshape((5, 1))
+        
         self.markerLength = self.get_parameter('marker_length').get_parameter_value().double_value
 
         # API LEGACY para OpenCV 4.2.0

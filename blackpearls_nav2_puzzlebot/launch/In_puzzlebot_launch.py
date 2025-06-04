@@ -13,14 +13,15 @@ def extract_camera_params(calib_data):
     if 'camera_matrix' in calib_data:
         cam_matrix = calib_data['camera_matrix']
         if 'data' in cam_matrix and len(cam_matrix['data']) == 9:
-            params['camera_matrix'] = cam_matrix['data']
+            # CAMBIO: Convertir explícitamente a float
+            params['camera_matrix'] = [float(x) for x in cam_matrix['data']]
     
     # Para coeficientes de distorsión
     if 'distortion_coefficients' in calib_data:
         dist_coeffs = calib_data['distortion_coefficients']
         if 'data' in dist_coeffs and len(dist_coeffs['data']) >= 5:
-            # Tomar solo los primeros 5 coeficientes
-            params['distortion_coefficients'] = dist_coeffs['data'][:5]
+            # CAMBIO: Convertir explícitamente a float y tomar solo 5
+            params['distortion_coefficients'] = [float(x) for x in dist_coeffs['data'][:5]]
     
     # Dimensiones de imagen
     params['image_width'] = calib_data.get('image_width', 320)
@@ -70,27 +71,20 @@ def load_parameters(context, *args, **kwargs):
 
 def generate_launch_description():
     return LaunchDescription([
-        # Argumento para especificar el archivo de parámetros
         DeclareLaunchArgument(
             'camera_params_file',
             default_value='camera_calibration.yaml',
             description='Nombre del archivo YAML con parámetros de cámara'
         ),
-        
-        # Parámetro para el tamaño del marcador ArUco
         DeclareLaunchArgument(
             'marker_length',
             default_value='0.14',
             description='Tamaño del marcador ArUco en metros'
         ),
-        
-        # Parámetro para el topic de la cámara
         DeclareLaunchArgument(
             'camera_topic',
             default_value='camera',
             description='Nombre del topic para la imagen de la cámara'
         ),
-        
-        # Función para cargar parámetros y crear nodos
         OpaqueFunction(function=load_parameters)
     ])
