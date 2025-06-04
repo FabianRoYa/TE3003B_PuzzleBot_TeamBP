@@ -29,7 +29,7 @@ class VisionClass(Node):
         self.id = Int32()
         self.t = TransformStamped()
         self.tf_br1 = TransformBroadcaster(self)
-        self.sub_image = self.create_subscription(Image, 'video_source/raw', self.camera_callback, 10)
+        self.sub_image = self.create_subscription(Image, 'camera', self.camera_callback, 10)
         self.pub_image1 = self.create_publisher(Image, 'image_process', 10)
         self.pub = self.create_publisher(String, 'inf', 10)
         self.pub_id = self.create_publisher(Int32, 'id', 10)
@@ -42,21 +42,19 @@ class VisionClass(Node):
         return roll, pitch, yaw
 
     def camera_callback(self, msg1):
-        # try:
+        try:
             self.img = self.bridge.imgmsg_to_cv2(msg1, 'bgr8')            
             self.image_received = True
             cv2.imshow('Camera Feed', self.img)
             cv2.waitKey(1)
-        # except Exception as e:
-        #     self.get_logger().error(f'Failed to get image: {e}')
-        #     self.image_received = False
+        except Exception as e:
+            self.get_logger().error(f'Failed to get image: {e}')
+            self.image_received = False
 
     def timer_callback(self):
         self.id.data = 0
-        self.get_logger().info('Timer callback triggered')
         if self.image_received:
             img_mod = self.img.copy()
-            self.get_logger().info('Image received')
             gray = cv2.cvtColor(img_mod, cv2.COLOR_BGR2GRAY)
             markerCorners, markerIds, _ = self.detector.detectMarkers(gray)
             if len(markerCorners) > 0:

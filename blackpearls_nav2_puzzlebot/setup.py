@@ -46,6 +46,7 @@ setup(
             'bug_algorithm = blackpearls_nav2_puzzlebot.bug_algorithm:main',
             'vision = blackpearls_nav2_puzzlebot.vision:main',
             'joint_state_publisher = blackpearls_nav2_puzzlebot.joint_state_publisher:main',
+            'eye_opener = blackpearls_nav2_puzzlebot.eye_opener:main',
         ],
     },
 )
