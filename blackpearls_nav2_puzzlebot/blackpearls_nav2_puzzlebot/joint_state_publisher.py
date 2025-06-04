@@ -31,7 +31,7 @@ class JointStatePublisher(Node):
         self.joint_pub = self.create_publisher(JointState, 'joint_states', 10)
         self.tf_static_broadcaster = StaticTransformBroadcaster(self)
         self.tf_broadcaster = TransformBroadcaster(self)
-        self.create_timer(0.002, self.timer_callback)
+        self.create_timer(0.05, self.timer_callback)
         self.publish_static_transforms()
         
         # Subscribers

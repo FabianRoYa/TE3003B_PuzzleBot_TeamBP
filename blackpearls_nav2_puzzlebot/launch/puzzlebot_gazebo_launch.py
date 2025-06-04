@@ -161,7 +161,7 @@ def generate_launch_description():
                 'Kp_angular': 0.5,  # Proportional gain for angular velocity
 
                 'max_linear_speed': 0.5,  # Maximum linear speed
-                'max_angular_speed': 0.3, # Maximum angular speed
+                'max_angular_speed': 0.5, # Maximum angular speed
                 
                 'follow_distance': 0.35,  # Distance to maintain from the goal
                 'stop_d': 0.25,  # Distance to stop before reaching the goal [The less that the lidar can handle is 0.15]
@@ -201,8 +201,8 @@ def generate_launch_description():
             output='screen',
             parameters=[{
                 # 'use_sim_time': False,
-                'initial_pose': [float(x), float(y), float(yaw)],
-                'odometry_frame': 'world',
+                'initial_pose': [0.0, 0.0, 0.0],
+                'odometry_frame': 'odom',
             }],
             # condition = IfCondition(PythonExpression(["'", use_sim_time, "' == 'False'"]))
         )
@@ -238,7 +238,7 @@ def generate_launch_description():
         static_tf3,
         
         
-        # rviz2_pub_node,
+        rviz2_pub_node,
         # gazebo_launch,
         *robot_launches,
     ])

@@ -9,7 +9,6 @@ import math
 import transforms3d
 from rclpy.duration import Duration
 from rclpy.qos import qos_profile_sensor_data
-from tf2_ros import LookupException, ConnectivityException, ExtrapolationException
 
 class localisation(Node):
     def __init__(self):
@@ -26,6 +25,8 @@ class localisation(Node):
         self.declare_parameter('world_frame', 'world')
         self.declare_parameter('marker_frame_prefix', 'aruco_')
 
+        # Un Snickers a quien pueda hacerlo parametros
+        # Tienen que estar en order de aparición.
         self.marker_positions = [
             [2.4, 2.5, 0.0],
             [2.7, 0.0, 0.0],
@@ -51,11 +52,16 @@ class localisation(Node):
         # Estado del robot [x, y, theta]
         self.x = np.array(initial_pose).reshape(3, 1)
         self.P = np.diag([0.01, 0.01, 0.01])  # Covarianza inicial
+        #self.P = np.diag([0.5, 0.5, 0.3])
+
+        # Matrices de ruido
         self.Q = np.diag([0.01, 0.01, 0.01])  # Ruido del proceso
-        self.R = np.array([[0.04, 0], [0, 0.01]])  # Ruido de medición
+        #self.R = np.diag([0.05, 0.05, 0.05])  # Ruido de medición
+        #self.Q = np.array([[0.5, 0.01, 0.01], [0.01, 0.5, 0.01], [0.01, 0.01, 0.2]])
+        self.R = np.array([[0.04, 0], [0, 0.01]])
         
         # Variables de control
-        self.id = -1  # Inicializado como -1 (ningún marcador visible)
+        self.id = 0
         self.wr = 0.0
         self.wl = 0.0
         self.last_time = self.get_clock().now().nanoseconds
@@ -108,7 +114,6 @@ class localisation(Node):
         
         # Paso 3: Publicar estado actualizado
         self.publish_odometry()
-        self.publish_wheels()
         
         self.last_time = current_time
 
@@ -134,32 +139,14 @@ class localisation(Node):
         self.inf.data = f"Predicción: x={self.x[0,0]:.2f}, y={self.x[1,0]:.2f}, θ={np.degrees(self.x[2,0]):.1f}°"
 
     def try_marker_correction(self):
-        # Solo intentar corrección si hay un marcador visible válido
-        if self.id > 0:
-            try:
-                # Construir nombre del frame del marcador
-                marker_frame = f"{self.marker_frame_prefix}{self.id}"
-                
-                # Intentar obtener la transformación con timeout
-                trans = self.tf_buffer.lookup_transform(
-                    self.camera_frame,
-                    marker_frame,
-                    rclpy.time.Time(),
-                    timeout=Duration(seconds=0.1)
-                )
-                
-                # Obtener posición conocida del marcador
-                marker_pose = self.marker_positions[self.id - 1]
+        try:
+            if self.id != -1:
+                trans = self.tf_buffer.lookup_transform(self.camera_frame, f'aruco_{self.id}', rclpy.time.Time())
+                marker_pose = self.marker_positions[self.id]
                 self.apply_marker_correction(trans, marker_pose)
-                
-                self.get_logger().info(f"Corrección aplicada con marcador {self.id}", throttle_duration_sec=1.0)
-                
-            except (LookupException, ConnectivityException, ExtrapolationException) as e:
-                self.get_logger().error(f"Error en transformación TF: {str(e)}", throttle_duration_sec=1.0)
-            except Exception as e:
-                self.get_logger().error(f"Error en corrección de marcador: {str(e)}", throttle_duration_sec=1.0)
-        else:
-            self.inf.data += " | Sin marcador visible"
+                self.get_logger().info(f'Corrección aplicada con marcador ID={self.id}')
+        except Exception as e:
+            pass
 
     def apply_marker_correction(self, transform, marker_pose):
         # Obtener transformación de cámara a marcador
@@ -210,6 +197,9 @@ class localisation(Node):
         self.x = self.x + K @ innovation
         self.P = (np.identity(3) - K @ G) @ self.P
         
+        self.get_logger().info(f'Corrección con marcador {self.id}: x={self.x[0,0]:.2f}, y={self.x[1,0]:.2f}, θ={np.degrees(self.x[2,0]):.1f}°')
+        
+        
         # Actualizar info de depuración
         self.inf.data += f" | Corrección: ID={self.id}, Innovación={innovation.flatten().round(3)}"
 
@@ -223,14 +213,14 @@ class localisation(Node):
         odom.pose.pose.position.x = self.x[0, 0]
         odom.pose.pose.position.y = self.x[1, 0]
         odom.pose.pose.position.z = 0.0
-        
+        self.get_logger().info(f'Posición: {odom.pose.pose.position.x:.2f}, {odom.pose.pose.position.y:.2f}')
         # Orientación
         q = transforms3d.euler.euler2quat(0, 0, self.x[2, 0])
         odom.pose.pose.orientation.x = q[1]
         odom.pose.pose.orientation.y = q[2]
         odom.pose.pose.orientation.z = q[3]
         odom.pose.pose.orientation.w = q[0]
-        
+        self.get_logger().info(f'Orientación: {odom.pose.pose.orientation.w:.2f}')
         # Covarianza
         odom.pose.covariance = [0.0] * 36
         odom.pose.covariance[0] = self.P[0, 0]  # xx
@@ -257,17 +247,10 @@ class localisation(Node):
         t.transform.rotation.z = q[3]
         t.transform.rotation.w = q[0]
         self.tf_broadcaster.sendTransform(t)
-
-        self.pub.publish(self.inf)
         
-    def publish_wheels(self):
-        wr_msg = Float32()
-        wr_msg.data = self.wr
-        self.wr_pub.publish(wr_msg)
-
-        wl_msg = Float32()
-        wl_msg.data = self.wl
-        self.wl_pub.publish(wl_msg)
+        self.wr_pub.publish(Float32(data=self.wr))
+        self.wl_pub.publish(Float32(data=self.wl))
+        self.pub.publish(self.inf)
 
 def main(args=None):
     rclpy.init(args=args)
@@ -281,4 +264,4 @@ def main(args=None):
         rclpy.shutdown()
 
 if __name__ == '__main__':
-    main()  
+    main()

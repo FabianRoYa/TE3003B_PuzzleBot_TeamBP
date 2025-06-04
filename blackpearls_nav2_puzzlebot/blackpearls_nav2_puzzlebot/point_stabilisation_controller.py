@@ -40,6 +40,7 @@ class ControllerClass(Node):
         self.declare_parameter('follow_distance', 0.8)
         self.declare_parameter('stop_d', 0.05)
         self.declare_parameter('turning_d_deg', 5.0)
+        self.declare_parameter('goal_tolerance_distance', 0.02)
 
         self.Kp_linear = self.get_parameter('Kp_linear').value
         self.Kp_angular = self.get_parameter('Kp_angular').value
@@ -48,7 +49,8 @@ class ControllerClass(Node):
         self.follow_distance = self.get_parameter('follow_distance').value
         self.stop_d = self.get_parameter('stop_d').value
         self.turning_d = np.deg2rad(self.get_parameter('turning_d_deg').value)
-        
+        self.goal_tolerance_distance = self.get_parameter('goal_tolerance_distance').value
+
         # Flags de estado
         self.follow = False
         self.lidar_recieved = False
@@ -251,7 +253,7 @@ class ControllerClass(Node):
         if self.follow:
             # if np.abs(follow_angle) < self.turning_d:
                 # Avanzar si el ángulo es pequeño
-                self.robot_vel.linear.x = self.max_linear_speed*obj_distance
+                self.robot_vel.linear.x =(obj_distance-self.stop_d)/(3*self.max_linear_speed)
                 # self.robot_vel.angular.z = 0.0
             # else:
                 # Girar para alinearse
@@ -261,7 +263,7 @@ class ControllerClass(Node):
         
         # Comportamiento normal (navegación al objetivo)
         else:
-            if error_distance < self.stop_d:
+            if error_distance < self.goal_tolerance_distance:
                 # Detenerse al llegar al objetivo
                 self.robot_vel.linear.x = 0.0
                 self.robot_vel.angular.z = 0.0
@@ -279,11 +281,11 @@ class ControllerClass(Node):
                 self.robot_vel.linear.x = 0.0
                 self.robot_vel.angular.z = max(min(angular_speed, self.max_angular_speed), -self.max_angular_speed)
 
-        # Detención de emergencia por obstáculo cercano
-        if obj_distance < self.stop_d:
-            stopped = True
-            self.robot_vel.linear.x = 0.0
-            self.robot_vel.angular.z = 0.0
+        # # Detención de emergencia por obstáculo cercano
+        # if obj_distance < self.stop_d:
+        #     stopped = True
+        #     self.robot_vel.linear.x = 0.0
+        #     self.robot_vel.angular.z = 0.0
 
         # Publicar comando de velocidad
         self.pub_v.publish(self.robot_vel)
