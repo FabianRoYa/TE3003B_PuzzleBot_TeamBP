@@ -238,7 +238,7 @@ def generate_launch_description():
         static_tf3,
         
         
-        rviz2_pub_node,
+        # rviz2_pub_node,
         # gazebo_launch,
         *robot_launches,
     ])
