@@ -144,7 +144,7 @@ class localisation(Node):
         self.inf.data = "x: " + str(np.round(self.x, 2))
 
     def try_marker_correction(self):
-        if self.id != 0:
+        if self.id != -1:
             trans = self.tf_buffer.lookup_transform(self.camera_frame, 'aruco', rclpy.time.Time())
             marker_pose = self.marker_positions[self.id - 1]
             self.apply_marker_correction(trans, marker_pose)

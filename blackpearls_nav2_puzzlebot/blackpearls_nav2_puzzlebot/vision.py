@@ -61,8 +61,7 @@ class VisionClass(Node):
         try:
             self.img = self.bridge.imgmsg_to_cv2(msg1, 'bgr8')            
             self.image_received = True
-            cv2.imshow('Camera Feed', self.img)
-            cv2.waitKey(1)
+            
         except Exception as e:
             self.get_logger().error(f'Failed to get image: {e}')
             self.image_received = False
@@ -119,8 +118,8 @@ class VisionClass(Node):
                         self.t.transform.rotation.w = q[0]
                         self.id.data = int(markerIds[i][0])
                         if markerIds[i][0] > 5:
-                            self.id.data = 0
-                        self.tf_br1.sendTransform(self.t)
+                            self.id.data = -1
+                            self.tf_br1.sendTransform(self.t)
             self.pub_image1.publish(self.bridge.cv2_to_imgmsg(img_mod, 'bgr8'))
         self.pub_id.publish(self.id)
 
