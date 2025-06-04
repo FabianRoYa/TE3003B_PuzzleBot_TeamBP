@@ -27,6 +27,7 @@ class localisation(Node):
 
         # Un Snickers a quien pueda hacerlo parametros
         # Tienen que estar en order de aparición.
+        # Maybe I change this later
         self.marker_positions = [
             [2.4, 2.5, 0.0],
             [2.7, 0.0, 0.0],
