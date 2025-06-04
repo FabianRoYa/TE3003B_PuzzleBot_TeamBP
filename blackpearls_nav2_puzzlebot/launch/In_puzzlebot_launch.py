@@ -5,6 +5,7 @@ from launch.actions import DeclareLaunchArgument, OpaqueFunction
 from launch_ros.substitutions import FindPackageShare
 import yaml
 
+# hay que empatar con el YAML de parámetros
 def load_parameters(context, *args, **kwargs):
     # Obtener la ruta del archivo YAML de parámetros
     params_file = PathJoinSubstitution([
