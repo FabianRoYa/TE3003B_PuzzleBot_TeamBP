@@ -66,6 +66,11 @@ def load_parameters(context, *args, **kwargs):
             name='camera_node',
             parameters=[camera_params],
             output='screen'
+        ),
+        Node(
+            package='rplidar_ros',
+            executable='rplidar_a1_launch',
+            output='screen',
         )
     ]
 
