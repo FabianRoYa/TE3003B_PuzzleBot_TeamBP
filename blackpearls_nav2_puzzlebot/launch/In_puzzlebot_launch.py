@@ -31,7 +31,7 @@ def extract_camera_params(calib_data):
 def load_parameters(context, *args, **kwargs):
     # Obtener la ruta del archivo YAML de parámetros
     params_file = PathJoinSubstitution([
-        FindPackageShare('puzzlebot_ros'),
+        FindPackageShare('blackpearls_nav2_puzzlebot'),
         'config',
         LaunchConfiguration('camera_params_file').perform(context)
     ]).perform(context)
@@ -53,14 +53,14 @@ def load_parameters(context, *args, **kwargs):
     
     return [
         Node(
-            package='puzzlebot_ros',
+            package='blackpearls_nav2_puzzlebot',
             executable='vision',
             name='vision_node',
             parameters=[vision_params],
             output='screen'
         ),
         Node(
-            package='puzzlebot_ros',
+            package='blackpearls_nav2_puzzlebot',
             executable='eye_opener',
             name='camera_node',
             parameters=[camera_params],
