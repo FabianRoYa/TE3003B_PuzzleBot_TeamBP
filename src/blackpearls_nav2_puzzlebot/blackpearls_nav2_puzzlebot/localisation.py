@@ -29,12 +29,12 @@ class localisation(Node):
         # Tienen que estar en order de aparición.
         # Maybe I change this later
         self.marker_positions = [
-            [2.4, 2.5, 0.0],
-            [2.7, 0.0, 0.0],
-            [1.8, 1.8, 0.0],
+            [2.4, 2.5, 3.1416],
+            [2.7, 0.0, 1.5708],
+            [1.8, 1.8, -1.5708],
             [0.0, 1.5, 0.0],
-            [0.5, 0.0, 0.0],
-            [0.3, 3.0, 0.0],
+            [0.5, 0.0, 1.5708],
+            [0.3, 3.0, -1.5708],
         ]
 
         # Obtener parámetros
