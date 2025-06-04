@@ -74,12 +74,40 @@ def load_parameters(context, *args, **kwargs):
 
 def generate_launch_description():
     
+    # -----------------------------------------------------------------------------
+    #                          DECLARE LAUNCH ARGUMENTS
+    # -----------------------------------------------------------------------------
+    
+    goal_x_arg = DeclareLaunchArgument(
+        'goal_x',
+        default_value='0.3',
+        description='X coordinate of the goal position'
+    )
+    goal_y_arg = DeclareLaunchArgument(
+        'goal_y',
+        default_value='0.6',
+        description='Y coordinate of the goal position'
+    )
+    mode_arg = DeclareLaunchArgument(
+        'mode',
+        default_value='bug0',
+        description='Navigation mode: bug0 or bug2'
+    )
+    
+    goal_x = LaunchConfiguration('goal_x')
+    goal_y = LaunchConfiguration('goal_y')
+    mode = LaunchConfiguration('mode')
+    
+    
+    
     rplidar_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            [FindPackageShare('rplidar_ros'), '/launch', '/rplidar_a1_launch.py']
+            [FindPackageShare('rplidar_ros'), 
+             '/launch',
+             '/rplidar_a1_launch.py']
         ),
         launch_arguments={
-            'serial_port': '/dev/ttyUSB1',
+            'serial_port': '/dev/ttyUSB0',
             # 'serial_baudrate': '115200',
             'frame_id': 'laser_frame'
         }.items()

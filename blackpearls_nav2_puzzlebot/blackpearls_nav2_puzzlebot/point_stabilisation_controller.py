@@ -40,7 +40,6 @@ class ControllerClass(Node):
         self.declare_parameter('follow_distance', 0.8)
         self.declare_parameter('stop_d', 0.05)
         self.declare_parameter('turning_d_deg', 5.0)
-        self.declare_parameter('goal_tolerance_distance', 0.02)
 
         self.Kp_linear = self.get_parameter('Kp_linear').value
         self.Kp_angular = self.get_parameter('Kp_angular').value
@@ -49,8 +48,7 @@ class ControllerClass(Node):
         self.follow_distance = self.get_parameter('follow_distance').value
         self.stop_d = self.get_parameter('stop_d').value
         self.turning_d = np.deg2rad(self.get_parameter('turning_d_deg').value)
-        self.goal_tolerance_distance = self.get_parameter('goal_tolerance_distance').value
-
+        
         # Flags de estado
         self.follow = False
         self.lidar_recieved = False
@@ -176,12 +174,8 @@ class ControllerClass(Node):
 
     def timer_callback(self):
         """Callback periódico: lógica principal de control"""
-        
-        
         if not self.lidar_recieved:
-            self.get_logger().info('No recive lidar')
             return
-        
             
         goal_reached = False
         stopped = False
@@ -257,17 +251,17 @@ class ControllerClass(Node):
         if self.follow:
             # if np.abs(follow_angle) < self.turning_d:
                 # Avanzar si el ángulo es pequeño
-                self.robot_vel.linear.x =self.max_linear_speed*obj_distance
+                self.robot_vel.linear.x =(obj_distance-self.stop_d)/(3*self.max_linear_speed)
                 # self.robot_vel.angular.z = 0.0
             # else:
                 # Girar para alinearse
-                angular_speed = self.Kp_angular * follow_angle
+                angular_speed = self.Kp_angular * -follow_angle
                 # self.robot_vel.linear.x = 0.0
-                self.robot_vel.angular.z = max(min(angular_speed, self.max_angular_speed), -self.max_angular_speed)
+                self.robot_vel.angular.z =  max(min(angular_speed, self.max_angular_speed), -self.max_angular_speed)
         
         # Comportamiento normal (navegación al objetivo)
         else:
-            if error_distance < self.goal_tolerance_distance:
+            if error_distance < self.stop_d:
                 # Detenerse al llegar al objetivo
                 self.robot_vel.linear.x = 0.0
                 self.robot_vel.angular.z = 0.0
@@ -278,7 +272,7 @@ class ControllerClass(Node):
                 linear_speed = self.Kp_linear * error_distance
                 angular_speed = self.Kp_angular * error_angle
                 self.robot_vel.linear.x = max(min(linear_speed, self.max_linear_speed), -self.max_linear_speed)
-                self.robot_vel.angular.z = max(min(angular_speed, self.max_angular_speed), -self.max_angular_speed)
+                self.robot_vel.angular.z = - max(min(angular_speed, self.max_angular_speed), -self.max_angular_speed)
             else:
                 # Girar en el lugar para alinearse con el objetivo
                 angular_speed = self.Kp_angular * error_angle
