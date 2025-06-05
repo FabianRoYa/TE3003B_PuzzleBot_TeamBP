@@ -58,7 +58,7 @@ def generate_launch_description():
         {
             'name': '',
             'type': 'puzzlebot_jetson_lidar_ed',
-            'x': 2.5, 'y': 2.5, 'yaw': 0.0,
+            'x': 2.6, 'y': 0.3, 'yaw': 0.0,
             'lidar_frame': 'laser_frame',
             'camera_frame': 'camera_link_optical',
             'tof_frame': 'tof_link'
@@ -161,10 +161,10 @@ def generate_launch_description():
                 'Kp_angular': 0.15, # Proportional gain for angular velocity
                 
                 'max_linear_speed': 0.5,  # Maximum linear speed
-                'max_angular_speed': 0.5, # Maximum angular speed
+                'max_angular_speed': 0.3, # Maximum angular speed
                 
                 'follow_distance': 0.8,  # Distance to maintain from the goal
-                'stop_d': 0.3,  # Distance to stop before reaching the goal [The less that the lidar can handle is 0.15]
+                'stop_d': 0.4,  # Distance to stop before reaching the goal [The less that the lidar can handle is 0.15]
                 'goal_tolerance_distance': 0.05,  # Tolerance distance to consider goal reached
                 'turning_d_deg': 5.0  # Turning distance in degrees
             }]
